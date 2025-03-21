@@ -11,11 +11,11 @@ export default function EventCard({ event }: EventCardProps) {
   // Nếu là sự kiện của người dùng (họ tổ chức)
   if (event.isUserEvent) {
     return (
-      <div className="bg-[#16182b] rounded-xl overflow-hidden">
-        <div className="flex">
-          <div className="p-6 flex-1">
+      <div className="bg-[#1c1e20] rounded-xl overflow-hidden border border-white/10 hover:border-white/50 transition-all duration-200">
+        <div className="flex items-center">
+          <div className="p-2 flex-1">
             <div className="text-lg font-medium mb-1">{event.time}</div>
-            <h3 className="text-xl font-bold mb-4">{event.title}</h3>
+            <h3 className="text-xl font-bold mb-2">{event.title}</h3>
 
             <div className="space-y-2">
               {event.location ? (
@@ -40,8 +40,8 @@ export default function EventCard({ event }: EventCardProps) {
               </div>
             </div>
 
-            <div className="mt-6 flex items-center">
-              <button className="px-4 py-2 rounded-md bg-[#1a1c2a] text-sm hover:bg-white/5 transition-colors flex items-center">
+            <div className="mt-3 flex items-center">
+              <button className="px-2 py-2 rounded-md bg-[#252729] text-sm hover:bg-white hover:text-black transition-colors flex items-center">
                 <span>Quản lý sự kiện</span>
                 <ArrowRight className="w-4 h-4 ml-2" />
               </button>
@@ -79,7 +79,7 @@ export default function EventCard({ event }: EventCardProps) {
             <div className="w-32 h-32 relative rounded-lg overflow-hidden bg-yellow-400">
               {event.image ? (
                 <div className="absolute inset-0 flex items-center justify-center text-black font-bold text-xs text-center p-1">
-                  YOU'RE ON THE GUEST-LIST*
+                  YOU ARE ON THE GUEST-LIST*
                 </div>
               ) : null}
             </div>
@@ -91,16 +91,16 @@ export default function EventCard({ event }: EventCardProps) {
 
   // Nếu là sự kiện người dùng tham gia
   return (
-    <div className="bg-[#16182b] rounded-xl overflow-hidden">
-      <div className="flex">
-        <div className="p-6 flex-1">
+    <div className="bg-[#1c1e20] rounded-xl overflow-hidden border border-white/10 hover:border-white/50 transition-all duration-200">
+      <div className="flex items-center">
+        <div className="p-3 flex-1">
           <div className="text-lg font-medium mb-1">
             {event.time}
             {event.endTime && ` - ${event.endTime}`}
           </div>
-          <h3 className="text-xl font-bold mb-4">{event.title}</h3>
+          <h3 className="text-xl font-bold mb-2">{event.title}</h3>
 
-          <div className="space-y-2 mb-4">
+          <div className="space-y-2 mb-2">
             {event.organizer && (
               <div className="flex items-center text-gray-400">
                 <Star className="w-4 h-4 mr-2 text-yellow-400" />
@@ -114,9 +114,9 @@ export default function EventCard({ event }: EventCardProps) {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 mb-4">
+          <div className="flex items-center gap-2 mb-0">
             <button
-              className={`px-4 py-2 rounded-md text-sm transition-colors flex items-center ${
+              className={`px-2 py-1 rounded-md text-sm transition-colors flex items-center ${
                 event.isParticipating
                   ? "bg-green-600 hover:bg-green-700 text-white"
                   : "bg-[#1a1c2a] hover:bg-white/5 text-white"
