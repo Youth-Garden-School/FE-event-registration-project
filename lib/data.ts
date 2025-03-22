@@ -1,4 +1,4 @@
-import type { Event } from "./types"
+import type { Event } from "./types";
 
 export const events: Event[] = [
   {
@@ -11,15 +11,15 @@ export const events: Event[] = [
     dayLabel: "Thứ Sáu",
     location: "Hội trường Thành ủy",
     organizer: "Bởi VBI Academy & GFI - Golden Financial Innovation",
-    image: "/placeholder.svg?height=200&width=200&text=Web3",
+    image: "/images/events/web3-ideathon.jpg",
     participants: [
-      { id: "1", name: "Nguyễn Văn A", avatar: "/placeholder.svg?height=40&width=40&text=A" },
-      { id: "2", name: "Trần Thị B", avatar: "/placeholder.svg?height=40&width=40&text=B" },
-      { id: "3", name: "Lê Văn C", avatar: "/placeholder.svg?height=40&width=40&text=C" },
-      { id: "4", name: "Phạm Thị D" },
-      { id: "5", name: "Hoàng Văn E" },
-      { id: "6", name: "Ngô Thị F" },
-      { id: "7", name: "Ngô Thị L" },
+      { id: "1", name: "Nguyễn Văn A", avatar: "/images/avatars/user1.jpg" },
+      { id: "2", name: "Trần Thị B", avatar: "/images/avatars/user2.jpg" },
+      { id: "3", name: "Lê Văn C", avatar: "/images/avatars/user3.jpg" },
+      { id: "4", name: "Phạm Thị D", avatar: "/images/avatars/user4.jpg" },
+      { id: "5", name: "Hoàng Văn E", avatar: "/images/avatars/user5.jpg" },
+      { id: "6", name: "Ngô Thị F", avatar: "/images/avatars/user6.jpg" },
+      { id: "7", name: "Ngô Thị L", avatar: "/images/avatars/user7.jpg" },
       // ... thêm 87 người nữa
     ],
     isParticipating: true,
@@ -27,24 +27,17 @@ export const events: Event[] = [
   },
   {
     id: "2",
-    title: "bac",
+    title: "Blockchain Workshop",
     time: "15:30",
     date: "2024-03-29",
     dateLabel: "29 thg 3",
     dayLabel: "Thứ Bảy",
     location: "643 Đ. Phạm Văn Đồng",
-    image: "/placeholder.svg?height=200&width=200&text=GUEST",
+    image: "/images/events/blockchain-workshop.jpg",
     participants: [
-      { id: "1", name: "Nguyễn Văn A", avatar: "/placeholder.svg?height=40&width=40&text=A" },
-      { id: "2", name: "Trần Thị B", avatar: "/placeholder.svg?height=40&width=40&text=B" },
-      { id: "3", name: "Trần Thị B", avatar: "/placeholder.svg?height=40&width=40&text=B" },
-      { id: "4", name: "Trần Thị B", avatar: "/placeholder.svg?height=40&width=40&text=B" },
-      { id: "5", name: "Trần Thị B", avatar: "/placeholder.svg?height=40&width=40&text=B" },
-      { id: "6", name: "Trần Thị B", avatar: "/placeholder.svg?height=40&width=40&text=B" },
-      { id: "7", name: "Trần Thị B", avatar: "/placeholder.svg?height=40&width=40&text=B" },
-      { id: "8", name: "Trần Thị B", avatar: "/placeholder.svg?height=40&width=40&text=B" },
-      { id: "9", name: "Trần Thị B", avatar: "/placeholder.svg?height=40&width=40&text=B" },
-      
+      { id: "1", name: "Nguyễn Văn A", avatar: "/images/avatars/user8.jpg" },
+      { id: "2", name: "Trần Thị B", avatar: "/images/avatars/user9.jpg" },
+      { id: "3", name: "Lê Văn C", avatar: "/images/avatars/user10.jpg" },
     ],
     isUserEvent: true,
     isParticipating: false,
@@ -87,13 +80,28 @@ export const events: Event[] = [
     location: "643 Đ. Phạm Văn Đồng",
     image: "/placeholder.svg?height=200&width=200&text=GUEST",
     participants: [
-      { id: "1", name: "Nguyễn Văn A", avatar: "/placeholder.svg?height=40&width=40&text=A" },
-      { id: "2", name: "Trần Thị B", avatar: "/placeholder.svg?height=40&width=40&text=B" },
-      { id: "3", name: "Trần Thị B", avatar: "/placeholder.svg?height=40&width=40&text=B" },
-      { id: "4", name: "Trần Thị B", avatar: "/placeholder.svg?height=40&width=40&text=B" },
+      {
+        id: "1",
+        name: "Nguyễn Văn A",
+        avatar: "/placeholder.svg?height=40&width=40&text=A",
+      },
+      {
+        id: "2",
+        name: "Trần Thị B",
+        avatar: "/placeholder.svg?height=40&width=40&text=B",
+      },
+      {
+        id: "3",
+        name: "Trần Thị B",
+        avatar: "/placeholder.svg?height=40&width=40&text=B",
+      },
+      {
+        id: "4",
+        name: "Trần Thị B",
+        avatar: "/placeholder.svg?height=40&width=40&text=B",
+      },
     ],
     isUserEvent: true,
     isParticipating: false,
   },
-]
-
+];
