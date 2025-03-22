@@ -26,7 +26,7 @@ export default function MainPage() {
             Tạo trang sự kiện, mời bạn bè và bán vé. Tổ chức một sự kiện đáng
             nhớ hôm nay.
           </p>
-          <Button className="bg-black text-white px-6 py-3 hover:bg-gray-700 cursor-pointer">
+          <Button className="bg-foreground text-white px-6 py-3 hover:bg-gray-700 cursor-pointer">
             Tạo sự kiện đầu tiên của bạn
           </Button>
         </div>
