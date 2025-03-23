@@ -25,7 +25,7 @@ export default function EventList({ events }: EventListProps) {
   );
 
   return (
-    <div className="space-y-0">
+    <div className="space-y-0 pb-8">
       {/* Lặp qua từng ngày và hiển thị các sự kiện / Iterate through each date and display events */}
       {Object.entries(eventsByDate).map(([date, dateEvents], index, array) => (
         <div key={date} className="relative">
@@ -40,8 +40,10 @@ export default function EventList({ events }: EventListProps) {
           >
             {/* Cột bên trái: Ngày và thứ / Left column: Date and day */}
             <div className="pt-6">
-              <div className="font-medium">{dateEvents[0].dateLabel}</div>
-              <div className="font-medium text-gray-400">
+              <div className="font-medium text-gray-900 dark:text-white">
+                {dateEvents[0].dateLabel}
+              </div>
+              <div className="font-medium text-gray-500 dark:text-gray-400">
                 {dateEvents[0].dayLabel}
               </div>
             </div>
@@ -61,7 +63,8 @@ export default function EventList({ events }: EventListProps) {
                   absolute
                   border-l-2
                   border-dashed
-                  border-white/30
+                  border-gray-200
+                  dark:border-white/30
                   left-1/2
                   transform
                   -translate-x-1/2
@@ -76,7 +79,8 @@ export default function EventList({ events }: EventListProps) {
                 w-2
                 h-2
                 rounded-full
-                bg-white
+                bg-gray-900
+                dark:bg-white
                 mt-7
                 relative
                 z-10
