@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Star } from "lucide-react";
+import { ThemeToggle } from "../theme-toggle";
 
 export default function Header() {
   const [currentTime, setCurrentTime] = useState("");
@@ -11,9 +12,8 @@ export default function Header() {
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
-      // Adjust for GMT+7
-      const gmt7Offset = 7 * 60; // 7 hours in minutes
-      const localOffset = now.getTimezoneOffset(); // Local timezone offset in minutes
+      const gmt7Offset = 7 * 60;
+      const localOffset = now.getTimezoneOffset();
       const gmt7Time = new Date(
         now.getTime() + (gmt7Offset + localOffset) * 60 * 1000,
       );
@@ -23,35 +23,42 @@ export default function Header() {
       setCurrentTime(`${hours}:${minutes} GMT+7`);
     };
 
-    updateTime(); // Initial update
-    const interval = setInterval(updateTime, 1000); // Update every second
+    updateTime();
+    const interval = setInterval(updateTime, 1000);
 
-    return () => clearInterval(interval); // Cleanup on unmount
+    return () => clearInterval(interval);
   }, []);
 
   return (
-    <header className="w-full py-4 px-6">
-      <div className="container mx-auto flex items-center justify-between">
+    <header className="w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-colors duration-300">
+      <div className="container mx-auto flex h-14 items-center justify-between px-4">
         {/* Left Section: Star Icon */}
         <div className="flex items-center">
-          <Link href="/" className="text-gray-600 text-sm  hover:text-black">
-            <Star className="w-5 h-5 text-gray-500 cursor-pointer" />
+          <Link
+            href="/"
+            className="flex items-center gap-2 text-foreground transition-colors hover:text-foreground/80"
+          >
+            <Star className="h-5 w-5" />
+            <span className="font-semibold">Regista</span>
           </Link>
         </div>
 
         {/* Right Section: Time, Explore Link, and Sign In Button */}
         <div className="flex items-center gap-4">
-          <span className="text-gray-600 text-sm">{currentTime}</span>
+          <span className="text-sm text-muted-foreground transition-colors">
+            {currentTime}
+          </span>
           <Link
             href="/explore"
-            className="text-gray-600 text-sm  hover:text-black"
+            className="text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
             Khám phá
           </Link>
+          <ThemeToggle />
           <Button
-            className="hover:bg-black hover:text-white text-center items-center"
             variant="outline"
             size="sm"
+            className="transition-colors"
             asChild
           >
             <Link href="/Login">Đăng nhập</Link>
