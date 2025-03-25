@@ -54,7 +54,7 @@ export default function Header() {
             size="sm"
             asChild
           >
-            <Link href="/Login">Đăng nhập</Link>
+            <Link href="/login">Đăng nhập</Link>
           </Button>
         </div>
       </div>

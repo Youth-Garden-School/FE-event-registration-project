@@ -11,9 +11,8 @@ const loginSchema = z.object({
   email: z.string().email("Vui lòng nhập email hợp lệ"),
 });
 
-type LoginFormData = z.infer<typeof loginSchema>;
-
-export default function Login() {
+export default function LoginPage() {
+  // ✅ Đổi tên thành LoginPage
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
 
