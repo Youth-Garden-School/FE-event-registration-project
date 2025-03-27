@@ -1,27 +1,28 @@
 // Import các thư viện và components cần thiết / Import necessary libraries and components
-import type { Event } from "@/lib/types";
+import type { EventWithUI } from "@/style/events-stype";
 import EventCard from "./event-card";
 
 // Định nghĩa interface cho props của component
 // Define interface for component props
 interface EventListProps {
-  events: Event[]; // Mảng các sự kiện / Array of events
+  events: EventWithUI[]; // Mảng các sự kiện / Array of events
+  onEventClick?: (eventId: string) => void; // Callback khi click vào sự kiện / Callback when clicking an event
 }
 
 // Component chính hiển thị danh sách sự kiện theo ngày
 // Main component displaying events list grouped by date
-export default function EventList({ events }: EventListProps) {
+export default function EventList({ events, onEventClick }: EventListProps) {
   // Nhóm các sự kiện theo ngày / Group events by date
   const eventsByDate = events.reduce(
     (acc, event) => {
-      const date = event.date;
+      const date = event.dateLabel;
       if (!acc[date]) {
         acc[date] = [];
       }
       acc[date].push(event);
       return acc;
     },
-    {} as Record<string, Event[]>,
+    {} as Record<string, EventWithUI[]>,
   );
 
   return (
@@ -31,13 +32,7 @@ export default function EventList({ events }: EventListProps) {
         <div key={date} className="relative">
           {/* Grid layout với 3 cột: ngày, timeline, và sự kiện */}
           {/* Grid layout with 3 columns: date, timeline, and events */}
-          <div
-            className={`
-            grid
-            grid-cols-[120px_60px_1fr]
-            gap-0
-          `}
-          >
+          <div className="grid grid-cols-[120px_60px_1fr] gap-0">
             {/* Cột bên trái: Ngày và thứ / Left column: Date and day */}
             <div className="pt-6">
               <div className="font-medium text-gray-900 dark:text-white">
@@ -50,13 +45,7 @@ export default function EventList({ events }: EventListProps) {
 
             {/* Cột giữa: Timeline với chấm tròn và đường kẻ dọc */}
             {/* Middle column: Timeline with dot and vertical line */}
-            <div
-              className={`
-              relative
-              flex
-              justify-center
-            `}
-            >
+            <div className="relative flex justify-center">
               {/* Đường kẻ dọc / Vertical line */}
               <div
                 className={`
@@ -74,29 +63,17 @@ export default function EventList({ events }: EventListProps) {
               ></div>
 
               {/* Chấm tròn / Timeline dot */}
-              <div
-                className={`
-                w-2
-                h-2
-                rounded-full
-                bg-gray-900
-                dark:bg-white
-                mt-7
-                relative
-                z-10
-              `}
-              ></div>
+              <div className="w-2 h-2 rounded-full bg-gray-900 dark:bg-white mt-7 relative z-10"></div>
             </div>
 
             {/* Cột bên phải: Các thẻ sự kiện / Right column: Event cards */}
-            <div
-              className={`
-              space-y-6
-              py-6
-            `}
-            >
+            <div className="space-y-6 py-6">
               {dateEvents.map((event) => (
-                <EventCard key={event.id} event={event} />
+                <EventCard
+                  key={event.id}
+                  event={event}
+                  onClick={() => onEventClick?.(event.id)}
+                />
               ))}
             </div>
           </div>
