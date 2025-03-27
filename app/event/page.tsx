@@ -1,4 +1,4 @@
-import EventTabs from "@/components/common/event-tabs";
+import EventTabs from "@/components/common/event/event-tabs";
 
 export default function Home() {
   return (

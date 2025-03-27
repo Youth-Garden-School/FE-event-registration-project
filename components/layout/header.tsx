@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Star } from "lucide-react";
-import { ThemeToggle } from "../theme-toggle";
 
 export default function Header() {
   const [currentTime, setCurrentTime] = useState("");
@@ -54,7 +53,6 @@ export default function Header() {
           >
             Khám phá
           </Link>
-          <ThemeToggle />
           <Button
             variant="outline"
             size="sm"

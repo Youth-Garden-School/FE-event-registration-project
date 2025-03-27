@@ -2,10 +2,15 @@
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import EventList from "./event-list";
-import { upcomingEvents, pastEvents } from "@/lib/data";
+import { upcomingEvents, pastEvents } from "@/lib/events-data";
 import NoEventsComponent from "./no-event";
 
 export default function EventTabs() {
+  const handleEventClick = (eventId: string) => {
+    console.log("Clicked event:", eventId);
+    // Xử lý khi click vào sự kiện / Handle event click
+  };
+
   return (
     <Tabs defaultValue="upcoming" className="w-full">
       <div className="flex justify-between items-center mb-6">
@@ -32,7 +37,10 @@ export default function EventTabs() {
       <div className="relative">
         <TabsContent value="upcoming" className="mt-0">
           {upcomingEvents.length > 0 ? (
-            <EventList events={upcomingEvents} />
+            <EventList
+              events={upcomingEvents}
+              onEventClick={handleEventClick}
+            />
           ) : (
             <NoEventsComponent
               message="Không có sự kiện sắp tới"
@@ -43,7 +51,7 @@ export default function EventTabs() {
 
         <TabsContent value="past" className="mt-0">
           {pastEvents.length > 0 ? (
-            <EventList events={pastEvents} />
+            <EventList events={pastEvents} onEventClick={handleEventClick} />
           ) : (
             <NoEventsComponent
               message="Không có sự kiện trước đây"
