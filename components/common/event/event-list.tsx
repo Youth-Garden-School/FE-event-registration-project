@@ -35,10 +35,10 @@ export default function EventList({ events, onEventClick }: EventListProps) {
           <div className="grid grid-cols-[120px_60px_1fr] gap-0">
             {/* Cột bên trái: Ngày và thứ / Left column: Date and day */}
             <div className="pt-6">
-              <div className="font-medium text-gray-900 dark:text-white">
+              <div className="font-medium text-gray-900">
                 {dateEvents[0].dateLabel}
               </div>
-              <div className="font-medium text-gray-500 dark:text-gray-400">
+              <div className="font-medium text-gray-500">
                 {dateEvents[0].dayLabel}
               </div>
             </div>
@@ -53,7 +53,6 @@ export default function EventList({ events, onEventClick }: EventListProps) {
                   border-l-2
                   border-dashed
                   border-gray-200
-                  dark:border-white/30
                   left-1/2
                   transform
                   -translate-x-1/2
@@ -63,7 +62,7 @@ export default function EventList({ events, onEventClick }: EventListProps) {
               ></div>
 
               {/* Chấm tròn / Timeline dot */}
-              <div className="w-2 h-2 rounded-full bg-gray-900 dark:bg-white mt-7 relative z-10"></div>
+              <div className="w-2 h-2 rounded-full bg-gray-900 mt-7 relative z-10"></div>
             </div>
 
             {/* Cột bên phải: Các thẻ sự kiện / Right column: Event cards */}
