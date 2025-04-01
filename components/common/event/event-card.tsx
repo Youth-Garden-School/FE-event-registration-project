@@ -21,14 +21,14 @@ export default function EventCard({ event, onClick }: EventCardProps) {
 
   return (
     <div
-      className="rounded-xl overflow-hidden border transition-all duration-300 cursor-pointer bg-white dark:bg-[#16182b] border-gray-200 dark:border-[#ffffff29] hover:border-gray-400 dark:hover:border-white"
+      className="rounded-xl overflow-hidden border transition-all duration-300 cursor-pointer bg-white  border-gray-200  hover:border-gray-400 "
       onClick={onClick}
     >
       <div className="flex">
         {/* Phần nội dung bên trái / Left content section */}
         <div className="p-6 flex-1">
           {/* Hiển thị thời gian và tiêu đề / Display time and title */}
-          <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 text-lg font-medium mb-1">
+          <div className="flex items-center gap-2 text-gray-600  text-lg font-medium mb-1">
             <Calendar className="w-4 h-4" />
             <span className="whitespace-nowrap">
               {event.displayTime || formatTime(new Date(event.startTime))}
@@ -36,22 +36,20 @@ export default function EventCard({ event, onClick }: EventCardProps) {
           </div>
 
           <div className="flex items-center gap-2 mb-2">
-            <h3 className="text-gray-900 dark:text-white text-xl font-bold">
-              {event.title}
-            </h3>
+            <h3 className="text-gray-900  text-xl font-bold">{event.title}</h3>
           </div>
 
           {/* Thông tin địa điểm và người tham dự / Location and attendee info */}
           <div className="space-y-2">
             {event.location && (
-              <div className="flex items-center text-gray-500 dark:text-gray-400">
+              <div className="flex items-center text-gray-500 ">
                 <MapPin className="w-4 h-4 mr-2" />
                 <span className="text-sm">{event.location}</span>
               </div>
             )}
 
             {/* Hiển thị số người tham dự / Display attendee count */}
-            <div className="flex items-center text-gray-500 dark:text-gray-400">
+            <div className="flex items-center text-gray-500 ">
               <Users className="w-4 h-4 mr-2" />
               <span className="text-sm">
                 {attendees.length > 0
@@ -65,14 +63,14 @@ export default function EventCard({ event, onClick }: EventCardProps) {
           <div className="mt-3 flex items-center gap-4">
             <div className="flex items-center gap-2">
               {event.isUserEvent ? (
-                <button className="px-4 py-2 rounded-md bg-gray-50 hover:bg-gray-100 dark:bg-gray-900 dark:hover:bg-gray-800 text-gray-900 dark:text-white text-sm transition-colors flex items-center">
+                <button className="px-4 py-2 rounded-md bg-gray-50 hover:bg-gray-100 text-gray-900  text-sm transition-colors flex items-center">
                   <span>Quản lý sự kiện</span>
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </button>
               ) : (
                 <Badge
                   variant="secondary"
-                  className="bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200"
+                  className="bg-gray-100 text-gray-800 "
                 >
                   {event.requiresApproval ? "Chờ duyệt" : "Đã đăng ký"}
                 </Badge>
@@ -94,7 +92,7 @@ export default function EventCard({ event, onClick }: EventCardProps) {
                       ))}
                   </AvatarGroup>
                   {attendees.length > 3 && (
-                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                    <span className="text-sm text-gray-500 ">
                       +{attendees.length - 3}
                     </span>
                   )}
