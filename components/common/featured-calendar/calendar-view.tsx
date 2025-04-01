@@ -8,7 +8,11 @@ import { events, highlightedDays } from "@/lib/events-calendar-data";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 
-export default function CalendarView() {
+interface CalendarViewProps {
+  onDateSelect?: (date: Date) => void;
+}
+
+export default function CalendarView({ onDateSelect }: CalendarViewProps) {
   const [selectedDate, setSelectedDate] = React.useState<Date>(new Date());
 
   // Filter events for the selected date
@@ -19,6 +23,14 @@ export default function CalendarView() {
       event.date.getFullYear() === selectedDate.getFullYear(),
   );
 
+  const handleDateChange = (date: Date) => {
+    setSelectedDate(date);
+    // Gọi callback để thông báo cho component cha về ngày đã chọn
+    if (onDateSelect) {
+      onDateSelect(date);
+    }
+  };
+
   return (
     <Card className="border rounded-lg overflow-hidden">
       <CardHeader className="p-4 pb-2 border-b">
@@ -27,7 +39,7 @@ export default function CalendarView() {
       <CardContent className="p-4">
         <CustomCalendar
           selectedDate={selectedDate}
-          onDateChange={setSelectedDate}
+          onDateChange={handleDateChange}
           highlightedDays={highlightedDays}
         />
 
