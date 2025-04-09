@@ -211,8 +211,8 @@ export const events = [
     type: "in-person",
     location: "Sports Center",
     city: "Hồ Chí Minh",
-    image: "/images/badminton-event.png",
-    posterImage: "/images/badminton-event.png",
+    image: "/images/events/badminton-event.jpg",
+    posterImage: "/images/events/badminton-event.jpg",
     attendees: 64,
     description:
       "Join us for an exciting day of badminton! Whether you're a seasoned player or a beginner, come and enjoy friendly matches and meet fellow badminton enthusiasts.",
@@ -228,19 +228,19 @@ export const events = [
         id: "sports-community",
         name: "Sports Community",
         role: "Organizer",
-        avatar: "/placeholder.svg?height=50&width=50",
+        avatar: "/images/events/badminton-event.jpg",
       },
     ],
     attendeesList: [
       {
         initial: "A",
         name: "Alice Smith",
-        avatar: "/placeholder.svg?height=40&width=40",
+        avatar: "/images/events/badminton-event.jpg",
       },
       {
         initial: "B",
         name: "Bob Johnson",
-        avatar: "/placeholder.svg?height=40&width=40",
+        avatar: "/images/events/badminton-event.jpg",
       },
       {
         initial: "C",

@@ -2,6 +2,7 @@ import { format, isToday, isTomorrow, isSameDay } from "date-fns";
 import { vi } from "date-fns/locale";
 import EventCard from "@/components/common/featured-calendar/event-card";
 import { events } from "@/lib/events-calendar-data";
+import NoEventsComponent from "./no-event";
 
 interface EventListProps {
   categoryFilter?: string;
@@ -108,9 +109,7 @@ export function EventList({
         ))
       ) : (
         <div className="text-center py-8 text-gray-500">
-          {selectedDate
-            ? `Không có sự kiện nào vào ngày ${format(selectedDate, "d MMMM", { locale: vi })}`
-            : "Không tìm thấy sự kiện nào"}
+          <NoEventsComponent />
         </div>
       )}
     </div>
