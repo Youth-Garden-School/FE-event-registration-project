@@ -40,7 +40,7 @@ export const events: EventWithUI[] = [
     location: "Hội trường Thành ủy, 272 Võ Thị Sáu, Quận 3, TP.HCM",
     isOnline: false,
     calendarId: "cal_1",
-    coverImage: "/images/events/ideathon-summer.jpg",
+    coverImage: "/images/events/event.jpg",
     requiresApproval: false,
     dateLabel: "28 Th6",
     dayLabel: "Thứ Sáu",
