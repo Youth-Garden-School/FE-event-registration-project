@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 
 export default function MainPage() {
   return (
-    <div className="max-w-[100dvw] overflow-hidden bg-foreground">
+    <div className="w-full overflow-hidden bg-foreground">
       <div className="min-h-[80vh] flex items-center relative gap-4 p-4 pt-12 justify-center">
         {/* Left Section: Text and Button */}
         <div className="shrink mt-[-2rem] w-[440px] h-[440px]">

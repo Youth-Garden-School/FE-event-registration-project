@@ -33,7 +33,7 @@ export default function RootLayout({
       >
         <div className="grid grid-rows-[auto_1fr_auto] min-h-screen">
           <Header />
-          <main className="w-full max-w-[1050px] mx-auto px-4">{children}</main>
+          <main className="w-full mx-auto px-4">{children}</main>
           <Footer />
         </div>
         <Toaster />
