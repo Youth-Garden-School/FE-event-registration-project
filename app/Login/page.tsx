@@ -79,7 +79,7 @@ export default function LoginPage() {
         localStorage.setItem("ACCESS_TOKEN", accessToken);
         console.log("Đăng nhập thành công, ACCESS_TOKEN:", accessToken);
         // Redirect and reload homepage
-        window.location.assign("/");
+        window.location.assign("/event");
       } else {
         setError("Không nhận được accessToken từ server");
       }
@@ -98,7 +98,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen">
+    <div className="flex justify-center items-center h-screen bg-accent-foreground">
       <Card className="w-[400px] shadow-lg">
         <CardHeader>
           <CardTitle className="text-xl font-bold">
