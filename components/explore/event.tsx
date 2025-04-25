@@ -2,6 +2,7 @@ import React from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { z } from "zod";
+import Link from "next/link";
 
 // Schema validation với Zod
 const eventSchema = z.object({
@@ -85,7 +86,7 @@ const EventList: React.FC = () => {
           </div>
           <div className="mt-6 relative">
             <Button className="w-[115px] absolute left-[580px] cursor-pointer hover:bg-gray-300 hover:text-bl">
-              Xem tất cả →
+              <Link href="/">Xem tất cả →</Link>
             </Button>
           </div>
         </div>
