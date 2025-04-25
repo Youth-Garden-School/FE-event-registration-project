@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation"; // Import usePathname
-import { Bell, Calendar, Search, Star } from "lucide-react";
+import { Bell, Calendar, Settings, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
@@ -129,7 +129,7 @@ export default function Header() {
                   size="icon"
                   className="text-gray-500 cursor-pointer hover:text-black"
                 >
-                  <Search className="h-5 w-5" />
+                  <Settings className="h-5 w-5" />
                 </Button>
                 <Button
                   variant="ghost"
@@ -140,7 +140,11 @@ export default function Header() {
                 </Button>
                 <Avatar className="h-8 w-8">
                   <AvatarImage src="/placeholder.svg" alt="User" />
-                  <AvatarFallback>U</AvatarFallback>
+                  <AvatarFallback>
+                    <Link href="/user" className="cursor-pointer">
+                      U
+                    </Link>
+                  </AvatarFallback>
                 </Avatar>
                 <Button
                   variant="outline"
