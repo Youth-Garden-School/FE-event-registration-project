@@ -106,7 +106,7 @@ export default function EventCard({ event, onClick }: EventCardProps) {
         <div className="p-4">
           <div className="w-32 h-32 relative rounded-lg overflow-hidden">
             <Image
-              src={event.coverImage || "/placeholder.svg"}
+              src={event.coverImage || "/public/calendar/unnamed.png"}
               alt={event.title}
               fill
               className="object-cover"

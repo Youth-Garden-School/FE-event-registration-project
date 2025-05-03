@@ -25,7 +25,7 @@ export default function LoginPage() {
 
   // Base URL from Postman collection
   const PROD_URL =
-    "https://be-event-registration-project-production.up.railway.app/api";
+    "https://be-event-registration-project-jpv3.onrender.com/api";
 
   // Handle email submission
   const handleEmailSubmit = async (e: React.FormEvent) => {

@@ -1,65 +1,69 @@
 "use client";
-
+import { useState, useEffect } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import EventList from "./event-list";
-import { upcomingEvents, pastEvents } from "@/lib/events-data";
 import NoEventsComponent from "./no-event";
+import { getUpcomingEvents, getPastEvents } from "@/lib/api";
+import type { EventWithUI } from "@/style/events-stype";
 
 export default function EventTabs() {
-  const handleEventClick = (eventId: string) => {
-    console.log("Clicked event:", eventId);
-    // Xử lý khi click vào sự kiện / Handle event click
+  const [upcomingEvents, setUpcomingEvents] = useState<EventWithUI[]>([]);
+  const [pastEvents, setPastEvents] = useState<EventWithUI[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setLoading(true);
+    Promise.all([getUpcomingEvents(), getPastEvents()])
+      .then(([up, past]) => {
+        setUpcomingEvents(up);
+        setPastEvents(past);
+      })
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleEventClick = (id: string) => {
+    console.log("Event clicked:", id);
   };
 
-  return (
-    <Tabs defaultValue="upcoming" className="w-full">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-gray-900 text-[32px] font-semibold leading-[38.4px]">
-          Sự kiện
-        </h1>
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div className="text-red-500">Error: {error}</div>;
 
-        <TabsList className="bg-gray-100 rounded-[8px] text-gray-900 leading-[24px] p-[2px]">
-          <TabsTrigger
-            value="upcoming"
-            className="flex items-center justify-center border-[0.8px] border-solid border-[#0000] text-gray-900 text-[14px] font-medium leading-[21px] p-[5px_8px] text-center data-[state=active]:bg-white data-[state=active]:rounded-md"
-          >
-            Sắp tới
-          </TabsTrigger>
-          <TabsTrigger
-            value="past"
-            className="flex items-center justify-center border-[0.8px] border-solid border-[#0000] text-gray-900 text-[14px] font-medium leading-[21px] p-[5px_8px] text-center data-[state=active]:bg-white data-[state=active]:rounded-md"
-          >
-            Đã qua
-          </TabsTrigger>
+  return (
+    // BỌC TOÀN BỘ TRONG <Tabs>
+    <Tabs defaultValue="upcoming" className="space-y-6">
+      {/* Header + Triggers */}
+      <div className="flex justify-between items-center">
+        <h1 className="text-gray-900 text-[32px] font-semibold">Sự kiện</h1>
+        <TabsList className="bg-gray-100 rounded-[8px] p-[2px]">
+          <TabsTrigger value="upcoming">Sắp tới</TabsTrigger>
+          <TabsTrigger value="past">Đã qua</TabsTrigger>
         </TabsList>
       </div>
 
-      <div className="relative">
-        <TabsContent value="upcoming" className="mt-0">
-          {upcomingEvents.length > 0 ? (
-            <EventList
-              events={upcomingEvents}
-              onEventClick={handleEventClick}
-            />
-          ) : (
-            <NoEventsComponent
-              message="Không có sự kiện sắp tới"
-              subMessage="Bạn chưa tổ chức hoặc tham gia sự kiện nào sắp tới."
-            />
-          )}
-        </TabsContent>
+      {/* Nội dung các tab */}
+      <TabsContent value="upcoming">
+        {upcomingEvents.length > 0 ? (
+          <EventList events={upcomingEvents} onEventClick={handleEventClick} />
+        ) : (
+          <NoEventsComponent
+            message="Không có sự kiện sắp tới"
+            subMessage="Bạn chưa tổ chức hoặc tham gia sự kiện nào sắp tới."
+          />
+        )}
+      </TabsContent>
 
-        <TabsContent value="past" className="mt-0">
-          {pastEvents.length > 0 ? (
-            <EventList events={pastEvents} onEventClick={handleEventClick} />
-          ) : (
-            <NoEventsComponent
-              message="Không có sự kiện trước đây"
-              subMessage="Bạn chưa tổ chức hoặc tham gia sự kiện nào."
-            />
-          )}
-        </TabsContent>
-      </div>
+      <TabsContent value="past">
+        {pastEvents.length > 0 ? (
+          <EventList events={pastEvents} onEventClick={handleEventClick} />
+        ) : (
+          <NoEventsComponent
+            message="Không có sự kiện trước đây"
+            subMessage="Bạn chưa tổ chức hoặc tham gia sự kiện nào."
+          />
+        )}
+      </TabsContent>
     </Tabs>
   );
 }
