@@ -1,20 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import axios from "axios";
-
-// Define schemas for validation using Zod
-const loginSchema = z.object({
-  email: z.string().email("Vui lòng nhập email hợp lệ"),
-});
-
-const otpSchema = z.object({
-  otp: z.string().min(6, "OTP phải có ít nhất 6 ký tự"),
-});
+import { apiClient, API_BASE_URL } from "@/components/common/apiClient";
+import { loginSchema, otpSchema } from "./LoginSchema";
+import { toast } from "react-toastify";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -22,10 +14,6 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [isOtpStep, setIsOtpStep] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
-  // Base URL from Postman collection
-  const PROD_URL =
-    "https://be-event-registration-project-production.up.railway.app/api";
 
   // Handle email submission
   const handleEmailSubmit = async (e: React.FormEvent) => {
@@ -37,16 +25,19 @@ export default function LoginPage() {
     const result = loginSchema.safeParse({ email });
     if (!result.success) {
       setError(result.error.errors[0].message);
+      toast.error(result.error.errors[0].message);
       setIsLoading(false);
       return;
     }
 
     try {
-      // Call API to send OTP
-      await axios.post(`${PROD_URL}/auths/login/email`, { email });
+      await apiClient.post(`${API_BASE_URL}/auths/login/email`, { email });
       setIsOtpStep(true);
+      toast.success("OTP đã được gửi đến email của bạn!");
     } catch (err: any) {
-      setError(err.response?.data?.message || "Đã xảy ra lỗi khi gửi OTP");
+      const message = err.message || "Đã xảy ra lỗi khi gửi OTP";
+      setError(message);
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }
@@ -58,33 +49,39 @@ export default function LoginPage() {
     setError(null);
     setIsLoading(true);
 
-    //Validate OTP
+    // Validate OTP
     const result = otpSchema.safeParse({ otp });
     if (!result.success) {
       setError(result.error.errors[0].message);
+      toast.error(result.error.errors[0].message);
       setIsLoading(false);
       return;
     }
 
     try {
-      // Call API to verify OTP
-      const response = await axios.post(`${PROD_URL}/auths/login/verify`, {
-        email,
-        otp,
-      });
+      const response = await apiClient.post(
+        `${API_BASE_URL}/auths/login/verify`,
+        {
+          email,
+          otp,
+        },
+      );
 
-      const accessToken = response.data?.result?.accessToken;
+      const accessToken = response.result?.accessToken;
       if (accessToken) {
-        // Store accessToken
-        localStorage.setItem("ACCESS_TOKEN", accessToken);
-        console.log("Đăng nhập thành công, ACCESS_TOKEN:", accessToken);
-        // Redirect and reload homepage
+        localStorage.setItem("access_token", accessToken);
+        localStorage.setItem("refresh_token", response.result.refreshToken);
+        localStorage.setItem("user_id", response.result.user.id);
+        toast.success("Đăng nhập thành công!");
         window.location.assign("/event");
       } else {
         setError("Không nhận được accessToken từ server");
+        toast.error("Không nhận được accessToken từ server");
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || "OTP không hợp lệ");
+      const message = err.message || "OTP không hợp lệ";
+      setError(message);
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }
@@ -153,27 +150,23 @@ export default function LoginPage() {
                 />
                 {error && <p className="text-red-500 text-sm">{error}</p>}
               </div>
-              <div className="flex">
-                <div className="">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full cursor-pointer"
-                    onClick={handleBack}
-                    disabled={isLoading}
-                  >
-                    Quay lại
-                  </Button>
-                </div>
-                <div className="absolute right-[580px]">
-                  <Button
-                    type="submit"
-                    className="w-full bg-black text-white cursor-pointer"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? "Đang xác minh..." : "Xác minh OTP"}
-                  </Button>
-                </div>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-1/2 cursor-pointer"
+                  onClick={handleBack}
+                  disabled={isLoading}
+                >
+                  Quay lại
+                </Button>
+                <Button
+                  type="submit"
+                  className="w-1/2 bg-black text-white cursor-pointer"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Đang xác minh..." : "Xác minh OTP"}
+                </Button>
               </div>
             </form>
           )}
@@ -182,10 +175,14 @@ export default function LoginPage() {
               <Button
                 variant="outline"
                 className="w-full flex items-center gap-2 cursor-pointer hover:bg-gray-600 hover:text-white"
-                onClick={() => console.log("Sign in with Google")}
+                onClick={() => console.log("TODO: Implement Google Sign-In")}
                 disabled={isLoading}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 488 512"
+                  className="w-5 h-5"
+                >
                   <path d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z" />
                 </svg>
                 Đăng nhập với Google

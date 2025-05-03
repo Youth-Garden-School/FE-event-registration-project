@@ -24,6 +24,15 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
       setIsMounted(true);
     }, []);
 
+    const sanitizeFileName = (name: string) => {
+      return name
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\s+/g, "_")
+        .replace(/[^a-zA-Z0-9._-]/g, "")
+        .toLowerCase();
+    };
+
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const selectedFile = e.target.files?.[0];
       if (!selectedFile) {
@@ -55,7 +64,8 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
       setError(null);
 
       try {
-        const fileName = `images/${Date.now()}_${file.name}`;
+        const sanitizedName = sanitizeFileName(file.name);
+        const fileName = `${Date.now()}_${sanitizedName}`;
 
         const { data, error: uploadError } = await supabase.storage
           .from("images")
@@ -83,13 +93,12 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
       } catch (err: any) {
         console.error("Supabase Storage Error:", err);
         setError(`Upload thất bại: ${err.message || "Unknown error"}`);
-        throw err; // Ném lỗi lên để parent xử lý
+        throw err;
       } finally {
         setIsUploading(false);
       }
     };
 
-    // Expose hàm upload cho parent qua ref
     useImperativeHandle(ref, () => ({
       upload: handleUpload,
     }));

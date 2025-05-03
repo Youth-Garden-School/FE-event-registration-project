@@ -6,6 +6,7 @@ export const formSchema = z.object({
   endDate: z.date(),
   location: z.string().optional(),
   description: z.string().optional(),
+  category: z.string().optional(),
   requireApproval: z.boolean().default(false),
   capacity: z.string().default("Không giới hạn"),
 });
