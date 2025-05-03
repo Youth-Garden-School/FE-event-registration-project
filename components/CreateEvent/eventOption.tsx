@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, Ticket, User, Users } from "lucide-react";
+import { Link, User, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FormField, FormItem, FormControl } from "@/components/ui/form";
 import { Switch } from "@/components/ui/switch";
@@ -23,7 +23,7 @@ export default function EventOptions({ form }) {
     <div className="space-y-4">
       <h3 className="font-medium">Tùy chọn sự kiện</h3>
 
-      {/* Tickets */}
+      {/* Tickets
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Ticket className="h-5 w-5 text-muted-foreground" />
@@ -35,7 +35,7 @@ export default function EventOptions({ form }) {
             <Link className="h-4 w-4" />
           </Button>
         </div>
-      </div>
+      </div> */}
 
       {/* Approval */}
       <div className="flex items-center justify-between">
