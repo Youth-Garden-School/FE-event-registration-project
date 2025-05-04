@@ -200,9 +200,9 @@ export function EventModal({ isOpen, onClose, event }: EventModalProps) {
                   <div className="rounded-xl overflow-hidden">
                     <Image
                       src={
+                        event.coverImage ||
                         event.posterImage ||
-                        event.image ||
-                        "/placeholder.svg?height=400&width=400"
+                        "/placeholder.svg"
                       }
                       alt={event.title}
                       width={400}

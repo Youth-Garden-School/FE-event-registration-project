@@ -6,6 +6,8 @@ module.exports = {
       "example.com",
       "images.lumacdn.com",
       "slnuqxxrujjguzqowslh.supabase.co", // ✅ Required for Supabase images
+      "cdn11.dienmaycholon.vn",
+      // thêm host khác nếu có
     ],
   },
 };
