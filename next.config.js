@@ -4,6 +4,7 @@ module.exports = {
     domains: [
       "be-event-registration-project-jpv3.onrender.com",
       "example.com",
+      "cdn11.dienmaycholon.vn",
       // thêm host khác nếu có
     ],
   },
