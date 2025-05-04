@@ -5,31 +5,22 @@ import { Card } from "@/components/ui/card";
 import Image from "next/image";
 import Link from "next/link";
 
-// Sample calendar data
-const calendars = [
-  {
-    id: "airstreet",
-    title: "Air Street events",
-    description:
-      "AI events around the world organized by Air Street Capital and Nathan Benaich.",
-    image: "https://ext.same-assets.com/2185237885/316268860.jpeg",
-  },
-  {
-    id: "latentspace",
-    title: "Latent.Space (Paper Club, AI in Action, Meetups & Confs)",
-    description:
-      "Latent.Space events. youtu.be/@LatentSpaceTV. PLEASE CLICK THE RSS LOGO ABOVE CALENDAR ON THE RIGHT TO ADD TO YOUR CAL.",
-    image: "https://ext.same-assets.com/2185237885/953380270.jpeg",
-  },
-  {
-    id: "genai-collective",
-    title: "The GenAI Collective",
-    description:
-      "The US's largest AI community: 25,000+ founders, researchers, operators, & investors with a shared curiosity for AI.",
-    image: "https://ext.same-assets.com/2185237885/3105287308.jpeg",
-  },
-];
+interface Calendar {
+  id: number;
+  name: string;
+  description?: string;
+  image?: string;
+  followStatus: string; // "Theo dõi" or "Đã theo dõi"
+  location?: string;
+}
 
+const data = await apiRequest<Calendar[]>("get", "/calendars");
+const calendars = data.map((item : Calendar) => ({
+            id: item.id,
+            title: item.name,
+            description: item.description || "No description available uf hweiu f",
+            image: item.image || "/images/events/vcs-mixer.jpg",
+}))
 export default function PopularCalendars() {
   return (
     <section className="w-full py-12 px-4 md:px-6 bg-background">
