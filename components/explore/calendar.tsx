@@ -172,7 +172,7 @@ const CalendarList = () => {
   if (loading) return <div>Đang tải...</div>;
 
   return (
-    <section className="w-full py-6 bg-gray-100">
+    <section className="w-full py-6 ">
       <div className="container mx-auto px-6">
         <h2 className="text-xl font-bold text-gray-900 mb-4">Lịch nổi bật</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">

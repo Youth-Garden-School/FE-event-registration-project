@@ -3,10 +3,11 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, Calendar, Settings, Star } from "lucide-react";
+import { Bell, Calendar, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 interface NavItemProps {
   href: string;
@@ -87,7 +88,14 @@ export default function Header() {
               isAuthenticated ? "text-black" : "text-white",
             )}
           >
-            <Star className="h-5 w-5" />
+            <Image
+              src="/images/logo.svg"
+              alt="Logo"
+              width={50}
+              height={50}
+              className="rounded-md"
+            />
+
             <span className="font-semibold">Regista</span>
           </Link>
         </div>
@@ -148,7 +156,7 @@ export default function Header() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="text-sm text-black hover:bg-gray-100"
+                  className="text-sm text-black hover:bg-gray-100 cursor-pointer"
                   onClick={handleLogout}
                 >
                   Đăng xuất
