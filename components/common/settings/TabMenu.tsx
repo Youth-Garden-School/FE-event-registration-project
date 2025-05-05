@@ -1,5 +1,7 @@
-// components/common/settings/TabMenu.tsx
+"use client";
+
 import React from "react";
+import { useRouter, usePathname } from "next/navigation";
 
 export interface TabMenuProps {
   title: React.ReactNode;
@@ -14,22 +16,43 @@ export function TabMenu({
   defaultTab,
   customTitleClass = "",
 }: TabMenuProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const getCurrentTab = () => {
+    const matchedTab = tabs.find((tab) => pathname.endsWith(tab.id));
+    return matchedTab?.id || defaultTab;
+  };
+
+  const currentTab = getCurrentTab();
+
+  const handleTabClick = (tabId: string) => {
+    if (tabId !== currentTab) {
+      router.push(`/settings/${tabId}`);
+    }
+  };
+
   return (
     <div className="tab-menu w-full">
       {/* Tiêu đề có thể thay đổi class */}
-      <h2 className={`font-bold text-xl ${customTitleClass}`}>{title}</h2>
+      <h2
+        className={`font-bold text-xl text-black dark:text-white ${customTitleClass}`}
+      >
+        {title}
+      </h2>
 
       {/* Các tab */}
-      <div className="flex space-x-4 mt-4">
+      <div className="flex space-x-4 mt-4 border-b border-gray-200 dark:border-gray-700">
         {tabs.map((tab) => (
           <button
             key={tab.id}
-            className={`py-1 px-3 text-md font-medium transition-all duration-200 ${
-              tab.id === defaultTab
-                ? "text-black border-b-2 border-black" // Tab đang chọn có màu đen và thêm border dưới
-                : "text-gray-600 hover:text-black" // Tab chưa chọn có màu xám và đổi màu khi hover
-            }`}
-            onClick={() => console.log(`Tab clicked: ${tab.id}`)} // Có thể thêm chức năng khi click tab
+            onClick={() => handleTabClick(tab.id)}
+            className={`py-1 px-3 text-md font-medium transition-all duration-200
+              ${
+                tab.id === currentTab
+                  ? "text-black dark:text-white border-b-2 border-black dark:border-white"
+                  : "text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white"
+              }`}
           >
             {tab.label}
           </button>
