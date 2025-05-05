@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import FollowedCalendars from "@/components/common/FollowedCalendars";
 import CardSlider from "@/components/common/cardslider";
 import { Button } from "@/components/ui/button";
+import MyCalendarList from "@/components/common/MyCalendarList";
 
 const Calendars = () => {
   const router = useRouter();
@@ -60,17 +61,8 @@ const Calendars = () => {
       {/* Nhóm "Lịch của tôi" */}
       <div className="w-full max-w-2xl">
         <h1 className="text-xl font-bold mb-2">Lịch của tôi</h1>
-        <div className="bg-white shadow-md rounded-lg p-4 flex flex-col items-start max-w-xs">
-          <img
-            src="/calendar/calendar-xmark-regular.svg"
-            alt="Lịch của tôi"
-            className="w-16 h-16 mb-4"
-          />
-          <h2 className="text-lg font-semibold">Không có lịch</h2>
-          <p className="text-gray-500">
-            Bạn không phải là quản trị viên của bất kỳ lịch nào.
-          </p>
-        </div>
+        <MyCalendarList/>
+        
       </div>
       {/* Nhóm lịch đã theo dõi */}
 
