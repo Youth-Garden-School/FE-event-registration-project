@@ -15,6 +15,11 @@ export default function LoginPage() {
   const [isOtpStep, setIsOtpStep] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Base URL from Postman collection
+  const PROD_URL =
+    "https://be-event-registration-project-jpv3.onrender.com/api";
+  // Nhánh Đức
+
   // Handle email submission
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

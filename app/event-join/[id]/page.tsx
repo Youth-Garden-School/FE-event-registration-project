@@ -1,77 +1,99 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { useParams } from "next/navigation";
-import { events } from "@/lib/events-calendar-data";
-import { EventLeftColumn } from "@/components/common/featured-calendar/event/event-left-column";
-import { EventHeader } from "@/components/common/featured-calendar/event/event-header";
-import { EventRegistration } from "@/components/common/featured-calendar/event/event-registration";
-import { EventInformation } from "@/components/common/featured-calendar/event/event-information";
-import { EventLocation } from "@/components/common/featured-calendar/event/event-location";
 
-export default function EventPage() {
-  const params = useParams();
-  const eventId = params.id as string;
-  const [isRegistered, setIsRegistered] = useState(false);
+import {
+  getEventById,
+  getMyRegistration,
+  registerEvent,
+  cancelRegistration,
+  EventDetail,
+  Registration,
+} from "@/lib/api-events";
 
-  // Check if event exists
-  const eventExists = events.some((e) => e.id.toString() === eventId);
+export default function EventJoinPage() {
+  const { id: eventId } = useParams() as { id: string };
+  const router = useRouter();
 
-  if (!eventExists) {
+  const [event, setEvent] = useState<EventDetail | null>(null);
+  const [registration, setRegistration] = useState<Registration | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch dữ liệu khi component mount
+  useEffect(() => {
+    setLoading(true);
+    Promise.all([getEventById(eventId), getMyRegistration(eventId)])
+      .then(([evt, reg]) => {
+        setEvent(evt);
+        setRegistration(reg);
+      })
+      .catch(() => setError("Không tải được dữ liệu sự kiện."))
+      .finally(() => setLoading(false));
+  }, [eventId]);
+
+  // Handlers
+  const handleRegister = async () => {
+    if (!event) return;
+    try {
+      const reg = await registerEvent(event.id);
+      setRegistration(reg);
+    } catch {
+      alert("Đăng ký thất bại, thử lại sau.");
+    }
+  };
+
+  const handleCancel = async () => {
+    if (!registration) return;
+    try {
+      await cancelRegistration(registration.id);
+      setRegistration(null);
+    } catch {
+      alert("Hủy đăng ký thất bại, thử lại sau.");
+    }
+  };
+
+  // UI
+  if (loading) return <div>Đang tải dữ liệu…</div>;
+  if (error || !event) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center">
-        <h1 className="text-2xl font-bold mb-4">Không tìm thấy sự kiện</h1>
-        <Link href="/" className="text-blue-500 hover:underline">
-          Quay lại trang chủ
-        </Link>
+      <div>
+        <h1>{error || "Không tìm thấy sự kiện."}</h1>
+        <Link href="/">Quay về trang chủ</Link>
       </div>
     );
   }
 
-  const handleRegister = () => {
-    setIsRegistered(true);
-  };
-
-  const handleRegistrationChange = (registered: boolean) => {
-    setIsRegistered(registered);
-  };
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Main content */}
-      <main className="max-w-6xl mx-auto py-8 px-4">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-          {/* Left column - Event banner and organizers */}
-          <div className="md:col-span-5 lg:col-span-4">
-            <EventLeftColumn eventId={eventId} />
-          </div>
+    <div className="max-w-2xl mx-auto p-6 bg-white rounded shadow">
+      <h1 className="text-2xl font-bold mb-2">{event.title}</h1>
+      <p className="text-gray-600 mb-4">{event.description}</p>
+      <p>
+        <strong>Thời gian:</strong>{" "}
+        {new Date(event.startTime).toLocaleString("vi-VN")} –{" "}
+        {new Date(event.endTime).toLocaleString("vi-VN")}
+      </p>
+      <p>
+        <strong>Địa điểm:</strong> {event.location}
+      </p>
 
-          {/* Right column - Event details */}
-          <div className="md:col-span-7 lg:col-span-8">
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              {/* Event Header - Title, Date, Location */}
-              <EventHeader eventId={eventId} />
-
-              {/* Registration Section */}
-              <EventRegistration
-                eventId={eventId}
-                onRegisterChange={handleRegistrationChange}
-              />
-
-              {/* Event Information */}
-              <EventInformation eventId={eventId} />
-
-              {/* Location Section */}
-              <EventLocation
-                eventId={eventId}
-                isRegistered={isRegistered}
-                onRegister={handleRegister}
-              />
-            </div>
-          </div>
-        </div>
-      </main>
+      {registration ? (
+        <button
+          onClick={handleCancel}
+          className="mt-6 px-4 py-2 bg-red-500 text-white rounded"
+        >
+          Hủy đăng ký
+        </button>
+      ) : (
+        <button
+          onClick={handleRegister}
+          className="mt-6 px-4 py-2 bg-green-600 text-white rounded"
+        >
+          Đăng ký tham dự
+        </button>
+      )}
     </div>
   );
 }
