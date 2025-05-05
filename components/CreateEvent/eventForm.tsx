@@ -14,8 +14,8 @@ import { apiClient, API_BASE_URL } from "@/components/common/apiClient";
 import { useState, useRef } from "react";
 import { format } from "date-fns";
 import ImageUploader from "@/components/UploadImage/imageSupabase";
-import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function EventForm() {
   const [error, setError] = useState<string | null>(null);
@@ -26,7 +26,8 @@ export default function EventForm() {
   const uploaderRef = useRef<{ upload: () => Promise<void> } | null>(null);
   const router = useRouter();
 
-  const defaultImage = "/images/events/vcs-mixer.jpg";
+  const defaultImage =
+    "https://images.lumacdn.com/cdn-cgi/image/format=auto,fit=cover,dpr=2,background=white,quality=75,width=672,height=160/gallery-images/ry/bd098b7b-aae7-495c-9b4d-2ff4c014a61e";
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -49,7 +50,7 @@ export default function EventForm() {
     const tempUrl = URL.createObjectURL(file);
     setPreviewUrl(tempUrl);
     setError(null);
-    toast.info("Ảnh đã được chọn, nhấn 'Tạo sự kiện' để tải lên.");
+    setSuccess("Ảnh đã được chọn, nhấn 'Tạo sự kiện' để tải lên.");
   };
 
   async function onSubmit(values) {
@@ -61,7 +62,6 @@ export default function EventForm() {
     if (Object.keys(errors).length > 0) {
       console.error("Form validation errors:", errors);
       setError("Vui lòng kiểm tra lại các trường thông tin.");
-      toast.error("Vui lòng kiểm tra lại các trường thông tin.");
       setIsSubmitting(false);
       return;
     }
@@ -75,12 +75,14 @@ export default function EventForm() {
       let coverImageUrl = defaultImage;
       if (previewUrl && uploaderRef.current) {
         console.log("Uploading image...");
-        await uploaderRef.current.upload();
-        if (!uploadedUrl) {
-          throw new Error("Tải ảnh thất bại, vui lòng thử lại.");
+        try {
+          const url = await uploaderRef.current.upload();
+          coverImageUrl = url;
+          console.log("Image uploaded successfully, URL:", url);
+        } catch (uploadErr) {
+          console.error("Image upload error:", uploadErr);
+          throw new Error(`Tải ảnh thất bại: ${uploadErr.message}`);
         }
-        coverImageUrl = uploadedUrl;
-        console.log("Image uploaded successfully, URL:", coverImageUrl);
       } else {
         console.log("No image selected, using default:", coverImageUrl);
       }
@@ -109,7 +111,6 @@ export default function EventForm() {
       );
       console.log("API response:", response);
       setSuccess("Sự kiện đã được tạo thành công!");
-      toast.success("Sự kiện đã được tạo thành công!");
       form.reset();
       setPreviewUrl(null);
       setUploadedUrl(null);
@@ -118,7 +119,6 @@ export default function EventForm() {
       const message = err.message || "Đã xảy ra lỗi khi tạo sự kiện";
       console.error("Submission error:", err);
       setError(message);
-      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -128,19 +128,22 @@ export default function EventForm() {
     <div className="flex flex-col md:flex-row gap-6 max-w-5xl mx-auto p-4">
       <div className="w-full md:w-2/5 mr-8">
         <div className="overflow-hidden rounded-3xl bg-black w-[400px] h-[400px]">
-          <img
+          <Image
             src={uploadedUrl || previewUrl || defaultImage}
             alt="Event cover"
             className="w-full h-full object-cover"
+            width={400}
+            height={400}
           />
         </div>
         <div className="mt-4">
           <ImageUploader
             ref={uploaderRef}
             onFileSelected={handleFileSelected}
-            onUploadSuccess={(url) => {
+            onUploadSuccess={async (url) => {
+              console.log("Upload success, setting uploadedUrl:", url);
               setUploadedUrl(url);
-              toast.success("Ảnh đã được tải lên thành công!");
+              setSuccess("Ảnh đã được tải lên thành công!");
             }}
           />
         </div>

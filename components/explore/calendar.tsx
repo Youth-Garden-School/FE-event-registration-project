@@ -8,64 +8,50 @@ import { UserCheck } from "lucide-react";
 import { apiRequest } from "./api";
 import { Toast } from "@/components/ui/toast";
 
+// ----- Interfaces -----
 interface Calendar {
   id: number;
   name: string;
   description?: string;
-  image?: string;
-  followStatus: string; // "Theo dõi" or "Đã theo dõi"
+  avatarImage?: string;
+  followStatus: string;
   location?: string;
+  events?: EventProps[];
 }
 
-const CalendarList = () => {
-  const [calendars, setCalendars] = useState<Calendar[]>([]);
-  const [loading, setLoading] = useState(true);
+interface EventProps {
+  id: number;
+  title: string;
+  startTime: string;
+  location?: string;
+  avatarImage?: string;
+}
 
-  useEffect(() => {
-    const fetchCalendars = async () => {
-      try {
-        const data = await apiRequest<Calendar[]>("get", "/calendars");
-        setCalendars(
-          data.map((item) => ({
-            id: item.id,
-            name: item.name,
-            description: item.description || "No description available",
-            image: item.image || "/images/events/vcs-mixer.jpg",
-            followStatus: item.followStatus || "Theo dõi",
-            location: item.location,
-          })),
-        );
-      } catch (error) {
-        Toast({
-          title: "Error",
-          description: "Failed to fetch calendars",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchCalendars();
-  }, []);
-
-  if (loading) return <div>Loading...</div>;
-
-  return (
-    <div className="container mx-auto py-10 max-w-[930px]">
-      <h1 className="text-2xl font-semibold mb-6">Lịch nổi bật</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {calendars.map((calendar) => (
-          <FollowCard
-            key={calendar.id}
-            calendar={calendar}
-            setCalendars={setCalendars}
-          />
-        ))}
-      </div>
-    </div>
+// ----- FollowButton -----
+const FollowButton = ({
+  isFollowing,
+  toggleFollow,
+}: {
+  isFollowing: boolean;
+  toggleFollow: () => void;
+}) => {
+  return isFollowing ? (
+    <UserCheck
+      size={20}
+      className="text-gray-500 cursor-pointer"
+      onClick={toggleFollow}
+    />
+  ) : (
+    <Button
+      className="w-[80px] h-[32px] rounded-full text-sm flex items-center gap-2 cursor-pointer"
+      onClick={toggleFollow}
+    >
+      Theo dõi
+    </Button>
   );
 };
 
+// ----- FollowCard -----
 const FollowCard = ({
   calendar,
   setCalendars,
@@ -95,7 +81,7 @@ const FollowCard = ({
         title: "Success",
         description: isFollowing ? "Unfollowed calendar" : "Followed calendar",
       });
-    } catch (error) {
+    } catch (_) {
       Toast({
         title: "Error",
         description: `Failed to ${isFollowing ? "unfollow" : "follow"} calendar`,
@@ -111,7 +97,7 @@ const FollowCard = ({
       </div>
       <div className="items-center">
         <Image
-          src={calendar.image || "/images/events/vcs-mixer.jpg"}
+          src={calendar.avatarImage || "/images/events/vcs-mixer.jpg"}
           alt={calendar.name}
           width={50}
           height={50}
@@ -129,26 +115,77 @@ const FollowCard = ({
   );
 };
 
-const FollowButton = ({
-  isFollowing,
-  toggleFollow,
-}: {
-  isFollowing: boolean;
-  toggleFollow: () => void;
-}) => {
-  return isFollowing ? (
-    <UserCheck
-      size={20}
-      className="text-gray-500 cursor-pointer"
-      onClick={toggleFollow}
-    />
-  ) : (
-    <Button
-      className="w-[80px] h-[32px] rounded-full text-sm flex items-center gap-2 cursor-pointer"
-      onClick={toggleFollow}
-    >
-      Theo dõi
-    </Button>
+// ----- CalendarList -----
+const CalendarList = () => {
+  const [calendars, setCalendars] = useState<Calendar[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchCalendars = async () => {
+    try {
+      const data = await apiRequest<Calendar[]>("get", "/calendars");
+      const accessToken = localStorage.getItem("access_token");
+
+      const enrichedCalendars = await Promise.all(
+        data.map(async (calendar) => {
+          let events: EventProps[] = [];
+          try {
+            const eventResponse = await apiRequest<any>(
+              "get",
+              `/calendars/${calendar.id}/events`,
+              accessToken,
+            );
+            events = eventResponse.result.map((event: any) => ({
+              id: event.id,
+              title: event.title,
+              startTime: event.startTime,
+              location: event.location,
+              avatarImage: event.coverImage || "/images/events/vcs-mixer.jpg",
+            }));
+          } catch {
+            // Silent fail: errors from event fetching are ignored //
+          }
+          return {
+            ...calendar,
+            description: calendar.description || "No description available",
+            avatarImage: calendar.avatarImage || "/images/events/vcs-mixer.jpg",
+            followStatus: calendar.followStatus || "Theo dõi",
+            events,
+          };
+        }),
+      );
+      setCalendars(enrichedCalendars);
+    } catch (_) {
+      Toast({
+        title: "Error",
+        description: "Failed to fetch calendars",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCalendars();
+  }, []);
+
+  if (loading) return <div>Đang tải...</div>;
+
+  return (
+    <section className="w-full py-6 bg-gray-100">
+      <div className="container mx-auto px-6">
+        <h2 className="text-xl font-bold text-gray-900 mb-4">Lịch nổi bật</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+          {calendars.map((calendar) => (
+            <FollowCard
+              key={calendar.id}
+              calendar={calendar}
+              setCalendars={setCalendars}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
   );
 };
 

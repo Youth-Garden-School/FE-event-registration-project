@@ -55,7 +55,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
       onFileSelected?.(selectedFile);
     };
 
-    const handleUpload = async () => {
+    const handleUpload = async (): Promise<string> => {
       if (!file) {
         throw new Error("Vui lòng chọn một file trước");
       }
@@ -67,7 +67,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
         const sanitizedName = sanitizeFileName(file.name);
         const fileName = `${Date.now()}_${sanitizedName}`;
 
-        const { data, error: uploadError } = await supabase.storage
+        const { error: uploadError } = await supabase.storage
           .from("images")
           .upload(fileName, file, {
             cacheControl: "3600",
@@ -90,6 +90,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
 
         onUploadSuccess?.(publicUrl);
         setFile(null);
+        return publicUrl;
       } catch (err: any) {
         console.error("Supabase Storage Error:", err);
         setError(`Upload thất bại: ${err.message || "Unknown error"}`);

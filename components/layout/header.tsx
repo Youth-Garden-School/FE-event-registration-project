@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation"; // Import usePathname
+import { usePathname } from "next/navigation";
 import { Bell, Calendar, Settings, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 interface NavItemProps {
   href: string;
   label: string;
-  isActive: boolean; // Make isActive required
+  isActive: boolean;
   icon?: React.ReactNode;
 }
 
@@ -35,22 +35,22 @@ const NavItem = ({ href, label, isActive, icon }: NavItemProps) => {
 export default function Header() {
   const [currentTime, setCurrentTime] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const pathname = usePathname(); // Get current pathname
+  const pathname = usePathname();
 
-  // Check authentication status
+  // 🔑 Check authentication token
   useEffect(() => {
-    const token = localStorage.getItem("ACCESS_TOKEN");
+    const token = localStorage.getItem("access_token"); // <- đã sửa key đúng
     setIsAuthenticated(!!token);
   }, []);
 
-  // Update time every second
+  // 🕒 Time updater
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
       const timeString = now.toLocaleTimeString("vi-VN", {
         hour: "2-digit",
         minute: "2-digit",
-        timeZone: "Asia/Bangkok", // GMT+7
+        timeZone: "Asia/Bangkok",
         hour12: false,
       });
       setCurrentTime(`${timeString} GMT+7`);
@@ -58,13 +58,14 @@ export default function Header() {
 
     updateTime();
     const interval = setInterval(updateTime, 1000);
-
     return () => clearInterval(interval);
   }, []);
 
-  // Handle logout
+  // 🚪 Handle logout
   const handleLogout = () => {
-    localStorage.removeItem("ACCESS_TOKEN");
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+    localStorage.removeItem("user_id");
     setIsAuthenticated(false);
     window.location.href = "/login";
   };
@@ -77,7 +78,7 @@ export default function Header() {
       )}
     >
       <div className="container mx-auto flex h-14 items-center justify-between">
-        {/* Left Section: Logo */}
+        {/* Logo */}
         <div className="flex items-center">
           <Link
             href="/"
@@ -141,9 +142,7 @@ export default function Header() {
                 <Avatar className="h-8 w-8">
                   <AvatarImage src="/placeholder.svg" alt="User" />
                   <AvatarFallback>
-                    <Link href="/user" className="cursor-pointer">
-                      U
-                    </Link>
+                    <Link href="/user">U</Link>
                   </AvatarFallback>
                 </Avatar>
                 <Button

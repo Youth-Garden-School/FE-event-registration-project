@@ -13,6 +13,7 @@ import { apiClient, API_BASE_URL } from "@/components/common/apiClient";
 import ImageUploader from "@/components/UploadImage/imageSupabase";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function CreateCalendar() {
   const [coverPreviewUrl, setCoverPreviewUrl] = useState<string | null>(null);
@@ -70,22 +71,20 @@ export default function CreateCalendar() {
         throw new Error("Vui lòng đăng nhập để tạo lịch");
       }
 
-      let coverImageUrl = coverUploadedUrl || defaultCoverImage;
-      let profileImageUrl = profileUploadedUrl || defaultProfileImage;
+      let coverImageUrl = defaultCoverImage;
+      let profileImageUrl = defaultProfileImage;
 
       // Upload cover image if selected
       if (coverPreviewUrl && coverUploaderRef.current) {
         console.log("Uploading cover image...");
-        await coverUploaderRef.current.upload();
-        coverImageUrl = coverUploadedUrl || defaultCoverImage;
+        coverImageUrl = await coverUploaderRef.current.upload();
         console.log("Cover image uploaded successfully, URL:", coverImageUrl);
       }
 
       // Upload profile image if selected
       if (profilePreviewUrl && profileUploaderRef.current) {
         console.log("Uploading profile image...");
-        await profileUploaderRef.current.upload();
-        profileImageUrl = profileUploadedUrl || defaultProfileImage;
+        profileImageUrl = await profileUploaderRef.current.upload();
         console.log(
           "Profile image uploaded successfully, URL:",
           profileImageUrl,
@@ -100,7 +99,7 @@ export default function CreateCalendar() {
         publicUrl: data.publicUrl ? `lu.ma/${data.publicUrl}` : "",
         location: data.location || "",
         coverImage: coverImageUrl,
-        profileImage: profileImageUrl,
+        avatarImage: profileImageUrl, // <- thay vì "profileImage"
       };
 
       console.log("Sending API request with payload:", payload);
@@ -137,10 +136,12 @@ export default function CreateCalendar() {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           {/* Cover Image */}
           <div className="relative w-full h-64 bg-background rounded-lg overflow-hidden">
-            <img
+            <Image
               src={coverUploadedUrl || coverPreviewUrl || defaultCoverImage}
               alt="Cover"
               className="w-full h-full object-cover"
+              width={672}
+              height={160}
             />
             <div className="absolute top-4 right-4">
               <ImageUploader
@@ -155,7 +156,7 @@ export default function CreateCalendar() {
             {/* Profile Image */}
             <div className="absolute bottom-2 left-8">
               <div className="relative w-20 h-20 bg-gradient-to-br from-pink-300 to-blue-300 rounded-lg overflow-hidden">
-                <img
+                <Image
                   src={
                     profileUploadedUrl ||
                     profilePreviewUrl ||
@@ -163,6 +164,8 @@ export default function CreateCalendar() {
                   }
                   alt="Profile"
                   className="w-full h-full object-cover"
+                  width={672}
+                  height={160}
                 />
                 <div className="absolute inset-0 flex items-center justify-center">
                   <ImageUploader
