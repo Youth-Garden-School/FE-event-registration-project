@@ -104,7 +104,7 @@ export default function LoginPage() {
       <Card className="w-[400px] shadow-lg">
         <CardHeader>
           <CardTitle className="text-xl font-bold">
-            Chào mừng đến với REGISTA
+            Chào mừng đến với Regista
           </CardTitle>
           <p className="text-sm text-gray-500">
             {isOtpStep
@@ -183,7 +183,7 @@ export default function LoginPage() {
                 onClick={() => console.log("TODO: Implement Password")}
                 disabled={isLoading}
               >
-                Đăng nhập mật khẩu
+                Đăng nhập với mật khẩu
               </Button>
             </div>
           )}
