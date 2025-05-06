@@ -74,7 +74,7 @@ export default function LoginPage() {
 
       const accessToken = response.result?.accessToken;
       if (accessToken) {
-        localStorage.setItem("access_token", accessToken);
+        localStorage.setItem("ACCESS_TOKEN", accessToken);
         localStorage.setItem("refresh_token", response.result.refreshToken);
         localStorage.setItem("user_id", response.result.user.id);
         toast.success("Đăng nhập thành công!");

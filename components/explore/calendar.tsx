@@ -123,7 +123,7 @@ const CalendarList = () => {
   const fetchCalendars = async () => {
     try {
       const data = await apiRequest<Calendar[]>("get", "/calendars");
-      const accessToken = localStorage.getItem("access_token");
+      const accessToken = localStorage.getItem("ACCESS_TOKEN");
 
       const enrichedCalendars = await Promise.all(
         data.map(async (calendar) => {

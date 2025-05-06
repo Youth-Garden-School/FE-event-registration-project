@@ -40,7 +40,7 @@ export default function Header() {
 
   // 🔑 Check authentication token
   useEffect(() => {
-    const token = localStorage.getItem("access_token"); // <- đã sửa key đúng
+    const token = localStorage.getItem("ACCESS_TOKEN"); // <- đã sửa key đúng
     setIsAuthenticated(!!token);
   }, []);
 
@@ -64,7 +64,7 @@ export default function Header() {
 
   // 🚪 Handle logout
   const handleLogout = () => {
-    localStorage.removeItem("access_token");
+    localStorage.removeItem("ACCESS_TOKEN");
     localStorage.removeItem("refresh_token");
     localStorage.removeItem("user_id");
     setIsAuthenticated(false);

@@ -67,7 +67,7 @@ export default function EventForm() {
     }
 
     try {
-      const token = localStorage.getItem("access_token");
+      const token = localStorage.getItem("ACCESS_TOKEN");
       if (!token) {
         throw new Error("Vui lòng đăng nhập để tạo sự kiện");
       }

@@ -5,11 +5,11 @@ const API_URL =
   "https://be-event-registration-project-jpv3.onrender.com/api";
 
 export const getAccessToken = (): string => {
-  return localStorage.getItem("access_token") || "";
+  return localStorage.getItem("ACCESS_TOKEN") || "";
 };
 
 export const setAccessToken = (token: string): void => {
-  localStorage.setItem("access_token", token);
+  localStorage.setItem("ACCESS_TOKEN", token);
 };
 
 export const getRefreshToken = (): string => {
@@ -64,7 +64,7 @@ export const apiRequest = async <T>(
         });
         return retryResponse.data.result || retryResponse.data;
       } catch (refreshError) {
-        localStorage.removeItem("access_token");
+        localStorage.removeItem("ACCESS_TOKEN");
         localStorage.removeItem("refresh_token");
         throw new Error("Session expired. Please log in again.");
       }
