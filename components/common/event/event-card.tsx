@@ -110,6 +110,9 @@ export default function EventCard({ event, onClick }: EventCardProps) {
               alt={event.title}
               fill
               className="object-cover"
+              sizes="128px"
+              priority
+              
             />
           </div>
         </div>
