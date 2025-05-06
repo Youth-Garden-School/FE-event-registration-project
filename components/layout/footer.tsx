@@ -1,15 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { Star, Mail, Instagram } from "lucide-react";
-
+import { Mail, Instagram } from "lucide-react";
+import Image from "next/image";
 export default function Footer() {
   return (
     <footer className="max-w-[1050px] bg-white py-4 px-6 border-t my-0 mx-auto">
       <div className="container mx-auto flex flex-col md:flex-row items-center justify-between gap-2">
         <div className="flex items-center gap-1">
           <span className="text-gray-600 text-lg font-semibold">Regista</span>
-          <Star className="w-4 h-4 text-gray-600 mr-6" />
+          <Image
+            src="/images/logo.svg"
+            alt="Logo"
+            width={30}
+            height={30}
+            className="rounded-md"
+          />
           <div className="flex flex-wrap gap-4 text-gray-600 text-sm">
             <Link href="/whats-new" className="hover:text-black">
               Có gì mới
