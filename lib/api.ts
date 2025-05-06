@@ -14,7 +14,7 @@ api.interceptors.request.use((cfg) => {
   // 2) Lấy token từ localStorage (chỉ client)
   let token: string | null = null;
   if (typeof window !== "undefined") {
-    token = localStorage.getItem("accessToken");
+    token = localStorage.getItem("ACCESS_TOKEN");
   }
 
   // 3) Đính kèm nếu có

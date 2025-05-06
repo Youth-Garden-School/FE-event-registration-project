@@ -1,13 +1,38 @@
 /** @type {import('next').NextConfig} */
 module.exports = {
   images: {
-    domains: [
-      "be-event-registration-project-jpv3.onrender.com",
-      "example.com",
-      "images.lumacdn.com",
-      "slnuqxxrujjguzqowslh.supabase.co", // ✅ Required for Supabase images
-      "cdn11.dienmaycholon.vn",
-      // thêm host khác nếu có
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'be-event-registration-project-jpv3.onrender.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'example.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.lumacdn.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'slnuqxxrujjguzqowslh.supabase.co',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn11.dienmaycholon.vn',
+        port: '',
+        pathname: '/**',
+      },
+      // thêm các host khác ở đây nếu cần
     ],
   },
 };
