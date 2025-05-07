@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, Calendar, Settings } from "lucide-react";
+import { Calendar, Settings, Ticket, Compass } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
@@ -107,6 +107,7 @@ export default function Header() {
               <NavItem
                 href="/event"
                 label="Sự kiện"
+                icon={<Ticket className="h-4 w-4" />}
                 isActive={pathname === "/event"}
               />
               <NavItem
@@ -118,6 +119,7 @@ export default function Header() {
               <NavItem
                 href="/explore"
                 label="Khám phá"
+                icon={<Compass className="h-4 w-4" />}
                 isActive={pathname === "/explore"}
               />
             </nav>
@@ -138,20 +140,22 @@ export default function Header() {
                   size="icon"
                   className="text-gray-500 cursor-pointer hover:text-black"
                 >
-                  <Settings className="h-5 w-5" />
+                  <Link href="/settings">
+                    <Settings className="h-5 w-5" />
+                  </Link>
                 </Button>
-                <Button
+                {/* <Button
                   variant="ghost"
                   size="icon"
                   className="text-gray-500 cursor-pointer hover:text-black"
                 >
                   <Bell className="h-5 w-5" />
-                </Button>
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src="/placeholder.svg" alt="User" />
-                  <AvatarFallback>
-                    <Link href="/user">U</Link>
-                  </AvatarFallback>
+                </Button> */}
+                <Avatar className="h-8 w-8 cursor-pointer">
+                  <Link href="/user">
+                    <AvatarImage src="/placeholder.svg" alt="User" />
+                    <AvatarFallback>U</AvatarFallback>
+                  </Link>
                 </Avatar>
                 <Button
                   variant="outline"
