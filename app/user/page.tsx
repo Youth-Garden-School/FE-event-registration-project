@@ -7,17 +7,17 @@ interface Event {
   id: string;
   title: string;
   organizer: string;
-  date: string;
-  imageUrl: string;
+  startTime: string;
+  coverImage: string;
 }
 
 export default function ProfilePage() {
   // Mock data - replace with actual data fetching in a real application
   const profileData = {
     name: "Đoàn Vĩnh Khang",
-    joinDate: "tháng 3 năm 2025",
-    organized: 5,
-    attended: 0,
+    bio: "tháng 3 năm 2025",
+    createAllEvent: 5,
+    registration: 0,
     avatarUrl: "/placeholder.svg?height=200&width=200",
   };
 
@@ -26,15 +26,15 @@ export default function ProfilePage() {
       id: "1",
       title: "123",
       organizer: "Đoàn Vĩnh Khang",
-      date: "20:30 Th 3, 8 thg 4",
-      imageUrl: "/placeholder.svg?height=100&width=100&text=GUEST-LIST",
+      startTime: "20:30 Th 3, 8 thg 4",
+      coverImage: "/placeholder.svg?height=100&width=100&text=GUEST-LIST",
     },
     {
       id: "2",
       title: "dvf",
       organizer: "Đoàn Vĩnh Khang",
-      date: "6:30 Th 5, 27 thg 3",
-      imageUrl: "/placeholder.svg?height=100&width=100&text=BLAST",
+      startTime: "6:30 Th 5, 27 thg 3",
+      coverImage: "/placeholder.svg?height=100&width=100&text=BLAST",
     },
   ];
 
@@ -56,16 +56,18 @@ export default function ProfilePage() {
 
           <div className="flex items-center text-muted-foreground">
             <Calendar className="h-4 w-4 mr-2" />
-            <span>Đã tham gia {profileData.joinDate}</span>
+            <span>Đã tham gia {profileData.bio}</span>
           </div>
 
           <div className="flex gap-4">
             <div>
-              <span className="font-semibold">{profileData.organized}</span>{" "}
+              <span className="font-semibold">
+                {profileData.createAllEvent}
+              </span>{" "}
               <span className="text-muted-foreground">Đã tổ chức</span>
             </div>
             <div>
-              <span className="font-semibold">{profileData.attended}</span>{" "}
+              <span className="font-semibold">{profileData.registration}</span>{" "}
               <span className="text-muted-foreground">Đã tham dự</span>
             </div>
           </div>
@@ -82,7 +84,7 @@ export default function ProfilePage() {
             <div key={event.id} className="flex gap-4">
               <div className="shrink-0">
                 <Image
-                  src={event.imageUrl || "/placeholder.svg"}
+                  src={event.coverImage || "/placeholder.svg"}
                   alt={event.title}
                   width={100}
                   height={100}
@@ -101,7 +103,7 @@ export default function ProfilePage() {
                 </div>
 
                 <div className="text-sm text-muted-foreground">
-                  {event.date}
+                  {event.startTime}
                 </div>
               </div>
             </div>
