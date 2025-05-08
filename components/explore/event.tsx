@@ -22,7 +22,7 @@ const EventList: React.FC = () => {
         const eventsArray = Array.isArray(data) ? data : data.events || [];
         const validatedEvents = eventSchema.array().parse(eventsArray);
         setEvents(
-          validatedEvents.map((item) => ({
+          validatedEvents.slice(0, 12).map((item) => ({
             id: item.id,
             title: item.title,
             startTime: item.startTime,

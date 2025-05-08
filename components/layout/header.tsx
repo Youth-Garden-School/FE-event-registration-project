@@ -36,15 +36,40 @@ const NavItem = ({ href, label, isActive, icon }: NavItemProps) => {
 export default function Header() {
   const [currentTime, setCurrentTime] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const pathname = usePathname();
 
-  // 🔑 Check authentication token
+  // Check authentication
   useEffect(() => {
-    const token = localStorage.getItem("ACCESS_TOKEN"); // <- đã sửa key đúng
+    const token = localStorage.getItem("ACCESS_TOKEN");
     setIsAuthenticated(!!token);
+
+    if (token) {
+      fetch(
+        "https://be-event-registration-project-jpv3.onrender.com/api/users/me",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        },
+      )
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error(`HTTP error! Status: ${res.status}`);
+          }
+          return res.json();
+        })
+        .then((data) => {
+          setAvatarUrl(data?.result?.avatarUrl || null);
+        })
+        .catch((err) => {
+          console.error("Failed to fetch user avatar:", err);
+        });
+    }
   }, []);
 
-  // 🕒 Time updater
+  // Time updater
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
@@ -62,7 +87,6 @@ export default function Header() {
     return () => clearInterval(interval);
   }, []);
 
-  // 🚪 Handle logout
   const handleLogout = () => {
     localStorage.removeItem("ACCESS_TOKEN");
     localStorage.removeItem("refresh_token");
@@ -95,7 +119,6 @@ export default function Header() {
               height={50}
               className="rounded-md"
             />
-
             <span className="font-semibold">Regista</span>
           </Link>
         </div>
@@ -140,23 +163,21 @@ export default function Header() {
                   size="icon"
                   className="text-gray-500 cursor-pointer hover:text-black"
                 >
-                  <Link href="/settings">
+                  <Link href="/settings/account">
                     <Settings className="h-5 w-5" />
                   </Link>
                 </Button>
-                {/* <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-gray-500 cursor-pointer hover:text-black"
-                >
-                  <Bell className="h-5 w-5" />
-                </Button> */}
+
                 <Avatar className="h-8 w-8 cursor-pointer">
                   <Link href="/user">
-                    <AvatarImage src="/placeholder.svg" alt="User" />
+                    <AvatarImage
+                      src={avatarUrl || "/placeholder.svg"}
+                      alt="User"
+                    />
                     <AvatarFallback>U</AvatarFallback>
                   </Link>
                 </Avatar>
+
                 <Button
                   variant="outline"
                   size="sm"

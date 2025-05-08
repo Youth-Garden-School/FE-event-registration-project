@@ -97,7 +97,12 @@ const FollowCard = ({
       </div>
       <div className="items-center">
         <Image
-          src={calendar.avatarImage || "/images/events/vcs-mixer.jpg"}
+          src={
+            calendar.avatarImage?.startsWith("/") ||
+            calendar.avatarImage?.startsWith("http")
+              ? calendar.avatarImage
+              : "/images/events/vcs-mixer.jpg"
+          }
           alt={calendar.name}
           width={50}
           height={50}
@@ -153,7 +158,7 @@ const CalendarList = () => {
           };
         }),
       );
-      setCalendars(enrichedCalendars);
+      setCalendars(enrichedCalendars.slice(0, 12));
     } catch (_) {
       Toast({
         title: "Error",
