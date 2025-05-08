@@ -38,9 +38,7 @@ export default function Header() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const pathname = usePathname();
-
   const isMainPage = pathname === "/";
-
   // Check authentication
   useEffect(() => {
     const token = localStorage.getItem("ACCESS_TOKEN");
