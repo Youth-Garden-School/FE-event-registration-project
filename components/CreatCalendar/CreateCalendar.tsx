@@ -58,7 +58,7 @@ export default function CreateCalendar() {
     setError(null);
   };
 
-  async function onSubmit(data) {
+  async function onSubmit(data: any) {
     console.log("Form submitted with values:", data);
     setError(null);
     setSuccess(null);
@@ -118,7 +118,7 @@ export default function CreateCalendar() {
       setProfilePreviewUrl(null);
       setProfileUploadedUrl(null);
       router.push("/calendars");
-    } catch (err) {
+    } catch (err: any) {
       const message = err.message || "Đã xảy ra lỗi khi tạo lịch";
       console.error("Submission error:", err);
       setError(message);
@@ -182,7 +182,7 @@ export default function CreateCalendar() {
           <CalendarCustomization
             form={form}
             selectedColor={form.watch("color")}
-            setSelectedColor={(color) => form.setValue("color", color)}
+            setSelectedColor={(color: any) => form.setValue("color", color)}
           />
           <Button
             type="submit"

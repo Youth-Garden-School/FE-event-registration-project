@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { API_BASE_URL, apiClient } from "@/components/common/apiClient";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { apiClient, API_BASE_URL } from "@/components/common/apiClient";
-import { loginSchema, otpSchema } from "./LoginSchema";
+import { Input } from "@/components/ui/input";
+import { useState } from "react";
 import { toast } from "react-toastify";
+import { loginSchema, otpSchema } from "./LoginSchema";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -59,7 +59,7 @@ export default function LoginPage() {
     }
 
     try {
-      const response = await apiClient.post(
+      const response: any = await apiClient.post(
         `${API_BASE_URL}/auths/login/verify`,
         {
           email,

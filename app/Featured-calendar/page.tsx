@@ -1,10 +1,10 @@
 "use client"; // Cần thêm khi dùng useState trong Next.js (App Router)
 
-import { useState } from "react";
 import ADPListProfile from "@/components/common/featured-calendar/adplist-profile";
+import CalendarView from "@/components/common/featured-calendar/calendar-view";
 import { EventFilters } from "@/components/common/featured-calendar/event-filters";
 import { EventList } from "@/components/common/featured-calendar/event-list";
-import CalendarView from "@/components/common/featured-calendar/calendar-view";
+import { useState } from "react";
 
 export default function Home() {
   const [activeFilter, setActiveFilter] = useState("all");

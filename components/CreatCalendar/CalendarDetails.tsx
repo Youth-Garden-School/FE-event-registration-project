@@ -7,7 +7,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
-export default function CalendarDetails({ form }) {
+export default function CalendarDetails({ form }: any) {
   return (
     <div className="mt-12 bg-background rounded-2xl p-6">
       {/* Name */}

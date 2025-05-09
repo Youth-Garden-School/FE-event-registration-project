@@ -52,7 +52,7 @@ export default function EventForm() {
     toast.info("Ảnh đã được chọn, nhấn 'Tạo sự kiện' để tải lên.");
   };
 
-  async function onSubmit(values) {
+  async function onSubmit(values: any) {
     console.log("Form submitted with values:", values);
     setError(null);
     setSuccess(null);
@@ -114,7 +114,7 @@ export default function EventForm() {
       setPreviewUrl(null);
       setUploadedUrl(null);
       router.push("/event");
-    } catch (err) {
+    } catch (err: any) {
       const message = err.message || "Đã xảy ra lỗi khi tạo sự kiện";
       console.error("Submission error:", err);
       setError(message);
