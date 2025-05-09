@@ -72,7 +72,7 @@ export default function EventCard({ event, onClick }: EventCardProps) {
                   variant="secondary"
                   className="bg-gray-100 text-gray-800 "
                 >
-                  {event.requiresApproval ? "Chờ duyệt" : "Đã đăng ký"}
+                  Đã đăng ký"
                 </Badge>
               )}
 

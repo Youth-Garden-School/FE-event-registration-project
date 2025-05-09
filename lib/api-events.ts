@@ -1,84 +1,152 @@
-// lib/api-events.ts
-import api from "./api";
+// lib/api-event.ts
 
-export interface EventDetail {
-  id: string;
-  title: string;
-  description: string;
-  coverImage: string;
-  startTime: string;
-  endTime: string;
-  location: string;
-  isOnline: boolean;
-  // …các field khác backend trả
+import api from './api'               // axios instance với baseURL + auth interceptor
+import { AxiosResponse } from 'axios'
+
+/** Envelope chung cho mọi response từ API */
+interface ApiResponse<T> {
+  code: number
+  message: string
+  result: T
 }
 
-export interface Registration {
-  id: string;
-  eventId: string;
-  userId: string;
-  status: string;
-  createdAt: string;
-  updatedAt: string;
+/** Wrapper paging trả về từ backend */
+export interface PagedResult<T> {
+  content: T[]
+  pageNumber: number
+  pageSize: number
+  totalPages: number
+  totalElements: number
+  first: boolean
+  last: boolean
+}
+
+/** Model User tối thiểu */
+export interface User {
+  id: string
+  username?: string
+  email?: string
   // …các field khác nếu cần
 }
 
-// 1) GET /events/:id
-export async function getEventById(id: string): Promise<EventDetail> {
-  const { data } = await api.get<{ result: EventDetail }>(`/events/${id}`);
-  return data.result;
+/** Chi tiết Event */
+export interface EventDetail {
+  id: string
+  title: string
+  description: string
+  coverImage: string
+  startTime: string
+  endTime: string
+  location: string
+  isOnline: boolean
+  eventColor?: string
+  fontStyle?: string
+  themeMode?: string
+  style?: string
+  seasonalTheme?: string
+  requiresApproval?: boolean
+  category?: string | null
+  createdAt: string
+  updatedAt: string
+  createdBy: string
+  updatedBy: string
 }
 
-// 2) GET My Registration cho event này
-export async function getMyRegistration(
+/** Model Registration */
+export interface Registration {
+  id: string
+  event: EventDetail
+  user: User
+  status: string
+  registeredAt: string
+  notes?: string
+  createdAt: string
+  updatedAt: string
+  createdBy: string
+  updatedBy: string
+}
+
+/** Payload đăng ký khách mời */
+export interface GuestInfo {
+  firstName: string
+  lastName: string
+  email: string
+  notes?: string
+}
+
+/** ============================
+ *  Event CRUD Endpoints
+ * ============================ */
+
+/** Tạo mới một event */
+export const createEvent = (payload: Partial<EventDetail>) =>
+  api.post<ApiResponse<EventDetail>>('/events', payload)
+
+/** Cập nhật event theo ID */
+export const updateEvent = (eventId: string, payload: Partial<EventDetail>) =>
+  api.put<ApiResponse<EventDetail>>(`/events/${eventId}`, payload)
+
+/** Lấy chi tiết 1 event theo ID */
+export const getEvent = (eventId: string) =>
+  api.get<ApiResponse<EventDetail>>(`/events/${eventId}`)
+
+/** Lấy danh sách tất cả events */
+export const getAllEvents = () =>
+  api.get<ApiResponse<EventDetail[]>>('/events')
+
+/** Xóa 1 event theo ID */
+export const deleteEvent = (eventId: string) =>
+  api.delete<ApiResponse<null>>(`/events/${eventId}`)
+
+/** ============================
+ *  Registration Endpoints
+ * ============================ */
+
+/** Đăng ký tham gia event (user đã login) */
+export const registerEvent = (eventId: string) =>
+  api.post<ApiResponse<Registration>>(`/events/${eventId}/registrations`, {})
+
+/** Đăng ký khách cho event */
+export const registerGuestEvent = (eventId: string, guest: GuestInfo) =>
+  api.post<ApiResponse<Registration>>(
+    `/events/${eventId}/registrations/guest`,
+    guest
+  )
+
+/**
+ * Lấy registrations của 1 event
+ * → POST /events/{eventId}/registrations/get với body pagination
+ */
+export const getEventRegistrations = (
   eventId: string,
-): Promise<Registration | null> {
-  // Kết quả tạm thời
-  let regs: Registration[] = [];
+  page = 0,
+  size = 10,
+  sortBy: string = 'createdAt'
+) =>
+  api.post<ApiResponse<PagedResult<Registration>>>(
+    `/events/${eventId}/registrations/get`,
+    { page, size, sortBy }
+  )
 
-  // Thử endpoint /events/:id/registrations/me
-  try {
-    const { data } = await api.get<{ result?: Registration[] }>(
-      `/events/${eventId}/registrations/me`,
-    );
-    if (Array.isArray(data.result)) {
-      regs = data.result;
-    }
-  } catch (_err) {
-    // bỏ qua, sẽ fallback
-  }
+/**
+ * Lấy tất cả registrations của user hiện tại
+ * → POST /registrations/me với body pagination
+ */
+export const getUserRegistrations = (
+  page = 0,
+  size = 10,
+  sortBy: string = 'createdAt'
+) =>
+  api.post<ApiResponse<PagedResult<Registration>>>(
+    '/registrations/me',
+    { page, size, sortBy }
+  )
 
-  // Nếu chưa có kết quả, fallback sang /registrations/me rồi filter
-  if (!regs.length) {
-    try {
-      const { data } = await api.get<{ result?: Registration[] }>(
-        `/registrations/me`,
-      );
-      if (Array.isArray(data.result)) {
-        regs = data.result.filter((r) => r.eventId === eventId);
-      }
-    } catch (_err) {
-      // bỏ qua
-    }
-  }
-
-  return regs.length > 0 ? regs[0] : null;
-}
-
-// 3) POST /events/:id/registrations
-export async function registerEvent(eventId: string): Promise<Registration> {
-  const { data } = await api.post<{ result: Registration }>(
-    `/events/${eventId}/registrations`,
-  );
-  return data.result;
-}
-
-// 4) PUT /registrations/:id/cancel
-export async function cancelRegistration(
-  registrationId: string,
-): Promise<Registration> {
-  const { data } = await api.put<{ result: Registration }>(
+/** Hủy một registration theo ID */
+export const cancelRegistration = (registrationId: string) =>
+  api.put<ApiResponse<null>>(
     `/registrations/${registrationId}/cancel`,
-  );
-  return data.result;
-}
+    {}
+  )
+
+

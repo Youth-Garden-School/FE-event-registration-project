@@ -19,8 +19,7 @@ import type { EventWithUI } from "@/style/events-stype";
 import { getCalendarById, Calendar } from "@/lib/api-calendar";
 
 export default function FeaturedCalendarPage() {
-  const params = useParams();
-  const calendarId = params.id as string;
+const { calendarId } = useParams() as { calendarId: string };
 
   // 1) States cho API-data
   const [calendar, setCalendar] = useState<Calendar | null>(null);
