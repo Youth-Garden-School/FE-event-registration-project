@@ -7,7 +7,16 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
-export default function CalendarDetails({ form }) {
+// Define the form types
+interface FormProps {
+  control: any; // Replace with the correct type if available
+}
+
+interface CalendarDetailsProps {
+  form: FormProps;
+}
+
+export default function CalendarDetails({ form }: CalendarDetailsProps) {
   return (
     <div className="mt-12 bg-background rounded-2xl p-6">
       {/* Name */}

@@ -8,12 +8,19 @@ import {
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MapPin, Check } from "lucide-react";
+import { UseFormReturn } from "react-hook-form";
+
+interface CalendarCustomizationProps {
+  form: UseFormReturn<any>; // Bạn nên thay `any` bằng interface chính xác nếu có
+  selectedColor: string;
+  setSelectedColor: (color: string) => void;
+}
 
 export default function CalendarCustomization({
   form,
   selectedColor,
   setSelectedColor,
-}) {
+}: CalendarCustomizationProps) {
   const colors = [
     "#9ca3af", // gray
     "#ec4899", // pink
@@ -131,7 +138,6 @@ export default function CalendarCustomization({
                 <FormMessage />
               </FormItem>
             )}
-            Esq
           />
         </div>
       </div>
