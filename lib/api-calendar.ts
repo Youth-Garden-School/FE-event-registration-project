@@ -176,3 +176,22 @@ export async function addEventsToCalendar(
   }
   return await res.json();
 }
+
+export async function deleteEventFromCalendar(
+  calendarId: string,
+  eventId: string
+): Promise<{ code: number; message: string }> {
+  const res = await fetch(
+    `${API_BASE_URL}/calendars/${calendarId}/events/${eventId}`,
+    {
+      method: "DELETE",
+      headers: getAuthHeaders(),
+    }
+  );
+  if (!res.ok) {
+    throw new Error(
+      `Error deleting event ${eventId} from calendar ${calendarId}: ${res.status}`
+    );
+  }
+  return await res.json();
+}

@@ -1,18 +1,24 @@
+// app/setting-event/[id]/page.tsx
 "use client";
 
-import { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
+
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+} from "@/components/ui/tabs";
 import { AddLumaEventModal } from "@/components/common/calendar/add-luma-event-modal";
 import { EventEmptyState } from "@/components/common/calendar/event-empty-state";
 import EventList from "@/components/common/calendar/event-list";
-import { events as mockEvents, calendarData } from "@/data/data-mock";
+
 import { format, isToday, isTomorrow, parseISO } from "date-fns";
 import { vi } from "date-fns/locale";
-import type { EventWithUI } from "@/style/events-stype";
-import Image from 'next/image';
 import { AlertCircle } from "lucide-react";
+
 import {
   Dialog,
   DialogContent,
@@ -22,116 +28,197 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 
+import {
+  getCalendarById,
+  deleteEventFromCalendar,
+  deleteCalendar,
+  updateCalendar,
+  Calendar,
+  CalendarEvent,
+} from "@/lib/api-calendar";
+import type { EventWithUI } from "@/style/events-stype";
+
 export default function SettingEventPage() {
-  const params = useParams();
-  const calendarId = params.id as string;
+  const { id: calendarId } = useParams() as { id: string };
   const router = useRouter();
 
-  const [activeTab, setActiveTab] = useState("upcoming");
-  const [showAddLumaModal, setShowAddLumaModal] = useState(false);
+  // --- API data states ---
+  const [calendar, setCalendar] = useState<Calendar | null>(null);
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // --- UI states ---
+  const [activeTab, setActiveTab] = useState<"upcoming" | "past">("upcoming");
   const [currentPage, setCurrentPage] = useState(1);
-  const [events, setEvents] = useState([...mockEvents]);
-  const [showDeleteCalendarDialog, setShowDeleteCalendarDialog] =
-    useState(false);
+  const [showAddLumaModal, setShowAddLumaModal] = useState(false);
+
   const [showDeleteEventDialog, setShowDeleteEventDialog] = useState(false);
-  const [eventToDelete, setEventToDelete] = useState<string | number | null>(
-    null
-  );
-  const [calendar, setCalendar] = useState({ ...calendarData });
+  const [eventToDelete, setEventToDelete] = useState<string | null>(null);
 
-  // Kiểm tra xem ID lịch có khớp với dữ liệu không
-  const isValidCalendar = calendarId === calendarData.id;
+  const [showDeleteCalendarDialog, setShowDeleteCalendarDialog] = useState(false);
 
-  // Chuyển đổi dữ liệu sự kiện sang định dạng EventWithUI
-  const convertToEventWithUI = (event: any): EventWithUI => {
-    const eventDate = event.startTime ? parseISO(event.startTime) : new Date();
+  // --- Settings form states ---
+  const [editName, setEditName] = useState("");
+const [editCover, setEditCover] = useState("");
+const [editAvatar, setEditAvatar] = useState("");
+const [editDesc, setEditDesc] = useState("");
+const [savingSettings, setSavingSettings] = useState(false);
 
-    let dateLabel;
-    if (isToday(eventDate)) {
-      dateLabel = "Hôm nay";
-    } else if (isTomorrow(eventDate)) {
-      dateLabel = "Ngày mai";
-    } else {
-      dateLabel = format(eventDate, "d 'thg' M", { locale: vi });
-    }
+useEffect(() => {
+  if (calendar) {
+    setEditName(calendar.name);
+    setEditCover(calendar.coverImage ?? "");
+    setEditAvatar(calendar.avatarImage ?? "");
+    setEditDesc(calendar.description ?? "");
+  }
+}, [calendar]);
 
-    const dayLabel = format(eventDate, "EEEE", { locale: vi });
-    const displayTime = format(eventDate, "HH:mm", { locale: vi });
+const handleSaveChanges = async () => {
+  setSavingSettings(true);
+  try {
+    await updateCalendar(calendarId, {
+      name: editName,
+      coverImage: editCover,
+      avatarImage: editAvatar,
+      description: editDesc,
+    });
+    await fetchCalendarAndEvents();  // reload data
+    alert("Lưu thay đổi thành công!");
+  } catch (err: any) {
+    console.error(err);
+    alert("Lưu thay đổi thất bại: " + err.message);
+  } finally {
+    setSavingSettings(false);
+  }
+};
 
+  // Convert API event → EventWithUI
+  const convertToEventWithUI = (e: CalendarEvent): EventWithUI => {
+    const dt = parseISO(e.startTime);
+    const dateLabel = isToday(dt)
+      ? "Hôm nay"
+      : isTomorrow(dt)
+      ? "Ngày mai"
+      : format(dt, "d 'thg' M", { locale: vi });
     return {
-      ...event,
-      isUserEvent: true, // Đánh dấu là sự kiện của người dùng
+      ...e,
       dateLabel,
-      dayLabel,
-      displayTime,
+      dayLabel: format(dt, "EEEE", { locale: vi }),
+      displayTime: format(dt, "HH:mm", { locale: vi }),
+      isUserEvent: true,
+      attendees: e.attendees ?? [],
     };
   };
 
-  // Filter events for upcoming and past
-  const currentDate = new Date();
-  const upcomingEvents = events
-    .filter((event) => new Date(event.startTime) >= currentDate)
-    .map(convertToEventWithUI);
+  // Fetch calendar + events
+  const fetchCalendarAndEvents = useCallback(() => {
+    setLoading(true);
+    setError(null);
 
-  const pastEvents = events
-    .filter((event) => new Date(event.startTime) < currentDate)
-    .map(convertToEventWithUI);
+    getCalendarById(calendarId)
+      .then((cal) => {
+        setCalendar(cal);
+        setEvents(cal.events ?? []);
+      })
+      .catch((err) => {
+        console.error(err);
+        setError(err.message || "Lỗi khi tải lịch");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [calendarId]);
 
-  // Get the events based on active tab
-  const displayEvents = activeTab === "upcoming" ? upcomingEvents : pastEvents;
+  useEffect(() => {
+    fetchCalendarAndEvents();
+  }, [fetchCalendarAndEvents]);
 
-  // Reset page when changing tabs
-  const handleTabChange = (value: string) => {
-    setActiveTab(value);
-    setCurrentPage(1);
-  };
+  // Sync settings form when calendar loads
+  useEffect(() => {
+    if (calendar) {
+      setEditName(calendar.name);
+      setEditCover(calendar.coverImage ?? "");
+      setEditAvatar(calendar.avatarImage ?? "");
+      setEditDesc(calendar.description ?? "");
+    }
+  }, [calendar]);
 
-  // Xử lý xóa sự kiện
-  const handleDeleteEvent = (eventId: string | number) => {
-    setEventToDelete(eventId);
+  // Delete single event
+  const handleDeleteEvent = (id: string) => {
+    setEventToDelete(id);
     setShowDeleteEventDialog(true);
   };
-
-  const confirmDeleteEvent = () => {
-    if (eventToDelete) {
-      setEvents(events.filter((event) => event.id !== eventToDelete));
+  const confirmDeleteEvent = async () => {
+    if (!eventToDelete) return;
+    try {
+      await deleteEventFromCalendar(calendarId, eventToDelete);
+      fetchCalendarAndEvents();
+    } catch (err) {
+      console.error(err);
+    } finally {
       setShowDeleteEventDialog(false);
       setEventToDelete(null);
     }
   };
 
-  // Xử lý xóa trang lịch
-  const handleDeleteCalendar = () => {
-    setShowDeleteCalendarDialog(true);
+  // Delete entire calendar
+  const handleDeleteCalendar = () => setShowDeleteCalendarDialog(true);
+  const confirmDeleteCalendar = async () => {
+    try {
+      await deleteCalendar(calendarId);
+      router.push("/");
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const confirmDeleteCalendar = () => {
-    // Xóa tất cả sự kiện
-    setEvents([]);
-    setShowDeleteCalendarDialog(false);
-    // Chuyển hướng về trang chủ
-    router.push("/");
+  // Save settings
+  const handleSaveSettings = async () => {
+    setSaving(true);
+    try {
+      await updateCalendar(calendarId, {
+        name: editName,
+        color: editColor,
+        coverImage: editCover,
+        avatarImage: editAvatar,
+        description: editDesc,
+      });
+      fetchCalendarAndEvents();
+      alert("Cập nhật thành công!");
+    } catch (err: any) {
+      console.error(err);
+      alert("Cập nhật thất bại: " + err.message);
+    } finally {
+      setSaving(false);
+    }
   };
 
-  // Xử lý lưu thay đổi
-  const handleSaveChanges = () => {
-    // Thực hiện lưu thay đổi
-    alert("Đã lưu thay đổi thành công!");
-  };
+  // Filter upcoming / past
+  const now = new Date();
+  const upcomingEvents = events
+    .filter((e) => parseISO(e.startTime) >= now)
+    .map(convertToEventWithUI);
+  const pastEvents = events
+    .filter((e) => parseISO(e.startTime) < now)
+    .map(convertToEventWithUI);
+  const displayEvents =
+    activeTab === "upcoming" ? upcomingEvents : pastEvents;
 
-  // Nếu ID lịch không hợp lệ, hiển thị thông báo lỗi
-  if (!isValidCalendar) {
+  if (loading) {
+    return <div className="py-8 text-center">Đang tải lịch…</div>;
+  }
+  if (error) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Không tìm thấy lịch</h1>
-          <p className="text-gray-600 mb-4">
-            Lịch với ID {calendarId} không tồn tại hoặc đã bị xóa.
-          </p>
-          <Button onClick={() => (window.location.href = "/")}>
-            Quay lại trang chủ
-          </Button>
-        </div>
+      <div className="py-8 text-center text-red-500">
+        Lỗi khi tải: {error}
+      </div>
+    );
+  }
+  if (!calendar) {
+    return (
+      <div className="py-8 text-center text-gray-600">
+        Không tìm thấy lịch này.
       </div>
     );
   }
@@ -139,10 +226,11 @@ export default function SettingEventPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-6xl mx-auto px-4 py-6">
+        {/* Header */}
         <div className="flex items-center mb-6">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-600">
-              <span className="text-lg">D</span>
+              L
             </div>
             <h1 className="text-3xl font-medium text-gray-700">
               {calendar.name}
@@ -151,216 +239,200 @@ export default function SettingEventPage() {
           <div className="ml-auto">
             <Button
               variant="outline"
-              className="text-gray-600"
-              onClick={() => router.push(`/featured-calendar/${calendarId}`)}
+              onClick={() =>
+                router.push(`/featured-calendar/${calendarId}`)
+              }
             >
-              Trang lịch <span className="ml-1">→</span>
+              Trang lịch →
             </Button>
           </div>
         </div>
 
-        <div className="mb-6">
-          <Tabs defaultValue="events" className="w-full">
-            <TabsList className="border-b w-full justify-start rounded-none bg-transparent p-0 h-auto">
-              <TabsTrigger
-                value="events"
-                className="rounded-none border-b-2 border-transparent px-4 py-2 data-[state=active]:border-gray-900 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-              >
-                Sự kiện
-              </TabsTrigger>
-              <TabsTrigger
-                value="settings"
-                className="rounded-none border-b-2 border-transparent px-4 py-2 data-[state=active]:border-gray-900 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-              >
-                Cài đặt
-              </TabsTrigger>
-            </TabsList>
+        {/* Tabs */}
+        <Tabs defaultValue="events" className="w-full mb-4">
+          <TabsList className="border-b">
+            <TabsTrigger value="events">Sự kiện</TabsTrigger>
+            <TabsTrigger value="settings">Cài đặt</TabsTrigger>
+          </TabsList>
 
-            <TabsContent value="events" className="pt-4">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center">
-                  <h2 className="text-xl font-medium text-gray-800">Sự kiện</h2>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="ml-2 text-blue-600 h-8 w-8 p-0"
-                    onClick={() => setShowAddLumaModal(true)}
-                  >
-                    +
-                  </Button>
+          {/* Events Tab */}
+          <TabsContent value="events">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center">
+                <h2 className="text-xl font-medium text-gray-800">
+                  Sự kiện
+                </h2>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="ml-2"
+                  onClick={() => setShowAddLumaModal(true)}
+                >
+                  +
+                </Button>
+              </div>
+              <Tabs
+                value={activeTab}
+                onValueChange={(v) => {
+                  setActiveTab(v as any);
+                  setCurrentPage(1);
+                }}
+                className="w-auto"
+              >
+                <TabsList className="bg-gray-100 rounded p-1">
+                  <TabsTrigger value="upcoming">Sắp tới</TabsTrigger>
+                  <TabsTrigger value="past">Đã qua</TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
+
+            {displayEvents.length > 0 ? (
+              <EventList
+                events={displayEvents}
+                currentPage={currentPage}
+                onPageChange={setCurrentPage}
+                eventsPerPage={10}
+                onEventClick={(evt) => handleDeleteEvent(evt.id)}
+              />
+            ) : (
+              <EventEmptyState
+                onAddEvent={() => setShowAddLumaModal(true)}
+                isPast={activeTab === "past"}
+              />
+            )}
+          </TabsContent>
+
+          {/* Settings Tab */}
+  
+          <TabsContent value="settings">
+            <div className="p-6 bg-white rounded-lg border mt-4">
+              <h3 className="text-lg font-medium mb-4">Cài đặt trang chủ</h3>
+              <div className="space-y-6">
+                {/* Tên */}
+                <div className="flex justify-between items-start pb-4 border-b">
+                  <div className="flex-1">
+                    <h4 className="font-medium">Tên trang chủ</h4>
+                    <p className="text-sm text-gray-500 mb-2">
+                      Tên hiển thị cho trang sự kiện của bạn
+                    </p>
+                    <input
+                      type="text"
+                      value={editName}
+                      onChange={(e) => setEditName(e.target.value)}
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                    />
+                  </div>
                 </div>
 
-                <Tabs
-                  value={activeTab}
-                  onValueChange={handleTabChange}
-                  className="w-auto"
-                >
-                  <TabsList className="bg-gray-100 rounded-[8px] text-gray-900 leading-[24px] p-[2px]">
-                    <TabsTrigger
-                      value="upcoming"
-                      className="flex items-center justify-center border-[0.8px] border-solid border-[#0000] text-gray-900 text-[14px] font-medium leading-[21px] p-[5px_8px] text-center data-[state=active]:bg-white data-[state=active]:rounded-md"
-                    >
-                      Sắp tới
-                    </TabsTrigger>
-                    <TabsTrigger
-                      value="past"
-                      className="flex items-center justify-center border-[0.8px] border-solid border-[#0000] text-gray-900 text-[14px] font-medium leading-[21px] p-[5px_8px] text-center data-[state=active]:bg-white data-[state=active]:rounded-md"
-                    >
-                      Đã qua
-                    </TabsTrigger>
-                  </TabsList>
-                </Tabs>
-              </div>
-
-              {displayEvents.length > 0 ? (
-                <EventList
-                  events={displayEvents}
-                  currentPage={currentPage}
-                  onPageChange={setCurrentPage}
-                  eventsPerPage={10}
-                  onEventClick={handleDeleteEvent}
-                />
-              ) : (
-                <EventEmptyState
-                  onAddEvent={() => setShowAddLumaModal(true)}
-                  isPast={activeTab === "past"}
-                />
-              )}
-            </TabsContent>
-
-            <TabsContent value="settings">
-              <div className="p-6 bg-white rounded-lg border mt-4">
-                <h3 className="text-lg font-medium mb-4">Cài đặt trang chủ</h3>
-                <div className="space-y-6">
-                  <div className="flex justify-between items-start pb-4 border-b">
-                    <div className="flex-1">
-                      <h4 className="font-medium">Tên trang chủ</h4>
-                      <p className="text-sm text-gray-500 mb-2">
-                        Tên hiển thị cho trang sự kiện của bạn
-                      </p>
-                      <div className="flex items-center">
-                        <input
-                          type="text"
-                          defaultValue={calendar.name}
-                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                        />
+                {/* Ảnh bìa */}
+                <div className="flex justify-between items-start pb-4 border-b">
+                  <div className="flex-1">
+                    <h4 className="font-medium">Ảnh bìa</h4>
+                    <p className="text-sm text-gray-500 mb-2">
+                      Ảnh hiển thị ở đầu trang sự kiện
+                    </p>
+                    <div className="mt-2 relative w-full h-[120px] overflow-hidden rounded-lg border border-dashed border-gray-300 bg-gray-50 flex items-center justify-center">
+                      <img
+                        src={editCover || "/placeholder.svg?height=600&width=1200"}
+                        alt="Cover preview"
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => {
+                            const url = prompt("Nhập URL ảnh bìa", editCover);
+                            if (url) setEditCover(url);
+                          }}
+                        >
+                          Thay đổi ảnh
+                        </Button>
                       </div>
                     </div>
                   </div>
+                </div>
 
-                  <div className="flex justify-between items-start pb-4 border-b">
-                    <div className="flex-1">
-                      <h4 className="font-medium">Ảnh bìa</h4>
-                      <p className="text-sm text-gray-500 mb-2">
-                        Ảnh hiển thị ở đầu trang sự kiện
-                      </p>
-                      <div className="mt-2 relative w-full h-[120px] overflow-hidden rounded-lg border border-dashed border-gray-300 bg-gray-50 flex items-center justify-center">
-                        <div className="absolute inset-0">
-                          <Image
-                            src={
-                              calendar.coverImage ||
-                              "/placeholder.svg?height=600&width=1200"
-                            }
-                            alt="Cover preview"
-                            className="w-full h-full object-cover"
-                            width={1200}
-                            height={600}
-                            priority
-                          />
-                        </div>
+                {/* Ảnh đại diện */}
+                <div className="flex justify-between items-start pb-4 border-b">
+                  <div className="flex-1">
+                    <h4 className="font-medium">Ảnh đại diện</h4>
+                    <p className="text-sm text-gray-500 mb-2">
+                      Logo hoặc ảnh đại diện cho trang sự kiện
+                    </p>
+                    <div className="flex items-center gap-4">
+                      <div className="w-16 h-16 rounded-lg bg-gray-100 overflow-hidden relative">
+                        <img
+                          src={editAvatar || "/placeholder.svg?height=60&width=60"}
+                          alt="Avatar preview"
+                          className="w-full h-full object-cover"
+                        />
                         <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                          <Button variant="secondary" size="sm">
-                            Thay đổi ảnh
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            className="w-full h-full rounded-none text-xs"
+                            onClick={() => {
+                              const url = prompt("Nhập URL avatar", editAvatar);
+                              if (url) setEditAvatar(url);
+                            }}
+                          >
+                            Thay đổi
                           </Button>
                         </div>
                       </div>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-between items-start pb-4 border-b">
-                    <div className="flex-1">
-                      <h4 className="font-medium">Ảnh đại diện</h4>
-                      <p className="text-sm text-gray-500 mb-2">
-                        Logo hoặc ảnh đại diện cho trang sự kiện
-                      </p>
-                      <div className="flex items-center gap-4">
-                        <div className="w-16 h-16 rounded-lg bg-gray-100 overflow-hidden relative">
-                          <Image
-                            src={
-                              calendar.avatarImage ||
-                              "/placeholder.svg?height=60&width=60"
-                            }
-                            alt="Avatar preview"
-                            className="w-full h-full object-cover"
-                            width={60}
-                            height={60}
-                            priority
-                          />
-                          <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                            <Button
-                              variant="secondary"
-                              size="sm"
-                              className="w-full h-full rounded-none text-xs"
-                            >
-                              Thay đổi
-                            </Button>
-                          </div>
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          Kích thước đề xuất: 400x400 pixel
-                        </div>
+                      <div className="text-sm text-gray-500">
+                        Kích thước đề xuất: 400x400 pixel
                       </div>
                     </div>
                   </div>
+                </div>
 
-                  <div className="flex justify-between items-start pb-4 border-b">
-                    <div className="flex-1">
-                      <h4 className="font-medium">Mô tả</h4>
-                      <p className="text-sm text-gray-500 mb-2">
-                        Mô tả ngắn về trang sự kiện của bạn
-                      </p>
-                      <textarea
-                        className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                        defaultValue={calendar.description || ""}
-                      ></textarea>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-between items-center pt-4 border-t border-red-200">
-                    <div>
-                      <h4 className="font-medium text-red-600">
-                        Xóa trang lịch
-                      </h4>
-                      <p className="text-sm text-gray-500">
-                        Hành động này không thể hoàn tác
-                      </p>
-                    </div>
-                    <div>
-                      <Button
-                        variant="destructive"
-                        onClick={handleDeleteCalendar}
-                      >
-                        Xóa trang lịch
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-end mt-4">
-                    <Button
-                      className="bg-blue-600 hover:bg-blue-700"
-                      onClick={handleSaveChanges}
-                    >
-                      Lưu thay đổi
-                    </Button>
+                {/* Mô tả */}
+                <div className="flex justify-between items-start pb-4 border-b">
+                  <div className="flex-1">
+                    <h4 className="font-medium">Mô tả</h4>
+                    <p className="text-sm text-gray-500 mb-2">
+                      Mô tả ngắn về trang sự kiện của bạn
+                    </p>
+                    <textarea
+                      value={editDesc}
+                      onChange={(e) => setEditDesc(e.target.value)}
+                      className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    ></textarea>
                   </div>
                 </div>
+
+                {/* Xóa trang lịch */}
+                <div className="flex justify-between items-center pt-4 border-t border-red-200">
+                  <div>
+                    <h4 className="font-medium text-red-600">Xóa trang lịch</h4>
+                    <p className="text-sm text-gray-500">
+                      Hành động này không thể hoàn tác
+                    </p>
+                  </div>
+                  <Button variant="destructive" onClick={handleDeleteCalendar}>
+                    Xóa trang lịch
+                  </Button>
+                </div>
+
+                {/* Lưu thay đổi */}
+                <div className="flex justify-end mt-4">
+                  <Button
+                    className="bg-blue-600 hover:bg-blue-700"
+                    onClick={handleSaveChanges}
+                    disabled={savingSettings}
+                  >
+                    {savingSettings ? "Đang lưu…" : "Lưu thay đổi"}
+                  </Button>
+                </div>
               </div>
-            </TabsContent>
-          </Tabs>
-        </div>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
 
-      {/* Modal xác nhận xóa sự kiện */}
+      {/* Delete Event Dialog */}
       <Dialog
         open={showDeleteEventDialog}
         onOpenChange={setShowDeleteEventDialog}
@@ -369,15 +441,11 @@ export default function SettingEventPage() {
           <DialogHeader>
             <DialogTitle>Xóa sự kiện</DialogTitle>
             <DialogDescription>
-              Bạn có chắc chắn muốn xóa sự kiện này? Hành động này không thể
-              hoàn tác.
+              Bạn có chắc muốn xóa sự kiện này?
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setShowDeleteEventDialog(false)}
-            >
+            <Button onClick={() => setShowDeleteEventDialog(false)}>
               Hủy
             </Button>
             <Button variant="destructive" onClick={confirmDeleteEvent}>
@@ -387,7 +455,7 @@ export default function SettingEventPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Modal xác nhận xóa trang lịch */}
+      {/* Delete Calendar Dialog */}
       <Dialog
         open={showDeleteCalendarDialog}
         onOpenChange={setShowDeleteCalendarDialog}
@@ -396,32 +464,32 @@ export default function SettingEventPage() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <AlertCircle className="h-5 w-5 text-red-500" />
-              <span>Xóa trang lịch</span>
+              Xóa trang lịch
             </DialogTitle>
             <DialogDescription>
-              Bạn có chắc chắn muốn xóa trang lịch này? Tất cả sự kiện và dữ
-              liệu liên quan sẽ bị xóa vĩnh viễn. Hành động này không thể hoàn
-              tác.
+              Hành động này không thể hoàn tác.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setShowDeleteCalendarDialog(false)}
-            >
+            <Button onClick={() => setShowDeleteCalendarDialog(false)}>
               Hủy
             </Button>
-            <Button variant="destructive" onClick={confirmDeleteCalendar}>
+            <Button
+              variant="destructive"
+              onClick={confirmDeleteCalendar}
+            >
               Xóa vĩnh viễn
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Modal thêm sự kiện */}
+      {/* Add Event Modal */}
       <AddLumaEventModal
         isOpen={showAddLumaModal}
+        calendarId={calendarId}
         onClose={() => setShowAddLumaModal(false)}
+        onEventAdded={fetchCalendarAndEvents}
       />
     </div>
   );
