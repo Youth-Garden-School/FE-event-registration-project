@@ -15,7 +15,6 @@ export default function EventPage() {
   const eventId = params.id as string;
   const [isRegistered, setIsRegistered] = useState(false);
 
-  // Check if event exists
   const eventExists = events.some((e) => e.id.toString() === eventId);
 
   if (!eventExists) {
@@ -39,10 +38,8 @@ export default function EventPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Main content */}
       <main className="max-w-6xl mx-auto py-8 px-4">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-          {/* Left column - Event banner and organizers */}
           <div className="md:col-span-5 lg:col-span-4">
             <EventLeftColumn eventId={eventId} />
           </div>
