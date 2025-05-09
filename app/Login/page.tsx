@@ -8,6 +8,18 @@ import { apiClient, API_BASE_URL } from "@/components/common/apiClient";
 import { loginSchema, otpSchema } from "./LoginSchema";
 import { toast } from "react-toastify";
 
+// Định nghĩa kiểu dữ liệu cho phản hồi khi xác thực OTP
+interface LoginVerifyResponse {
+  result: {
+    accessToken: string;
+    refreshToken: string;
+    user: {
+      id: string;
+      email: string;
+    };
+  };
+}
+
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
@@ -18,7 +30,6 @@ export default function LoginPage() {
   // Base URL from Postman collection
   const PROD_URL =
     "https://be-event-registration-project-jpv3.onrender.com/api";
-  // Nhánh Đức
 
   // Handle email submission
   const handleEmailSubmit = async (e: React.FormEvent) => {
@@ -40,7 +51,7 @@ export default function LoginPage() {
       setIsOtpStep(true);
       toast.success("OTP đã được gửi đến email của bạn!");
     } catch (err: any) {
-      const message = err.message || "Đã xảy ra lỗi khi gửi OTP";
+      const message = err?.message || "Đã xảy ra lỗi khi gửi OTP";
       setError(message);
       toast.error(message);
     } finally {
@@ -64,7 +75,7 @@ export default function LoginPage() {
     }
 
     try {
-      const response = await apiClient.post(
+      const response = await apiClient.post<LoginVerifyResponse>(
         `${API_BASE_URL}/auths/login/verify`,
         {
           email,
@@ -72,7 +83,9 @@ export default function LoginPage() {
         },
       );
 
+      // Truy cập trực tiếp vào response.result thay vì response.data
       const accessToken = response.result?.accessToken;
+
       if (accessToken) {
         localStorage.setItem("ACCESS_TOKEN", accessToken);
         localStorage.setItem("refresh_token", response.result.refreshToken);
@@ -80,11 +93,12 @@ export default function LoginPage() {
         toast.success("Đăng nhập thành công!");
         window.location.assign("/event");
       } else {
-        setError("Không nhận được accessToken từ server");
-        toast.error("Không nhận được accessToken từ server");
+        const msg = "Không nhận được accessToken từ server";
+        setError(msg);
+        toast.error(msg);
       }
     } catch (err: any) {
-      const message = err.message || "OTP không hợp lệ";
+      const message = err?.message || "OTP không hợp lệ";
       setError(message);
       toast.error(message);
     } finally {

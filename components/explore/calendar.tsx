@@ -7,6 +7,7 @@ import { useState, useCallback, useEffect } from "react";
 import { UserCheck } from "lucide-react";
 import { apiRequest } from "./api";
 import { Toast } from "@/components/ui/toast";
+import Link from "next/link";
 
 // ----- Interfaces -----
 interface Calendar {
@@ -182,11 +183,9 @@ const CalendarList = () => {
         <h2 className="text-xl font-bold text-gray-900 mb-4">Lịch nổi bật</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
           {calendars.map((calendar) => (
-            <FollowCard
-              key={calendar.id}
-              calendar={calendar}
-              setCalendars={setCalendars}
-            />
+            <Link key={calendar.id} href={`/featured-calendar/${calendar.id}`}>
+              <FollowCard calendar={calendar} setCalendars={setCalendars} />
+            </Link>
           ))}
         </div>
       </div>
