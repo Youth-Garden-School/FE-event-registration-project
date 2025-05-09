@@ -16,6 +16,7 @@ import {
   Check,
 } from "lucide-react";
 import { ReactNode } from "react";
+import { toast } from "react-toastify"; // Thêm thư viện toast
 
 // Component tạo Input Group với Icon
 function InputGroupWithIcon({
@@ -105,6 +106,12 @@ export function ProfileSection() {
   const handleSave = async () => {
     try {
       const token = localStorage.getItem("ACCESS_TOKEN");
+      // Hiển thị Toast thông báo đang tải
+      toast.loading("Đang cập nhật trang cá nhân của bạn...", {
+        toastId: "loading-toast",
+        style: { backgroundColor: "#000", fontWeight: "bold" }, // Màu nền khi đang tải là đen
+      });
+
       await axios.put(
         "https://be-event-registration-project-jpv3.onrender.com/api/users",
         {
@@ -121,10 +128,25 @@ export function ProfileSection() {
           },
         },
       );
-      alert("Đã lưu thành công!");
+
+      // Hiển thị Toast thông báo thành công
+      toast.update("loading-toast", {
+        render: "Đã cập nhật trang cá nhân thành công!",
+        type: "success",
+        isLoading: false,
+        icon: <Check className="h-5 w-5 text-black" />,
+        style: { backgroundColor: "#28a745", fontWeight: "bold" }, // Màu nền khi thành công là xanh lá
+      });
     } catch (error) {
       console.error("Error saving profile:", error);
-      alert("Không thể lưu thông tin!");
+      // Hiển thị Toast thông báo lỗi
+      toast.update("loading-toast", {
+        render: "Không thể lưu thông tin!",
+        type: "error",
+        isLoading: false,
+        icon: <X className="h-5 w-5 text-white" />,
+        style: { backgroundColor: "#dc3545" }, // Màu nền khi lỗi là đỏ
+      });
     }
   };
 

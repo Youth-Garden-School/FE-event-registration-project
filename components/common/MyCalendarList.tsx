@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation"; // ✅ Import useRouter
 
 import { apiRequest } from "@/components/explore/api";
 
@@ -52,18 +53,31 @@ const MyCalendarList = ({ onLoad }: MyCalendarListProps) => {
 };
 
 const LendarList = ({ calendar }: { calendar: Calendar }) => {
+  const router = useRouter();
+
+  const handleClick = () => {
+    router.push(`/add-event?id=${calendar.id}`); // ✅ Điều hướng đến add-event với ID
+  };
+
   return (
-    <div className="p-1">
-      <div className="bg-white shadow-md rounded-lg p-4 flex flex-col items-start max-w-xs">
-        <Image
-          src={calendar.image || "/images/events/vcs-mixer.jpg"}
-          alt={calendar.name}
-          width={100}
-          height={100}
-          className="w-16 h-16 mb-4 rounded-md"
-        />
-        <h2 className="text-lg font-semibold">{calendar.name}</h2>
-        <p className="text-gray-500">
+    <div
+      onClick={handleClick}
+      className="p-2 w-full sm:w-1/2 md:w-1/3 lg:w-1/4 cursor-pointer"
+    >
+      <div className="bg-white shadow-md rounded-xl p-4 h-full flex flex-col justify-between hover:shadow-lg transition-shadow">
+        <div>
+          <Image
+            src={calendar.image || "/images/events/vcs-mixer.jpg"}
+            alt={calendar.name}
+            width={64}
+            height={64}
+            className="w-16 h-16 mb-3 rounded-md object-cover"
+          />
+          <h2 className="text-base font-semibold mb-1 line-clamp-1">
+            {calendar.name}
+          </h2>
+        </div>
+        <p className="text-gray-500 text-sm line-clamp-3 min-h-[3.75rem]">
           {calendar.description || "No description available"}
         </p>
       </div>

@@ -43,7 +43,6 @@ export default function AppearancePage() {
             tabs={[
               { id: "account", label: "Tài khoản" },
               { id: "preferences", label: "Tùy chọn" },
-              { id: "payment", label: "Thanh toán" },
             ]}
             defaultTab="account"
             customTitleClass={isScrolled ? "text-sm" : "text-xl"} // Kích thước chữ thay đổi khi cuộn
