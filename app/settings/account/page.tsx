@@ -11,7 +11,8 @@ import { ThirdPartySection } from "@/components/common/settings/ThirdPartySectio
 import { SyncSection } from "@/components/common/settings/SyncSection";
 import { DeviceSection } from "@/components/common/settings/DeviceSection";
 import { DeleteAccountSection } from "@/components/common/settings/DeleteAccountSection";
-
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 export default function SettingsPage() {
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -49,7 +50,6 @@ export default function SettingsPage() {
             tabs={[
               { id: "account", label: "Tài khoản" },
               { id: "preferences", label: "Tùy chọn" },
-              { id: "payment", label: "Thanh toán" },
             ]}
             defaultTab="account"
             customTitleClass={isScrolled ? "text-sm" : "text-xl"} // Kích thước chữ thay đổi khi cuộn
@@ -58,6 +58,7 @@ export default function SettingsPage() {
 
         <div className="flex-1 mt-4">
           <SectionWrapper>
+            <ToastContainer />
             <ProfileSection />
           </SectionWrapper>
 
