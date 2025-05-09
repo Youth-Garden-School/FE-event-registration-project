@@ -13,7 +13,7 @@ export default function CalendarCustomization({
   form,
   selectedColor,
   setSelectedColor,
-}) {
+}: any) {
   const colors = [
     "#9ca3af", // gray
     "#ec4899", // pink
@@ -131,7 +131,6 @@ export default function CalendarCustomization({
                 <FormMessage />
               </FormItem>
             )}
-            Esq
           />
         </div>
       </div>

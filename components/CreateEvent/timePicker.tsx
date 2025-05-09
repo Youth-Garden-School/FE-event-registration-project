@@ -6,9 +6,9 @@ export default function TimePicker({
   selectedTime,
   onSelect,
   isEndPicker = false,
-}) {
-  const [availableTimes, setAvailableTimes] = useState([]);
-  const pickerRef = useRef(null);
+}: any) {
+  const [availableTimes, setAvailableTimes] = useState<any>([]);
+  const pickerRef = useRef<any>(null);
 
   useEffect(() => {
     const start = startTime
@@ -28,7 +28,7 @@ export default function TimePicker({
   }, [startTime, isEndPicker]);
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
+    const handleClickOutside = (event: any) => {
       if (pickerRef.current && !pickerRef.current.contains(event.target)) {
         onSelect(null);
       }
@@ -42,7 +42,7 @@ export default function TimePicker({
       ref={pickerRef}
       className="absolute bg-white shadow-md rounded-md p-2 mt-2 w-40"
     >
-      {availableTimes.map((time, index) => {
+      {availableTimes.map((time: any, index: any) => {
         const diff = startTime ? differenceInMinutes(time, startTime) : 0;
         const label = isEndPicker
           ? `${Math.floor(diff / 60) > 0 ? `${Math.floor(diff / 60)}h ` : ""}${diff % 60 > 0 ? `${diff % 60}m` : ""}`

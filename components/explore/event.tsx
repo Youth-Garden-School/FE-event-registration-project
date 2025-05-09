@@ -129,7 +129,7 @@ const EventList: React.FC = () => {
               <div key={event.id} className="flex space-x-4 cursor-pointer">
                 <div className="w-24 h-24 relative">
                   <Image
-                    src={event.coverImage}
+                    src={event.coverImage || ""}
                     alt={event.title}
                     layout="fill"
                     objectFit="cover"

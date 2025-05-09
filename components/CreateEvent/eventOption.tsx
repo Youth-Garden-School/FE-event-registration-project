@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 
-export default function EventOptions({ form }) {
+export default function EventOptions({ form }: any) {
   const [capacity, setCapacity] = useState("");
   const [isLimited, setIsLimited] = useState(false);
   const [overloadList, setOverloadList] = useState(false);

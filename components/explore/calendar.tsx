@@ -38,7 +38,6 @@ const CalendarList = () => {
       } catch (error) {
         Toast({
           title: "Error",
-          description: "Failed to fetch calendars",
           variant: "destructive",
         });
       } finally {
@@ -93,12 +92,10 @@ const FollowCard = ({
       );
       Toast({
         title: "Success",
-        description: isFollowing ? "Unfollowed calendar" : "Followed calendar",
       });
     } catch (error) {
       Toast({
         title: "Error",
-        description: `Failed to ${isFollowing ? "unfollow" : "follow"} calendar`,
         variant: "destructive",
       });
     }

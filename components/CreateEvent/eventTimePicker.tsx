@@ -14,15 +14,15 @@ export default function EventTimePicker() {
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showEndPicker, setShowEndPicker] = useState(false);
 
-  const pickerRef = useRef(null);
-  const pickerRef1 = useRef(null);
+  const pickerRef = useRef<any>(null);
+  const pickerRef1 = useRef<any>(null);
 
   useEffect(() => {
-    function handleClickOutside(event) {
-      if (pickerRef.current && !pickerRef.current.contains(event.target)) {
+    function handleClickOutside(event: any) {
+      if (pickerRef.current && !pickerRef?.current?.contains(event.target)) {
         setShowPicker(false);
       }
-      if (pickerRef1.current && !pickerRef1.current.contains(event.target)) {
+      if (pickerRef1.current && !pickerRef1?.current?.contains(event.target)) {
         setShowPicker1(false);
       }
     }
@@ -56,7 +56,7 @@ export default function EventTimePicker() {
               >
                 <DatePicker
                   selected={startDate1}
-                  onChange={(date) => {
+                  onChange={(date: any) => {
                     setStartDate1(date);
                     setShowPicker(false);
                     if (endDate1 < date) {
@@ -79,7 +79,7 @@ export default function EventTimePicker() {
                 <TimePicker
                   startTime={null}
                   selectedTime={startDate}
-                  onSelect={(time) => {
+                  onSelect={(time: any) => {
                     if (time) setStartDate(time);
                     setShowStartPicker(false);
                   }}
@@ -111,7 +111,7 @@ export default function EventTimePicker() {
               >
                 <DatePicker
                   selected={endDate1}
-                  onChange={(date) => {
+                  onChange={(date: any) => {
                     setEndDate1(date);
                     setShowPicker1(false);
                   }}
@@ -131,7 +131,7 @@ export default function EventTimePicker() {
                 <TimePicker
                   startTime={startDate}
                   selectedTime={endDate}
-                  onSelect={(time) => {
+                  onSelect={(time: any) => {
                     if (time) setEndDate(time);
                     setShowEndPicker(false);
                   }}

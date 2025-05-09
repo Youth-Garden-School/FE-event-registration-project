@@ -6,8 +6,8 @@ export default function CoverImageUploader({
   setCoverImage,
   profileImage,
   setProfileImage,
-}) {
-  const handleImageUpload = (setImage) => {
+}: any) {
+  const handleImageUpload = (setImage: any) => {
     const input = document.createElement("input");
     input.type = "file";
     input.accept = "image/*";
