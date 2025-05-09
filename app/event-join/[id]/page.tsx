@@ -15,7 +15,6 @@ export default function EventPage() {
   const eventId = params.id as string;
   const [isRegistered, setIsRegistered] = useState(false);
 
-  // Check if event exists
   const eventExists = events.some((e) => e.id.toString() === eventId);
 
   if (!eventExists) {
