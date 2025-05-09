@@ -62,12 +62,18 @@ export function ProfileSection() {
 
   // Load dữ liệu từ API khi component mount
   useEffect(() => {
+    const token = localStorage.getItem("ACCESS_TOKEN");
     axios
       .get(
-        "https://be-event-registration-project-jpv3.onrender.com/api/user/profile",
+        "https://be-event-registration-project-jpv3.onrender.com/api/users/me",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
       ) // Cập nhật URL backend của bạn
       .then((res) => {
-        const data = res.data;
+        const data = res.data.result;
         setFirstName(data.firstName || "");
         setLastName(data.lastName || "");
         setUsername(data.username || "");
@@ -98,8 +104,9 @@ export function ProfileSection() {
 
   const handleSave = async () => {
     try {
-      await axios.post(
-        "https://be-event-registration-project-jpv3.onrender.com/api/user/profile",
+      const token = localStorage.getItem("ACCESS_TOKEN");
+      await axios.put(
+        "https://be-event-registration-project-jpv3.onrender.com/api/users",
         {
           firstName,
           lastName,
@@ -107,6 +114,11 @@ export function ProfileSection() {
           bio,
           avatar: avatarSrc,
           socials,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
       );
       alert("Đã lưu thành công!");
