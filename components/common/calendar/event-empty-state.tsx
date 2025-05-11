@@ -19,7 +19,7 @@ export function EventEmptyState({ onAddEvent, isPast = false }: EventEmptyStateP
         {isPast ? "Lịch này không có sự kiện đã qua." : "Lịch này không có sự kiện sắp tới."}
       </p>
       <Button onClick={onAddEvent} className="bg-gray-900 hover:bg-gray-800">
-        + Thêm sự kiện Luma
+        + Thêm sự kiện Resgista 
       </Button>
     </div>
   )

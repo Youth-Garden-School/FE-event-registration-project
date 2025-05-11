@@ -288,7 +288,7 @@ const handleSaveChanges = async () => {
 
             {displayEvents.length > 0 ? (
               <EventList
-                events={displayEvents}
+                calendarId={calendarId}
                 currentPage={currentPage}
                 onPageChange={setCurrentPage}
                 eventsPerPage={10}

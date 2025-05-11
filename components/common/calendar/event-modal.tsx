@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { format } from "date-fns"
 import { vi } from "date-fns/locale"
@@ -27,20 +27,27 @@ interface EventModalProps {
   onClose: () => void
   onCancel?: (removed: EventWithUI) => void
   event: EventWithUI
+  isRegistered: boolean
+  isManaged?: boolean
+  onRegisterChange: (registered: boolean) => void
 }
 
-export function EventModal({ isOpen, onClose, onCancel, event }: EventModalProps) {
+export function EventModal({ isOpen, onClose, onCancel, event , isRegistered, isManaged = false, onRegisterChange, }:  EventModalProps) {
   const router = useRouter()
   const [loadingRegister, setLoadingRegister] = useState(false)
   const [loadingCancel, setLoadingCancel] = useState(false)
 
   // Kiểm tra xem người dùng có quyền quản lý sự kiện không
-  const canManageEvent = event.isUserEvent || event.createdBy === "current-user-id"
+  const canManageEvent = isManaged
 
+  const [localRegistered, setLocalRegistered] = useState(isRegistered);
+    useEffect(() => {
+      setLocalRegistered(isRegistered);
+  }, [isRegistered]);
+
+  
   if (!isOpen || !event) return null
 
-  // Xác định trạng thái đăng ký từ props
-  const isRegistered = Boolean(event.myRegistrationId)
 
   // Format ngày tháng tiếng Việt
   const formatDate = (date: Date) => {
@@ -59,33 +66,35 @@ export function EventModal({ isOpen, onClose, onCancel, event }: EventModalProps
 
   // Xử lý đăng ký sự kiện
   const handleRegister = async () => {
-    setLoadingRegister(true)
-    try {
-      await registerEvent(event.id)
-      router.refresh()
-      onClose()
-    } catch (e: any) {
-      alert("Đăng ký thất bại: " + e.message)
-    } finally {
-      setLoadingRegister(false)
-    }
+  setLoadingRegister(true);
+  try {
+    await registerEvent(event.id);
+    setLocalRegistered(true);
+    onRegisterChange(true);
+    router.refresh();
+    onClose();
+  } catch (err) {
+    alert("Đăng ký thất bại: " + (err as any).message);
+  } finally {
+    setLoadingRegister(false);
   }
+};
 
-  // Xử lý hủy đăng ký
   const handleCancelRegistration = async () => {
-    if (!event.myRegistrationId) return
-    setLoadingCancel(true)
-    try {
-      await cancelRegistration(event.myRegistrationId)
-      onCancel?.(event)
-      router.refresh()
-      onClose()
-    } catch (e: any) {
-      alert("Hủy không thành công: " + e.message)
-    } finally {
-      setLoadingCancel(false)
-    }
+  if (!event.myRegistrationId) return;
+  setLoadingCancel(true);
+  try {
+    await cancelRegistration(event.myRegistrationId);
+    setLocalRegistered(false);
+    onRegisterChange(false);
+    router.refresh();
+    onClose();
+  } catch (err) {
+    alert("Hủy đăng ký thất bại: " + (err as any).message);
+  } finally {
+    setLoadingCancel(false);
   }
+};
 
   // Helper để sao chép liên kết
   const handleCopyLink = (url: string, msg = "Đã sao chép liên kết!") => {
@@ -178,7 +187,7 @@ export function EventModal({ isOpen, onClose, onCancel, event }: EventModalProps
             </div>
 
             {/* Thêm thông báo quản lý sự kiện nếu người dùng có quyền */}
-            {canManageEvent && (
+            {isManaged && (
               <div className="bg-gray-100 p-3 flex justify-between items-center">
                 <div className="text-gray-800">Bạn có quyền quản lý sự kiện này.</div>
                 <Button
@@ -282,7 +291,7 @@ export function EventModal({ isOpen, onClose, onCancel, event }: EventModalProps
 
             {/* Registration Section */}
             <div className="p-5 border-t border-gray-100">
-              {!isRegistered ? (
+              {!localRegistered ? (
                 <div className="bg-white rounded-lg border border-gray-200 p-4">
                   <h3 className="font-medium text-lg mb-4">Đăng kí</h3>
                   <p className="text-gray-600 mb-4">Chào mừng! Để tham gia sự kiện, vui lòng đăng kí bên dưới.</p>

@@ -15,7 +15,9 @@ interface EventCardProps {
   onClick?: () => void
   isRegistered: boolean
   isManaged?: boolean
+  
   onRegisterChange: (registered: boolean) => void
+  registrationId?: string
 }
 
 export default function EventCard({
@@ -24,6 +26,7 @@ export default function EventCard({
   isRegistered: initialRegistered,
   isManaged = false,
   onRegisterChange,
+  registrationId,
 }: EventCardProps) {
   const [localRegistered, setLocalRegistered] = useState(initialRegistered)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -122,8 +125,11 @@ export default function EventCard({
         onClose={() => setIsModalOpen(false)}
         event={event}
         isRegistered={localRegistered}
+        isManaged={isManaged}
         onRegisterChange={handleRegisterChange}
+        registrationId={registrationId}
       />
+
     </>
   )
 }
