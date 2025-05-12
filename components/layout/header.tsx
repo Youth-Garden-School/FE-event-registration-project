@@ -199,7 +199,7 @@ export default function Header() {
                 <Button
                   size="sm"
                   className={cn(
-                    "text-sm",
+                    "text-sm cursor-pointer",
                     isMainPage
                       ? "bg-white text-black hover:bg-gray-200"
                       : "bg-black text-white hover:bg-gray-800",

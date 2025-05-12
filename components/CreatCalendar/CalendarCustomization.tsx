@@ -1,3 +1,4 @@
+"use client";
 import {
   FormField,
   FormItem,
@@ -9,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MapPin, Check } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
+import { useState } from "react";
 
 interface CalendarCustomizationProps {
   form: UseFormReturn<any>; // Bạn nên thay `any` bằng interface chính xác nếu có
@@ -33,6 +35,7 @@ export default function CalendarCustomization({
     "#ef4444", // red
     "#38bdf8", // light blue
   ];
+  const [mapAddress, setMapAddress] = useState("");
 
   return (
     <div className="bg-gray-50 p-6 rounded-lg">
@@ -110,13 +113,19 @@ export default function CalendarCustomization({
         </div>
 
         <div className="relative">
-          <div className="h-40 bg-gray-100 rounded-lg mb-2">
-            <img
-              className="w-[672px] h-[160px] rounded-2xl"
-              src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/A_large_blank_world_map_with_oceans_marked_in_blue.PNG/1024px-A_large_blank_world_map_with_oceans_marked_in_blue.PNG"
-              alt=""
-            />
+          <div className="h-40 bg-gray-100 rounded-lg mb-2 overflow-hidden">
+            <iframe
+              title="Google Map"
+              width="100%"
+              height="100%"
+              loading="lazy"
+              allowFullScreen
+              src={`https://www.google.com/maps?q=${encodeURIComponent(
+                mapAddress || "Vietnam",
+              )}&output=embed`}
+            ></iframe>
           </div>
+
           <FormField
             control={form.control}
             name="location"
@@ -132,6 +141,10 @@ export default function CalendarCustomization({
                       {...field}
                       placeholder="Chọn một thành phố"
                       className="pl-10"
+                      onChange={(e) => {
+                        field.onChange(e); // giữ phản ứng với form
+                        setMapAddress(e.target.value); // cập nhật map
+                      }}
                     />
                   </div>
                 </FormControl>

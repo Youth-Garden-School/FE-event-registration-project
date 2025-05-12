@@ -101,7 +101,7 @@ const EventList: React.FC = () => {
           </div>
           <div className="mt-6 relative">
             <Button className="w-[115px] absolute left-[580px] cursor-pointer hover:bg-gray-300 hover:text-black">
-              <Link href="/featured-calendar/0196b41e-9d95-7b49-8c63-b0c92dc0e319">
+              <Link href="/featured-calendar/0196c4c3-5e71-7265-b676-f88d404f087d">
                 Xem tất cả →
               </Link>
             </Button>

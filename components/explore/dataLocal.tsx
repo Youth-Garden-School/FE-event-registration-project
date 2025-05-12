@@ -15,7 +15,7 @@ export type City = z.infer<typeof citySchema>;
 
 export const cities: City[] = [
   {
-    id: "0196b41c-21d0-769c-8542-ab83908ef93c",
+    id: "0196c4ca-4a4f-7084-aac1-98968887f90d",
     name: "Bangkok",
     events: 28,
     icon: "🏯",

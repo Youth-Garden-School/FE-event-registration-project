@@ -17,7 +17,7 @@ type Category = z.infer<typeof CategorySchema>;
 
 const categories: Category[] = [
   {
-    id: "0196b407-e159-70bc-a2f1-d23d622e631e",
+    id: "ai",
     name: "Artificial Intelligence",
     icon: "🤖",
     events: 1000,
@@ -70,7 +70,7 @@ const Categories: FC = () => {
         {categories.map((category) => (
           <Card
             key={category.id}
-            onClick={() => router.push(`/featured-calendar/${category.id}`)} // Use `id`, not `name`
+            onClick={() => router.push(`/${category.id}`)} // Use `id`, not `name`
             className="hover:bg-gray-100 transition w-[250px] h-[125px] cursor-pointer"
           >
             <CardContent className="items-center space-x-4">
