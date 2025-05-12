@@ -24,7 +24,7 @@ export const eventSchema = z.object({
     .string()
     .nullable()
     .transform((val) => val ?? "/images/events/vcs-mixer.jpg"),
-  isOnline: z.boolean().optional(),
+  isOnline: z.boolean().default(false), // Default to false if not provided
   eventColor: z.string().optional(),
   fontStyle: z.string().optional(),
   themeMode: z.string().optional(),

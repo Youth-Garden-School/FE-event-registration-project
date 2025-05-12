@@ -59,6 +59,13 @@ const EventList: React.FC = () => {
               displayDate: date.toLocaleDateString("vi-VN"),
               isUserEvent: false,
               isParticipating: false,
+              calendarId: "", // Dummy or real value
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+              createdBy: "", // Dummy or real value
+              updatedBy: "", // Add missing property
+              attendees: [], // Add missing property (empty array or actual data)
+              requiresApproval: false, // Optional, adjust according to your logic
             };
           });
 
@@ -109,7 +116,7 @@ const EventList: React.FC = () => {
             >
               <div className="w-24 h-24 relative">
                 <Image
-                  src={event.coverImage}
+                  src={event.coverImage || "/images/events/vcs-mixer.jpg"} // Fallback image
                   alt={event.title}
                   layout="fill"
                   objectFit="cover"

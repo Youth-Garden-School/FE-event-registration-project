@@ -114,7 +114,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-accent-foreground">
+    <div className="flex justify-center items-center h-screen bg-accent-bg">
       <Card className="w-[400px] shadow-lg">
         <CardHeader>
           <CardTitle className="text-xl font-bold">

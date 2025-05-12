@@ -1,5 +1,4 @@
 "use client";
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -16,6 +15,10 @@ import { format } from "date-fns";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { z } from "zod";
+
+// Lấy kiểu dữ liệu từ formSchema
+type FormValues = z.infer<typeof formSchema>;
 
 export default function EventForm() {
   const [error, setError] = useState<string | null>(null);
@@ -28,7 +31,7 @@ export default function EventForm() {
   const defaultImage =
     "https://images.lumacdn.com/cdn-cgi/image/format=auto,fit=cover,dpr=2,background=white,quality=75,width=672,height=160/gallery-images/ry/bd098b7b-aae7-495c-9b4d-2ff4c014a61e";
 
-  const form = useForm({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
@@ -93,7 +96,8 @@ export default function EventForm() {
     }
   };
 
-  async function onSubmit(values) {
+  async function onSubmit(values: FormValues) {
+    // Xác định kiểu cho values
     setError(null);
     setSuccess(null);
     setIsSubmitting(true);

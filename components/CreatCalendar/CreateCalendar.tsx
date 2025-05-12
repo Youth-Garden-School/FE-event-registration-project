@@ -10,7 +10,9 @@ import CalendarDetails from "./CalendarDetails";
 import CalendarCustomization from "./CalendarCustomization";
 import { Check } from "lucide-react";
 import { apiClient, API_BASE_URL } from "@/components/common/apiClient";
-import ImageUploader from "@/components/UploadImage/imageSupabase";
+import ImageUploader, {
+  ImageUploaderRef,
+} from "@/components/UploadImage/imageSupabase";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -27,8 +29,9 @@ export default function CreateCalendar() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const coverUploaderRef = useRef<{ upload: () => Promise<void> }>(null);
-  const profileUploaderRef = useRef<{ upload: () => Promise<void> }>(null);
+
+  const coverUploaderRef = useRef<ImageUploaderRef | null>(null);
+  const profileUploaderRef = useRef<ImageUploaderRef | null>(null);
   const router = useRouter();
 
   const defaultCoverImage =
@@ -59,8 +62,7 @@ export default function CreateCalendar() {
     setError(null);
   };
 
-  async function onSubmit(data) {
-    console.log("Form submitted with values:", data);
+  async function onSubmit(data: any) {
     setError(null);
     setSuccess(null);
     setIsSubmitting(true);
@@ -74,24 +76,14 @@ export default function CreateCalendar() {
       let coverImageUrl = defaultCoverImage;
       let profileImageUrl = defaultProfileImage;
 
-      // Upload cover image if selected
       if (coverPreviewUrl && coverUploaderRef.current) {
-        console.log("Uploading cover image...");
         coverImageUrl = await coverUploaderRef.current.upload();
-        console.log("Cover image uploaded successfully, URL:", coverImageUrl);
       }
 
-      // Upload profile image if selected
       if (profilePreviewUrl && profileUploaderRef.current) {
-        console.log("Uploading profile image...");
         profileImageUrl = await profileUploaderRef.current.upload();
-        console.log(
-          "Profile image uploaded successfully, URL:",
-          profileImageUrl,
-        );
       }
 
-      // Map form values to API payload
       const payload = {
         name: data.name,
         color: data.color,
@@ -99,16 +91,11 @@ export default function CreateCalendar() {
         publicUrl: data.publicUrl ? `lu.ma/${data.publicUrl}` : "",
         location: data.location || "",
         coverImage: coverImageUrl,
-        avatarImage: profileImageUrl, // <- thay vì "profileImage"
+        avatarImage: profileImageUrl,
       };
 
-      console.log("Sending API request with payload:", payload);
-      const response = await apiClient.post(
-        `${API_BASE_URL}/calendars`,
-        payload,
-        token,
-      );
-      console.log("API response:", response);
+      await apiClient.post(`${API_BASE_URL}/calendars`, payload, token);
+
       setSuccess("Lịch đã được tạo thành công!");
       toast.success("Lịch đã được tạo thành công!");
       form.reset();
@@ -117,9 +104,9 @@ export default function CreateCalendar() {
       setProfilePreviewUrl(null);
       setProfileUploadedUrl(null);
       router.push("/calendars");
-    } catch (err) {
-      const message = err.message || "Đã xảy ra lỗi khi tạo lịch";
-      console.error("Submission error:", err);
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Đã xảy ra lỗi khi tạo lịch";
       setError(message);
       toast.error(message);
     } finally {
@@ -153,6 +140,7 @@ export default function CreateCalendar() {
                 }}
               />
             </div>
+
             {/* Profile Image */}
             <div className="absolute bottom-2 left-8">
               <div className="relative w-20 h-20 bg-gradient-to-br from-pink-300 to-blue-300 rounded-lg overflow-hidden">
@@ -164,8 +152,8 @@ export default function CreateCalendar() {
                   }
                   alt="Profile"
                   className="w-full h-full object-cover"
-                  width={672}
-                  height={160}
+                  width={80}
+                  height={80}
                 />
                 <div className="absolute inset-0 flex items-center justify-center">
                   <ImageUploader
@@ -192,7 +180,7 @@ export default function CreateCalendar() {
             className="bg-gray-800 hover:bg-gray-700 cursor-pointer"
             disabled={isSubmitting}
           >
-            <Check className="mr-2 h-4 w-4" />{" "}
+            <Check className="mr-2 h-4 w-4" />
             {isSubmitting ? "Đang tạo..." : "Tạo lịch"}
           </Button>
         </form>

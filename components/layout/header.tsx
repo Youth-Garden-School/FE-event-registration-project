@@ -23,8 +23,8 @@ const NavItem = ({ href, label, isActive, icon }: NavItemProps) => {
       className={cn(
         "flex items-center gap-1 px-3 py-2 text-sm font-medium transition-colors",
         isActive
-          ? "border-b-2 border-black text-black"
-          : "text-gray-500 hover:text-gray-900",
+          ? "border-b-2 border-current"
+          : "text-inherit hover:text-opacity-80",
       )}
     >
       {icon}
@@ -38,6 +38,8 @@ export default function Header() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const pathname = usePathname();
+
+  const isMainPage = pathname === "/";
 
   // Check authentication
   useEffect(() => {
@@ -99,7 +101,7 @@ export default function Header() {
     <header
       className={cn(
         "sticky top-0 z-50 w-full border-b px-4 transition-colors duration-300",
-        isAuthenticated ? "bg-white text-black" : "bg-black text-white",
+        isMainPage ? "bg-black text-white" : "bg-white text-black",
       )}
     >
       <div className="container mx-auto flex h-14 items-center justify-between">
@@ -108,8 +110,8 @@ export default function Header() {
           <Link
             href="/"
             className={cn(
-              "flex items-center gap-2 transition-colors hover:text-gray-300",
-              isAuthenticated ? "text-black" : "text-white",
+              "flex items-center gap-2 transition-colors",
+              isMainPage ? "text-white" : "text-black",
             )}
           >
             <Image
@@ -148,11 +150,22 @@ export default function Header() {
             </nav>
 
             <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-500">{currentTime}</span>
+              <span
+                className={cn(
+                  "text-sm",
+                  isMainPage ? "text-gray-300" : "text-gray-500",
+                )}
+              >
+                {currentTime}
+              </span>
 
               <Button
-                variant="outline"
-                className="h-8 rounded-md text-sm text-black hover:bg-gray-100"
+                className={cn(
+                  "h-8 rounded-md text-sm",
+                  isMainPage
+                    ? "bg-white text-black hover:bg-gray-200"
+                    : "bg-black text-white hover:bg-gray-800",
+                )}
               >
                 <Link href="/create-event">Tạo sự kiện</Link>
               </Button>
@@ -161,7 +174,12 @@ export default function Header() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-gray-500 cursor-pointer hover:text-black"
+                  className={cn(
+                    "cursor-pointer",
+                    isMainPage
+                      ? "text-gray-300 hover:text-white"
+                      : "text-gray-500 hover:text-black",
+                  )}
                 >
                   <Link href="/settings/account">
                     <Settings className="h-5 w-5" />
@@ -179,9 +197,13 @@ export default function Header() {
                 </Avatar>
 
                 <Button
-                  variant="outline"
                   size="sm"
-                  className="text-sm text-black hover:bg-gray-100 cursor-pointer"
+                  className={cn(
+                    "text-sm",
+                    isMainPage
+                      ? "bg-white text-black hover:bg-gray-200"
+                      : "bg-black text-white hover:bg-gray-800",
+                  )}
                   onClick={handleLogout}
                 >
                   Đăng xuất
@@ -191,17 +213,34 @@ export default function Header() {
           </>
         ) : (
           <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-300">{currentTime}</span>
+            <span
+              className={cn(
+                "text-sm",
+                isMainPage ? "text-gray-300" : "text-gray-500",
+              )}
+            >
+              {currentTime}
+            </span>
             <Link
               href="/explore"
-              className="text-sm text-gray-300 transition-colors hover:text-white"
+              className={cn(
+                "text-sm transition-colors",
+                isMainPage
+                  ? "text-gray-300 hover:text-white"
+                  : "text-gray-500 hover:text-black",
+              )}
             >
               Khám phá
             </Link>
             <Button
               variant="default"
               size="sm"
-              className="bg-white text-black hover:bg-gray-200 border-none"
+              className={cn(
+                "border-none",
+                isMainPage
+                  ? "bg-white text-black hover:bg-gray-200"
+                  : "bg-black text-white hover:bg-gray-800",
+              )}
               asChild
             >
               <Link href="/login">Đăng nhập</Link>
