@@ -1,24 +1,15 @@
-// app/setting-event/[id]/page.tsx
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-
 import { Button } from "@/components/ui/button";
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AddLumaEventModal } from "@/components/common/calendar/add-luma-event-modal";
 import { EventEmptyState } from "@/components/common/calendar/event-empty-state";
 import EventList from "@/components/common/calendar/event-list";
-
 import { format, isToday, isTomorrow, parseISO } from "date-fns";
 import { vi } from "date-fns/locale";
 import { AlertCircle } from "lucide-react";
-
 import {
   Dialog,
   DialogContent,
@@ -27,14 +18,13 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-
 import {
   getCalendarById,
   deleteEventFromCalendar,
   deleteCalendar,
   updateCalendar,
-  Calendar,
-  CalendarEvent,
+  type Calendar,
+  type CalendarEvent,
 } from "@/lib/api-calendar";
 import type { EventWithUI } from "@/style/events-stype";
 
@@ -49,49 +39,25 @@ export default function SettingEventPage() {
   const [error, setError] = useState<string | null>(null);
 
   // --- UI states ---
-  const [activeTab, setActiveTab] = useState<"upcoming" | "past">("upcoming");
+  const [activeTab, setActiveTab] = useState<"events" | "settings">("events");
+  const [activeEventsTab, setActiveEventsTab] = useState<"upcoming" | "past">(
+    "upcoming",
+  );
   const [currentPage, setCurrentPage] = useState(1);
   const [showAddLumaModal, setShowAddLumaModal] = useState(false);
 
   const [showDeleteEventDialog, setShowDeleteEventDialog] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<string | null>(null);
 
-  const [showDeleteCalendarDialog, setShowDeleteCalendarDialog] = useState(false);
+  const [showDeleteCalendarDialog, setShowDeleteCalendarDialog] =
+    useState(false);
 
   // --- Settings form states ---
   const [editName, setEditName] = useState("");
-const [editCover, setEditCover] = useState("");
-const [editAvatar, setEditAvatar] = useState("");
-const [editDesc, setEditDesc] = useState("");
-const [savingSettings, setSavingSettings] = useState(false);
-
-useEffect(() => {
-  if (calendar) {
-    setEditName(calendar.name);
-    setEditCover(calendar.coverImage ?? "");
-    setEditAvatar(calendar.avatarImage ?? "");
-    setEditDesc(calendar.description ?? "");
-  }
-}, [calendar]);
-
-const handleSaveChanges = async () => {
-  setSavingSettings(true);
-  try {
-    await updateCalendar(calendarId, {
-      name: editName,
-      coverImage: editCover,
-      avatarImage: editAvatar,
-      description: editDesc,
-    });
-    await fetchCalendarAndEvents();  // reload data
-    alert("Lưu thay đổi thành công!");
-  } catch (err: any) {
-    console.error(err);
-    alert("Lưu thay đổi thất bại: " + err.message);
-  } finally {
-    setSavingSettings(false);
-  }
-};
+  const [editCover, setEditCover] = useState("");
+  const [editAvatar, setEditAvatar] = useState("");
+  const [editDesc, setEditDesc] = useState("");
+  const [savingSettings, setSavingSettings] = useState(false);
 
   // Convert API event → EventWithUI
   const convertToEventWithUI = (e: CalendarEvent): EventWithUI => {
@@ -99,8 +65,8 @@ const handleSaveChanges = async () => {
     const dateLabel = isToday(dt)
       ? "Hôm nay"
       : isTomorrow(dt)
-      ? "Ngày mai"
-      : format(dt, "d 'thg' M", { locale: vi });
+        ? "Ngày mai"
+        : format(dt, "d 'thg' M", { locale: vi });
     return {
       ...e,
       dateLabel,
@@ -112,85 +78,81 @@ const handleSaveChanges = async () => {
   };
 
   // Fetch calendar + events
-  const fetchCalendarAndEvents = useCallback(() => {
+  const fetchCalendarAndEvents = useCallback(async () => {
     setLoading(true);
     setError(null);
 
-    getCalendarById(calendarId)
-      .then((cal) => {
-        setCalendar(cal);
-        setEvents(cal.events ?? []);
-      })
-      .catch((err) => {
-        console.error(err);
-        setError(err.message || "Lỗi khi tải lịch");
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    try {
+      const cal = await getCalendarById(calendarId);
+      setCalendar(cal);
+      setEvents(cal.events ?? []);
+
+      // Sync settings form when calendar loads
+      setEditName(cal.name);
+      setEditCover(cal.coverImage ?? "");
+      setEditAvatar(cal.avatarImage ?? "");
+      setEditDesc(cal.description ?? "");
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || "Lỗi khi tải lịch");
+    } finally {
+      setLoading(false);
+    }
   }, [calendarId]);
 
   useEffect(() => {
     fetchCalendarAndEvents();
   }, [fetchCalendarAndEvents]);
 
-  // Sync settings form when calendar loads
-  useEffect(() => {
-    if (calendar) {
-      setEditName(calendar.name);
-      setEditCover(calendar.coverImage ?? "");
-      setEditAvatar(calendar.avatarImage ?? "");
-      setEditDesc(calendar.description ?? "");
-    }
-  }, [calendar]);
-
   // Delete single event
   const handleDeleteEvent = (id: string) => {
     setEventToDelete(id);
     setShowDeleteEventDialog(true);
   };
+
   const confirmDeleteEvent = async () => {
     if (!eventToDelete) return;
     try {
       await deleteEventFromCalendar(calendarId, eventToDelete);
-      fetchCalendarAndEvents();
-    } catch (err) {
-      console.error(err);
-    } finally {
+      await fetchCalendarAndEvents();
       setShowDeleteEventDialog(false);
       setEventToDelete(null);
+    } catch (err) {
+      console.error(err);
+      alert("Không thể xóa sự kiện. Vui lòng thử lại sau.");
     }
   };
 
   // Delete entire calendar
   const handleDeleteCalendar = () => setShowDeleteCalendarDialog(true);
+
   const confirmDeleteCalendar = async () => {
     try {
       await deleteCalendar(calendarId);
       router.push("/");
     } catch (err) {
       console.error(err);
+      alert("Không thể xóa lịch. Vui lòng thử lại sau.");
     }
   };
 
   // Save settings
-  const handleSaveSettings = async () => {
-    setSaving(true);
+  const handleSaveChanges = async () => {
+    setSavingSettings(true);
     try {
       await updateCalendar(calendarId, {
         name: editName,
-        color: editColor,
         coverImage: editCover,
         avatarImage: editAvatar,
         description: editDesc,
       });
-      fetchCalendarAndEvents();
+      await fetchCalendarAndEvents();
       alert("Cập nhật thành công!");
     } catch (err: any) {
       console.error(err);
-      alert("Cập nhật thất bại: " + err.message);
+      alert("Cập nhật thất bại: " + (err.message || "Lỗi không xác định"));
     } finally {
-      setSaving(false);
+      setSavingSettings(false);
     }
   };
 
@@ -203,18 +165,18 @@ const handleSaveChanges = async () => {
     .filter((e) => parseISO(e.startTime) < now)
     .map(convertToEventWithUI);
   const displayEvents =
-    activeTab === "upcoming" ? upcomingEvents : pastEvents;
+    activeEventsTab === "upcoming" ? upcomingEvents : pastEvents;
 
   if (loading) {
     return <div className="py-8 text-center">Đang tải lịch…</div>;
   }
+
   if (error) {
     return (
-      <div className="py-8 text-center text-red-500">
-        Lỗi khi tải: {error}
-      </div>
+      <div className="py-8 text-center text-red-500">Lỗi khi tải: {error}</div>
     );
   }
+
   if (!calendar) {
     return (
       <div className="py-8 text-center text-gray-600">
@@ -229,8 +191,21 @@ const handleSaveChanges = async () => {
         {/* Header */}
         <div className="flex items-center mb-6">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-600">
-              L
+            <div
+              className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 overflow-hidden"
+              style={{ backgroundColor: calendar.color || "#e5e7eb" }}
+            >
+              {calendar.avatarImage ? (
+                <img
+                  src={calendar.avatarImage || "/placeholder.svg"}
+                  alt={calendar.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-lg">
+                  {calendar.name.charAt(0).toUpperCase()}
+                </span>
+              )}
             </div>
             <h1 className="text-3xl font-medium text-gray-700">
               {calendar.name}
@@ -239,49 +214,69 @@ const handleSaveChanges = async () => {
           <div className="ml-auto">
             <Button
               variant="outline"
-              onClick={() =>
-                router.push(`/featured-calendar/${calendarId}`)
-              }
+              onClick={() => router.push(`/featured-calendar/${calendarId}`)}
             >
-              Trang lịch →
+              Trang lịch <span className="ml-1">→</span>
             </Button>
           </div>
         </div>
 
         {/* Tabs */}
-        <Tabs defaultValue="events" className="w-full mb-4">
-          <TabsList className="border-b">
-            <TabsTrigger value="events">Sự kiện</TabsTrigger>
-            <TabsTrigger value="settings">Cài đặt</TabsTrigger>
+        <Tabs
+          value={activeTab}
+          onValueChange={(v) => setActiveTab(v as "events" | "settings")}
+          className="w-full mb-4"
+        >
+          <TabsList className="border-b w-full justify-start rounded-none bg-transparent p-0 h-auto">
+            <TabsTrigger
+              value="events"
+              className="rounded-none border-b-2 border-transparent px-4 py-2 data-[state=active]:border-gray-900 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+            >
+              Sự kiện
+            </TabsTrigger>
+            <TabsTrigger
+              value="settings"
+              className="rounded-none border-b-2 border-transparent px-4 py-2 data-[state=active]:border-gray-900 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+            >
+              Cài đặt
+            </TabsTrigger>
           </TabsList>
 
           {/* Events Tab */}
           <TabsContent value="events">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center">
-                <h2 className="text-xl font-medium text-gray-800">
-                  Sự kiện
-                </h2>
+                <h2 className="text-xl font-medium text-gray-800">Sự kiện</h2>
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="ml-2"
+                  className="ml-2 text-blue-600 h-8 w-8 p-0"
                   onClick={() => setShowAddLumaModal(true)}
                 >
                   +
                 </Button>
               </div>
               <Tabs
-                value={activeTab}
+                value={activeEventsTab}
                 onValueChange={(v) => {
-                  setActiveTab(v as any);
+                  setActiveEventsTab(v as "upcoming" | "past");
                   setCurrentPage(1);
                 }}
                 className="w-auto"
               >
-                <TabsList className="bg-gray-100 rounded p-1">
-                  <TabsTrigger value="upcoming">Sắp tới</TabsTrigger>
-                  <TabsTrigger value="past">Đã qua</TabsTrigger>
+                <TabsList className="bg-gray-100 rounded-[8px] text-gray-900 leading-[24px] p-[2px]">
+                  <TabsTrigger
+                    value="upcoming"
+                    className="flex items-center justify-center border-[0.8px] border-solid border-[#0000] text-gray-900 text-[14px] font-medium leading-[21px] p-[5px_8px] text-center data-[state=active]:bg-white data-[state=active]:rounded-md"
+                  >
+                    Sắp tới
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="past"
+                    className="flex items-center justify-center border-[0.8px] border-solid border-[#0000] text-gray-900 text-[14px] font-medium leading-[21px] p-[5px_8px] text-center data-[state=active]:bg-white data-[state=active]:rounded-md"
+                  >
+                    Đã qua
+                  </TabsTrigger>
                 </TabsList>
               </Tabs>
             </div>
@@ -289,21 +284,21 @@ const handleSaveChanges = async () => {
             {displayEvents.length > 0 ? (
               <EventList
                 calendarId={calendarId}
+                events={displayEvents}
                 currentPage={currentPage}
                 onPageChange={setCurrentPage}
                 eventsPerPage={10}
-                onEventClick={(evt) => handleDeleteEvent(evt.id)}
+                onEventClick={handleDeleteEvent}
               />
             ) : (
               <EventEmptyState
                 onAddEvent={() => setShowAddLumaModal(true)}
-                isPast={activeTab === "past"}
+                isPast={activeEventsTab === "past"}
               />
             )}
           </TabsContent>
 
           {/* Settings Tab */}
-  
           <TabsContent value="settings">
             <div className="p-6 bg-white rounded-lg border mt-4">
               <h3 className="text-lg font-medium mb-4">Cài đặt trang chủ</h3>
@@ -319,7 +314,7 @@ const handleSaveChanges = async () => {
                       type="text"
                       value={editName}
                       onChange={(e) => setEditName(e.target.value)}
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                     />
                   </div>
                 </div>
@@ -332,11 +327,16 @@ const handleSaveChanges = async () => {
                       Ảnh hiển thị ở đầu trang sự kiện
                     </p>
                     <div className="mt-2 relative w-full h-[120px] overflow-hidden rounded-lg border border-dashed border-gray-300 bg-gray-50 flex items-center justify-center">
-                      <img
-                        src={editCover || "/placeholder.svg?height=600&width=1200"}
-                        alt="Cover preview"
-                        className="w-full h-full object-cover"
-                      />
+                      <div className="absolute inset-0">
+                        <img
+                          src={
+                            editCover ||
+                            "/placeholder.svg?height=600&width=1200"
+                          }
+                          alt="Cover preview"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
                       <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                         <Button
                           variant="secondary"
@@ -363,7 +363,9 @@ const handleSaveChanges = async () => {
                     <div className="flex items-center gap-4">
                       <div className="w-16 h-16 rounded-lg bg-gray-100 overflow-hidden relative">
                         <img
-                          src={editAvatar || "/placeholder.svg?height=60&width=60"}
+                          src={
+                            editAvatar || "/placeholder.svg?height=60&width=60"
+                          }
                           alt="Avatar preview"
                           className="w-full h-full object-cover"
                         />
@@ -441,11 +443,15 @@ const handleSaveChanges = async () => {
           <DialogHeader>
             <DialogTitle>Xóa sự kiện</DialogTitle>
             <DialogDescription>
-              Bạn có chắc muốn xóa sự kiện này?
+              Bạn có chắc chắn muốn xóa sự kiện này? Hành động này không thể
+              hoàn tác.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button onClick={() => setShowDeleteEventDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteEventDialog(false)}
+            >
               Hủy
             </Button>
             <Button variant="destructive" onClick={confirmDeleteEvent}>
@@ -464,20 +470,22 @@ const handleSaveChanges = async () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <AlertCircle className="h-5 w-5 text-red-500" />
-              Xóa trang lịch
+              <span>Xóa trang lịch</span>
             </DialogTitle>
             <DialogDescription>
-              Hành động này không thể hoàn tác.
+              Bạn có chắc chắn muốn xóa trang lịch này? Tất cả sự kiện và dữ
+              liệu liên quan sẽ bị xóa vĩnh viễn. Hành động này không thể hoàn
+              tác.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button onClick={() => setShowDeleteCalendarDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteCalendarDialog(false)}
+            >
               Hủy
             </Button>
-            <Button
-              variant="destructive"
-              onClick={confirmDeleteCalendar}
-            >
+            <Button variant="destructive" onClick={confirmDeleteCalendar}>
               Xóa vĩnh viễn
             </Button>
           </DialogFooter>
