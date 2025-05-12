@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import {
   Select,
@@ -36,31 +35,23 @@ export function AttendeesList({
 
   // Display name or email for attendee
   const getUserDisplayName = (user: Registration["user"]) => {
-    if (user.firstName && user.lastName) {
-      return `${user.firstName} ${user.lastName}`;
-    } else if (user.firstName) {
-      return user.firstName;
-    } else if (user.lastName) {
-      return user.lastName;
-    } else if (user.username) {
+    if (user.username) {
       return user.username;
-    } else {
+    } else if (user.email) {
       return user.email.split("@")[0];
+    } else {
+      return "Người dùng";
     }
   };
 
   // Get user initials for avatar
   const getUserInitials = (user: Registration["user"]) => {
-    if (user.firstName && user.lastName) {
-      return `${user.firstName[0]}${user.lastName[0]}`.toUpperCase();
-    } else if (user.firstName) {
-      return user.firstName[0].toUpperCase();
-    } else if (user.lastName) {
-      return user.lastName[0].toUpperCase();
-    } else if (user.username) {
+    if (user.username) {
       return user.username[0].toUpperCase();
-    } else {
+    } else if (user.email) {
       return user.email[0].toUpperCase();
+    } else {
+      return "U";
     }
   };
 
@@ -125,21 +116,9 @@ export function AttendeesList({
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="flex-shrink-0 h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
-                        {registration.user.avatarUrl ? (
-                          <Image
-                            src={
-                              registration.user.avatarUrl || "/placeholder.svg"
-                            }
-                            alt={getUserDisplayName(registration.user)}
-                            width={40}
-                            height={40}
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          <span className="text-gray-600">
-                            {getUserInitials(registration.user)}
-                          </span>
-                        )}
+                        <span className="text-gray-600">
+                          {getUserInitials(registration.user)}
+                        </span>
                       </div>
                       <div className="ml-4">
                         <div className="text-sm font-medium text-gray-900">
