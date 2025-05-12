@@ -40,7 +40,6 @@ export default function Header() {
   const pathname = usePathname();
 
   const isMainPage = pathname === "/";
-
   // Check authentication
   useEffect(() => {
     const token = localStorage.getItem("ACCESS_TOKEN");
