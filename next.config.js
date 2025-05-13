@@ -38,7 +38,6 @@ module.exports = {
         port: "",
         pathname: "/**",
       },
-      // thêm các host khác ở đây nếu cần
     ],
   },
 };

@@ -1,18 +1,10 @@
-"use client"; // Đánh dấu đây là client component
-
+"use client";
 import React, { useState, useEffect } from "react";
 import { TabMenu } from "@/components/common/settings/TabMenu"; // Import TabMenu
-import { ProfileSection } from "@/components/common/settings/ProfileSection";
-import { EmailSection } from "@/components/common/settings/EmailSection";
-import { PhoneSection } from "@/components/common/settings/PhoneSection";
+import AppearanceSection from "@/components/common/settings/preferences/AppearanceSection";
 import { SectionWrapper } from "@/components/common/settings/SectionWrapper";
-import { SecuritySection } from "@/components/common/settings/SecuritySection";
-import { ThirdPartySection } from "@/components/common/settings/ThirdPartySection";
-import { SyncSection } from "@/components/common/settings/SyncSection";
-import { DeviceSection } from "@/components/common/settings/DeviceSection";
-import { DeleteAccountSection } from "@/components/common/settings/DeleteAccountSection";
-
-export default function SettingsPage() {
+import { PreferenceEvents } from "@/components/common/settings/preferences/event";
+export default function AppearancePage() {
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
@@ -30,7 +22,7 @@ export default function SettingsPage() {
   }, []);
 
   return (
-    <div className="flex justify-center min-h-screen bg-gray-50">
+    <div className="flex justify-center min-h-screen bg-white dark:bg-gray-900 text-black dark:text-white transition-colors">
       <div className="flex flex-col w-full max-w-4xl px-4 py-10">
         {/* Thêm phần nền mờ cho TabMenu */}
         <div
@@ -41,7 +33,9 @@ export default function SettingsPage() {
           <TabMenu
             title={
               <span
-                className={`font-bold transition-all duration-200 ${isScrolled ? "text-xl" : "text-2xl"}`}
+                className={`font-bold transition-all duration-200 ${
+                  isScrolled ? "text-xl" : "text-2xl"
+                }`}
               >
                 Cài đặt
               </span>
@@ -49,40 +43,16 @@ export default function SettingsPage() {
             tabs={[
               { id: "account", label: "Tài khoản" },
               { id: "preferences", label: "Tùy chọn" },
-              { id: "payment", label: "Thanh toán" },
             ]}
             defaultTab="account"
             customTitleClass={isScrolled ? "text-sm" : "text-xl"} // Kích thước chữ thay đổi khi cuộn
           />
         </div>
-
         <div className="flex-1 mt-4">
           <SectionWrapper>
-            <ProfileSection />
+            <AppearanceSection />
           </SectionWrapper>
-
-          <SectionWrapper>
-            <EmailSection />
-          </SectionWrapper>
-
-          <SectionWrapper>
-            <PhoneSection />
-          </SectionWrapper>
-
-          <SectionWrapper>
-            <SecuritySection />
-          </SectionWrapper>
-
-          <SectionWrapper>
-            <ThirdPartySection />
-            <SyncSection />
-          </SectionWrapper>
-
-          <SectionWrapper>
-            <DeviceSection />
-          </SectionWrapper>
-
-          <DeleteAccountSection />
+          <PreferenceEvents />
         </div>
       </div>
     </div>

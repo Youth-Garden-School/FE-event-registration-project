@@ -20,7 +20,6 @@ import {
   Video,
 } from "lucide-react";
 import { registerEvent, cancelRegistration } from "@/lib/api-event";
-import type { EventWithUI as BaseEventWithUI } from "@/style/events-stype";
 
 type EventWithUI = any;
 
@@ -111,7 +110,7 @@ export function EventModal({
 
   const eventUrl = `${window.location.origin}/event-join/${event.id}`;
   const mapsQuery = encodeURIComponent(
-    event.fullAddress ?? `${event.location}, ${event.city}`
+    event.fullAddress ?? `${event.location}, ${event.city}`,
   );
   const mapsEmbed = `https://maps.google.com/maps?q=${mapsQuery}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
   const mapsLink = `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`;
@@ -451,7 +450,7 @@ export function EventModal({
                   </span>
                 </div>
                 <div className="flex flex-wrap gap-1 mb-2">
-                  {attendees.slice(0, 8).map((attendee, i) => (
+                  {attendees.slice(0, 8).map((attendee: any, i: number) => (
                     <div
                       key={i}
                       className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-xs overflow-hidden"

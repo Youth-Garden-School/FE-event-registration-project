@@ -10,7 +10,7 @@ interface ImageUploaderProps {
 }
 
 export interface ImageUploaderRef {
-  upload: () => Promise<void>;
+  upload: () => Promise<string>;
 }
 
 const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(

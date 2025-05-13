@@ -1,25 +1,25 @@
 // Enum cho chế độ nền / Enum for theme mode
-export enum ThemeMode {
-  LIGHT = "LIGHT",
-  DARK = "DARK",
-}
+// export enum ThemeMode {
+//   LIGHT = "LIGHT",
+//   DARK = "DARK",
+// }
 
-// Enum cho phong cách sự kiện / Enum for event style
-export enum EventStyle {
-  EMOJI = "EMOJI", // Biểu tượng cảm xúc
-  GLITTER = "GLITTER", // Kim tuyến
-  ZIGZAG = "ZIGZAG", // Mẫu zigzag
-  MINIMAL = "MINIMAL", // Tối giản
-  CUSTOM = "CUSTOM", // Tùy chỉnh khác
-}
+// // Enum cho phong cách sự kiện / Enum for event style
+// export enum EventStyle {
+//   EMOJI = "EMOJI", // Biểu tượng cảm xúc
+//   GLITTER = "GLITTER", // Kim tuyến
+//   ZIGZAG = "ZIGZAG", // Mẫu zigzag
+//   MINIMAL = "MINIMAL", // Tối giản
+//   CUSTOM = "CUSTOM", // Tùy chỉnh khác
+// }
 
-// Enum cho chủ đề theo mùa / Enum for seasonal theme
-export enum SeasonalTheme {
-  SPRING = "SPRING", // Xuân
-  SUMMER = "SUMMER", // Hạ
-  AUTUMN = "AUTUMN", // Thu
-  WINTER = "WINTER", // Đông
-}
+// // Enum cho chủ đề theo mùa / Enum for seasonal theme
+// export enum SeasonalTheme {
+//   SPRING = "SPRING", // Xuân
+//   SUMMER = "SUMMER", // Hạ
+//   AUTUMN = "AUTUMN", // Thu
+//   WINTER = "WINTER", // Đông
+// }
 
 export interface Event {
   id: string;
@@ -33,9 +33,9 @@ export interface Event {
   calendarId: string;
   eventColor?: string;
   fontStyle?: string;
-  themeMode?: ThemeMode;
-  style?: EventStyle;
-  seasonalTheme?: SeasonalTheme;
+  // themeMode?: ThemeMode;
+  // style?: EventStyle;
+  // seasonalTheme?: SeasonalTheme;
   requiresApproval: boolean;
   organizer?: string; // Tổ chức/người tổ chức sự kiện
   createdAt: string;
@@ -75,4 +75,5 @@ export interface EventWithUI extends Event {
   displayDate?: string;
   isUserEvent?: boolean;
   isParticipating?: boolean;
+  isRegistered: boolean;
 }

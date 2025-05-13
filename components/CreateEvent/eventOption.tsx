@@ -13,8 +13,18 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { UseFormReturn } from "react-hook-form"; // <-- Import this type
+import { formSchema } from "./formSchema"; // Assuming this is where your schema is
+import { z } from "zod";
 
-export default function EventOptions({ form }) {
+// Define the type of form using zod schema inference
+type FormValues = z.infer<typeof formSchema>;
+
+interface EventOptionsProps {
+  form: UseFormReturn<FormValues>; // <-- Type your 'form' prop here
+}
+
+export default function EventOptions({ form }: EventOptionsProps) {
   const [capacity, setCapacity] = useState("");
   const [isLimited, setIsLimited] = useState(false);
   const [overloadList, setOverloadList] = useState(false);
@@ -22,22 +32,6 @@ export default function EventOptions({ form }) {
   return (
     <div className="space-y-4">
       <h3 className="font-medium">Tùy chọn sự kiện</h3>
-
-      {/* Tickets
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Ticket className="h-5 w-5 text-muted-foreground" />
-          <span>Vé</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-muted-foreground">Miễn phí</span>
-          <Button variant="ghost" size="sm" className="h-8 px-2 cursor-pointer">
-            <Link className="h-4 w-4" />
-          </Button>
-        </div>
-      </div> */}
-
-      {/* Approval */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <User className="h-5 w-5 text-muted-foreground" />
