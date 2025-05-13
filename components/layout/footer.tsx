@@ -19,7 +19,7 @@ export default function Footer() {
         <div className="flex items-center gap-1">
           <span className="text-lg font-semibold">Regista</span>
           <Image
-            src="/images/logo.svg"
+            src="/images/REGISTA.svg"
             alt="Logo"
             width={30}
             height={30}

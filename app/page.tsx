@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 
 export default function MainPage() {
   return (
-    <div className="w-full overflow-hidden bg-foreground hfull">
+    <div className="w-full overflow-hidden bg-bg hfull">
       <div className="min-h-[80vh] flex items-center relative gap-4 p-4 pt-12 justify-center">
         {/* Left Section: Text and Button */}
         <div className="shrink mt-[-2rem] w-[440px] h-[440px]">
@@ -33,14 +33,14 @@ export default function MainPage() {
           </Button>
         </div>
         {/* Right Section: Video with Decorative Elements */}
-        <div className="relative w-[620px] h-[663px] shrink-0">
+        <div className="relative w-[620px] h-[663px] shrink-0 rounded-full">
           <video
             src="/phone-light.mp4"
             autoPlay
             loop
             muted
             playsInline
-            className=""
+            className="rounded-full"
           />
         </div>
       </div>
