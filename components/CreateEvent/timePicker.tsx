@@ -72,7 +72,9 @@ export default function TimePicker({
           >
             <span>{format(time, "HH:mm")}</span>
             {isEndPicker && (
-              <span className="text-gray-500 text-sm">{label}</span>
+              <span className="text-white text-sm hover:text-gray-300">
+                {label}
+              </span>
             )}
           </div>
         );
