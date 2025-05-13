@@ -33,17 +33,13 @@ const NavItem = ({ href, label, isActive, icon }: NavItemProps) => {
   );
 };
 
-export default function Header() {
+const ClientOnlyInfo = () => {
   const [currentTime, setCurrentTime] = useState("");
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const pathname = usePathname();
-
   const isMainPage = pathname === "/";
-  // Check authentication
   useEffect(() => {
     const token = localStorage.getItem("ACCESS_TOKEN");
-    setIsAuthenticated(!!token);
 
     if (token) {
       fetch(
@@ -55,23 +51,13 @@ export default function Header() {
           },
         },
       )
-        .then((res) => {
-          if (!res.ok) {
-            throw new Error(`HTTP error! Status: ${res.status}`);
-          }
-          return res.json();
-        })
+        .then((res) => res.json())
         .then((data) => {
           setAvatarUrl(data?.result?.avatarUrl || null);
         })
-        .catch((err) => {
-          console.error("Failed to fetch user avatar:", err);
-        });
+        .catch((err) => console.error("Failed to fetch user avatar:", err));
     }
-  }, []);
 
-  // Time updater
-  useEffect(() => {
     const updateTime = () => {
       const now = new Date();
       const timeString = now.toLocaleTimeString("vi-VN", {
@@ -92,29 +78,53 @@ export default function Header() {
     localStorage.removeItem("ACCESS_TOKEN");
     localStorage.removeItem("refresh_token");
     localStorage.removeItem("user_id");
-    setIsAuthenticated(false);
     window.location.href = "/login";
   };
 
   return (
-    <header
-      className={cn(
-        "sticky top-0 z-50 w-full border-b px-4 transition-colors duration-300",
-        isMainPage ? "bg-black text-white" : "bg-white text-black",
-      )}
-    >
+    <>
+      <span className="text-sm text-gray-500">{currentTime}</span>
+      <div className="flex items-center gap-2">
+        <Button className="h-8 rounded-md text-sm" variant="default">
+          <Link href="/create-event">Tạo sự kiện</Link>
+        </Button>
+        <Button variant="ghost" size="icon">
+          <Link href="/settings/account">
+            <Settings className="h-5 w-5" />
+          </Link>
+        </Button>
+        <Avatar className="h-8 w-8 cursor-pointer">
+          <Link href="/user">
+            <AvatarImage src={avatarUrl || "/placeholder.svg"} alt="User" />
+            <AvatarFallback>U</AvatarFallback>
+          </Link>
+        </Avatar>
+        <Button size="sm" className="text-sm" onClick={handleLogout}>
+          Đăng xuất
+        </Button>
+      </div>
+    </>
+  );
+};
+
+export default function Header() {
+  const [hasMounted, setHasMounted] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    setHasMounted(true);
+    const token = localStorage.getItem("ACCESS_TOKEN");
+    setIsAuthenticated(!!token);
+  }, []);
+
+  return (
+    <header className="sticky top-0 z-50 w-full border-b px-4 transition-colors duration-300 bg-white text-black">
       <div className="container mx-auto flex h-14 items-center justify-between">
-        {/* Logo */}
         <div className="flex items-center">
-          <Link
-            href="/"
-            className={cn(
-              "flex items-center gap-2 transition-colors",
-              isMainPage ? "text-white" : "text-black",
-            )}
-          >
+          <Link href="/" className="flex items-center gap-2">
             <Image
-              src="/images/logo.svg"
+              src="/images/REGISTA.svg"
               alt="Logo"
               width={50}
               height={50}
@@ -124,8 +134,7 @@ export default function Header() {
           </Link>
         </div>
 
-        {/* Right Section */}
-        {isAuthenticated ? (
+        {hasMounted && isAuthenticated ? (
           <>
             <nav className="flex items-center space-x-1">
               <NavItem
@@ -147,105 +156,30 @@ export default function Header() {
                 isActive={pathname === "/explore"}
               />
             </nav>
-
-            <div className="flex items-center gap-4">
-              <span
-                className={cn(
-                  "text-sm",
-                  isMainPage ? "text-gray-300" : "text-gray-500",
-                )}
-              >
-                {currentTime}
-              </span>
-
-              <Button
-                className={cn(
-                  "h-8 rounded-md text-sm",
-                  isMainPage
-                    ? "bg-white text-black hover:bg-gray-200"
-                    : "bg-black text-white hover:bg-gray-800",
-                )}
-              >
-                <Link href="/create-event">Tạo sự kiện</Link>
-              </Button>
-
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className={cn(
-                    "cursor-pointer",
-                    isMainPage
-                      ? "text-gray-300 hover:text-white"
-                      : "text-gray-500 hover:text-black",
-                  )}
-                >
-                  <Link href="/settings/account">
-                    <Settings className="h-5 w-5" />
-                  </Link>
-                </Button>
-
-                <Avatar className="h-8 w-8 cursor-pointer">
-                  <Link href="/user">
-                    <AvatarImage
-                      src={avatarUrl || "/placeholder.svg"}
-                      alt="User"
-                    />
-                    <AvatarFallback>U</AvatarFallback>
-                  </Link>
-                </Avatar>
-
-                <Button
-                  size="sm"
-                  className={cn(
-                    "text-sm cursor-pointer",
-                    isMainPage
-                      ? "bg-white text-black hover:bg-gray-200"
-                      : "bg-black text-white hover:bg-gray-800",
-                  )}
-                  onClick={handleLogout}
-                >
-                  Đăng xuất
-                </Button>
-              </div>
-            </div>
+            <ClientOnlyInfo />
           </>
-        ) : (
+        ) : hasMounted ? (
           <div className="flex items-center gap-4">
-            <span
-              className={cn(
-                "text-sm",
-                isMainPage ? "text-gray-300" : "text-gray-500",
-              )}
-            >
-              {currentTime}
+            <span className="text-sm text-gray-500">
+              {new Date().toLocaleTimeString("vi-VN", {
+                hour: "2-digit",
+                minute: "2-digit",
+                timeZone: "Asia/Bangkok",
+                hour12: false,
+              })}{" "}
+              GMT+7
             </span>
             <Link
               href="/explore"
-              className={cn(
-                "text-sm transition-colors",
-                isMainPage
-                  ? "text-gray-300 hover:text-white"
-                  : "text-gray-500 hover:text-black",
-              )}
+              className="text-sm transition-colors text-gray-500 hover:text-black"
             >
               Khám phá
             </Link>
-            <Button
-              variant="default"
-              size="sm"
-              className={cn(
-                "border-none",
-                isMainPage
-                  ? "bg-white text-black hover:bg-gray-200"
-                  : "bg-black text-white hover:bg-gray-800",
-              )}
-              asChild
-            >
+            <Button variant="default" size="sm" asChild>
               <Link href="/login">Đăng nhập</Link>
             </Button>
           </div>
-        )}
+        ) : null}
       </div>
     </header>
   );

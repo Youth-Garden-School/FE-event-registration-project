@@ -1,25 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { Mail } from "lucide-react";
 import Image from "next/image";
 
 export default function Footer() {
-  const pathname = usePathname();
-  const isHomePage = pathname === "/"; // page.tsx là trang chủ
-
   return (
-    <footer
-      className={`w-full py-4 px-6 border-t my-0 mx-auto ${
-        isHomePage ? "bg-black text-white" : "bg-white text-gray-600"
-      }`}
-    >
+    <footer className="w-full py-4 px-6 border-t my-0 mx-auto bg-white text-gray-600">
       <div className="container mx-auto flex flex-col items-center justify-center text-center gap-2">
         <div className="flex items-center gap-1">
           <span className="text-lg font-semibold">Regista</span>
           <Image
-            src="/images/logo.svg"
+            src="/images/REGISTA.svg"
             alt="Logo"
             width={30}
             height={30}
@@ -53,7 +45,7 @@ export default function Footer() {
             Quyền riêng tư
           </Link>
           <Link href="/security" className="hover:text-black">
-            Báo mật
+            Bảo mật
           </Link>
         </div>
       </div>

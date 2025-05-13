@@ -22,6 +22,7 @@ import { useRouter, usePathname } from "next/navigation";
 interface EventCardProps {
   event: EventWithUI;
   onClick?: () => void;
+
   isRegistered: boolean;
 
   isManaged?: boolean;
