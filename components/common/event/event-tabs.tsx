@@ -6,21 +6,12 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import EventList from "./event-list";
 import NoEventsComponent from "./no-event";
 import { EventModal } from "./event-modal";
-import { getUserRegistrations, type Registration } from "@/lib/api-event";
-import type { EventWithUI as BaseEventWithUI } from "@/style/events-stype";
+import { getUserRegistrations } from "@/lib/api-event";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
-import { any } from "zod";
 
-type EventWithUI = Omit<BaseEventWithUI, "attendees"> & {
-  attendees: Registration[];
-  attendeeCount: number;
-  requiresApproval: boolean;
-  isUserEvent: boolean;
-  myRegistrationId: string;
-  dateLabel: string;
-  dayLabel: string;
-};
+type EventWithUI = any;
+type EventAttendee = any;
 
 export default function EventTabs() {
   const router = useRouter();
@@ -36,9 +27,9 @@ export default function EventTabs() {
   const [pastPage, setPastPage] = useState(1);
 
   function buildEventUI(
-    reg: Registration,
-    attendees: Registration[],
-    isUserEvent: boolean,
+    reg: any,
+    attendees: any[],
+    isUserEvent: boolean
   ): EventWithUI {
     const e = reg.event;
     const start = new Date(e.startTime);
@@ -47,16 +38,21 @@ export default function EventTabs() {
       title: e.title,
       description: e.description,
       coverImage: e.coverImage,
-      startTime: e.startTime,
-      endTime: e.endTime,
+      startTime: e.startTime || "",
+      endTime: e.endTime || "",
       location: e.location,
       isOnline: e.isOnline,
       eventColor: e.eventColor,
       fontStyle: e.fontStyle,
-      themeMode: any,
-      style: any,
-      attendees: attendees, // Truyền tất cả attendees
-      attendeeCount: attendees.length, // Đếm tất cả attendees
+      themeMode: e.themeMode,
+      style: e.style,
+      createdBy: e.createdBy,
+      createdAt: e.createdAt,
+      updatedBy: e.updatedBy,
+      updatedAt: e.updatedAt,
+      calendarId: e.calendarId,
+      attendees: attendees,
+      attendeeCount: attendees.length,
       requiresApproval: reg.status !== "CONFIRMED",
       isUserEvent,
       myRegistrationId: reg.id,
@@ -94,11 +90,11 @@ export default function EventTabs() {
         // 4) Sort theo thời gian
         ups.sort(
           (a, b) =>
-            new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
+            new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
         );
         pst.sort(
           (a, b) =>
-            new Date(b.endTime).getTime() - new Date(a.endTime).getTime(),
+            new Date(b.endTime).getTime() - new Date(a.endTime).getTime()
         );
 
         setUpcomingEvents(ups);
@@ -149,11 +145,11 @@ export default function EventTabs() {
   const totalPastPages = Math.ceil(pastEvents.length / EVENTS_PER_PAGE);
   const pagedUpcoming = upcomingEvents.slice(
     (upcomingPage - 1) * EVENTS_PER_PAGE,
-    upcomingPage * EVENTS_PER_PAGE,
+    upcomingPage * EVENTS_PER_PAGE
   );
   const pagedPast = pastEvents.slice(
     (pastPage - 1) * EVENTS_PER_PAGE,
-    pastPage * EVENTS_PER_PAGE,
+    pastPage * EVENTS_PER_PAGE
   );
 
   return (
@@ -177,7 +173,7 @@ export default function EventTabs() {
                 <div className="flex justify-center mt-4 space-x-2">
                   {Array.from(
                     { length: totalUpcomingPages },
-                    (_, i) => i + 1,
+                    (_, i) => i + 1
                   ).map((p) => (
                     <button
                       key={p}
@@ -213,7 +209,7 @@ export default function EventTabs() {
                       >
                         {p}
                       </button>
-                    ),
+                    )
                   )}
                 </div>
               )}
