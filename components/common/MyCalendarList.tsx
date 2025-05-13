@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation"; // ✅ Import useRouter
-
 import { apiRequest } from "@/components/explore/api";
 
 interface Calendar {
@@ -11,6 +10,7 @@ interface Calendar {
   name: string;
   description?: string;
   image?: string;
+  avatarImage?: string; // 👈 Thêm dòng này
   followStatus: string;
   location?: string;
 }
@@ -67,7 +67,7 @@ const LendarList = ({ calendar }: { calendar: Calendar }) => {
       <div className="bg-white shadow-md rounded-xl p-4 h-full flex flex-col justify-between hover:shadow-lg transition-shadow">
         <div>
           <Image
-            src={calendar.image || "/images/events/vcs-mixer.jpg"}
+            src={calendar.avatarImage || "/images/events/vcs-mixer.jpg"}
             alt={calendar.name}
             width={64}
             height={64}

@@ -25,9 +25,10 @@ export const apiClient = {
     });
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
+      const errorText = await response.text();
+      console.error("API error response:", errorText);
       throw new Error(
-        errorData.message || `HTTP error! Status: ${response.status}`,
+        `HTTP ${response.status}: ${errorText || "Uncategorized error"}`,
       );
     }
 

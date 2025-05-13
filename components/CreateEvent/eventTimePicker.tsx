@@ -1,41 +1,31 @@
-import { useState, useEffect, useRef } from "react";
+"use client";
+
+import { useFormContext, Controller } from "react-hook-form";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { format, addHours } from "date-fns";
+import { format, setHours, setMinutes } from "date-fns";
 import TimePicker from "./timePicker";
+import { useState } from "react";
+
+interface TimePickerProps {
+  selectedTime: Date;
+  onSelect: (time: Date | null) => void;
+  startTime: Date;
+  isEndPicker?: boolean;
+}
 
 export default function EventTimePicker() {
-  const [startDate1, setStartDate1] = useState(new Date());
-  const [endDate1, setEndDate1] = useState(new Date());
-  const [showPicker, setShowPicker] = useState(false);
-  const [showPicker1, setShowPicker1] = useState(false);
-  const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(addHours(new Date(), 1));
-  const [showStartPicker, setShowStartPicker] = useState(false);
-  const [showEndPicker, setShowEndPicker] = useState(false);
+  const { control, watch, setValue } = useFormContext();
 
-  const pickerRef = useRef(null);
-  const pickerRef1 = useRef(null);
+  const startDate = watch("startDate");
+  const endDate = watch("endDate");
 
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (pickerRef.current && !pickerRef.current.contains(event.target)) {
-        setShowPicker(false);
-      }
-      if (pickerRef1.current && !pickerRef1.current.contains(event.target)) {
-        setShowPicker1(false);
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+  const [showStartTimePicker, setShowStartTimePicker] = useState(false);
+  const [showEndTimePicker, setShowEndTimePicker] = useState(false);
 
   return (
     <div className="space-y-3 bg-muted/30 rounded-lg p-4">
-      {/* Chọn ngày bắt đầu */}
+      {/* Bắt đầu */}
       <div className="flex items-start gap-4">
         <div className="mt-1">
           <div className="w-4 h-4 rounded-full bg-slate-300 border-2 border-white"></div>
@@ -43,45 +33,48 @@ export default function EventTimePicker() {
         <div className="flex-1">
           <label>Bắt đầu</label>
           <div className="grid grid-cols-2 gap-2 mt-1">
-            <div
-              className="bg-white hover:bg-gray-300 rounded-md px-3 py-2 cursor-pointer"
-              onClick={() => setShowPicker(!showPicker)}
-            >
-              {format(startDate1, "dd/MM/yyyy")}
-            </div>
-            {showPicker && (
-              <div
-                ref={pickerRef}
-                className="absolute bg-white shadow-md p-2 mt-2 rounded-md"
-              >
+            {/* Ngày bắt đầu */}
+            <Controller
+              control={control}
+              name="startDate"
+              render={({ field }) => (
                 <DatePicker
-                  selected={startDate1}
+                  selected={field.value || new Date()}
                   onChange={(date) => {
-                    setStartDate1(date);
-                    setShowPicker(false);
-                    if (endDate1 < date) {
-                      setEndDate1(date);
-                    }
+                    const updated = setHours(
+                      setMinutes(date as Date, field.value?.getMinutes() || 0),
+                      field.value?.getHours() || 0,
+                    );
+                    field.onChange(updated);
                   }}
                   minDate={new Date()}
-                  inline
+                  dateFormat="dd/MM/yyyy"
+                  className="bg-white px-3 py-2 rounded-md cursor-pointer w-full"
                 />
-              </div>
-            )}
+              )}
+            />
+
+            {/* Giờ bắt đầu */}
             <div>
               <div
-                className="bg-white rounded-md px-3 py-2 hover:bg-gray-300 cursor-pointer"
-                onClick={() => setShowStartPicker(!showStartPicker)}
+                className="bg-white px-3 py-2 rounded-md cursor-pointer hover:bg-gray-200"
+                onClick={() => setShowStartTimePicker(!showStartTimePicker)}
               >
                 {format(startDate, "HH:mm")}
               </div>
-              {showStartPicker && (
+              {showStartTimePicker && (
                 <TimePicker
-                  startTime={null}
-                  selectedTime={startDate}
-                  onSelect={(time) => {
-                    if (time) setStartDate(time);
-                    setShowStartPicker(false);
+                  selectedTime={startDate || new Date()}
+                  startTime={startDate || new Date()}
+                  onSelect={(time: Date | null) => {
+                    if (time) {
+                      const updated = setHours(
+                        setMinutes(startDate || new Date(), time.getMinutes()),
+                        time.getHours(),
+                      );
+                      setValue("startDate", updated);
+                    }
+                    setShowStartTimePicker(false);
                   }}
                 />
               )}
@@ -90,7 +83,7 @@ export default function EventTimePicker() {
         </div>
       </div>
 
-      {/* Chọn ngày kết thúc */}
+      {/* Kết thúc */}
       <div className="flex items-start gap-4">
         <div className="mt-1">
           <div className="w-4 h-4 rounded-full border-2 border-slate-300"></div>
@@ -98,42 +91,48 @@ export default function EventTimePicker() {
         <div className="flex-1">
           <label>Kết thúc</label>
           <div className="grid grid-cols-2 gap-2 mt-1">
-            <div
-              className="bg-white hover:bg-gray-300 rounded-md px-3 py-2 cursor-pointer"
-              onClick={() => setShowPicker1(!showPicker1)}
-            >
-              {format(endDate1, "dd/MM/yyyy")}
-            </div>
-            {showPicker1 && (
-              <div
-                ref={pickerRef1}
-                className="absolute bg-white shadow-md p-2 mt-2 rounded-md"
-              >
+            {/* Ngày kết thúc */}
+            <Controller
+              control={control}
+              name="endDate"
+              render={({ field }) => (
                 <DatePicker
-                  selected={endDate1}
+                  selected={field.value || new Date()}
                   onChange={(date) => {
-                    setEndDate1(date);
-                    setShowPicker1(false);
+                    const updated = setHours(
+                      setMinutes(date as Date, field.value?.getMinutes() || 0),
+                      field.value?.getHours() || 0,
+                    );
+                    field.onChange(updated);
                   }}
-                  minDate={startDate1}
-                  inline
+                  minDate={startDate}
+                  dateFormat="dd/MM/yyyy"
+                  className="bg-white px-3 py-2 rounded-md cursor-pointer w-full"
                 />
-              </div>
-            )}
+              )}
+            />
+
+            {/* Giờ kết thúc */}
             <div>
               <div
-                className="bg-white rounded-md px-3 py-2 hover:bg-gray-300 cursor-pointer mt-2"
-                onClick={() => setShowEndPicker(!showEndPicker)}
+                className="bg-white px-3 py-2 rounded-md cursor-pointer hover:bg-gray-200"
+                onClick={() => setShowEndTimePicker(!showEndTimePicker)}
               >
                 {format(endDate, "HH:mm")}
               </div>
-              {showEndPicker && (
+              {showEndTimePicker && (
                 <TimePicker
-                  startTime={startDate}
-                  selectedTime={endDate}
-                  onSelect={(time) => {
-                    if (time) setEndDate(time);
-                    setShowEndPicker(false);
+                  selectedTime={endDate || new Date()}
+                  startTime={startDate || new Date()}
+                  onSelect={(time: Date | null) => {
+                    if (time) {
+                      const updated = setHours(
+                        setMinutes(endDate || new Date(), time.getMinutes()),
+                        time.getHours(),
+                      );
+                      setValue("endDate", updated);
+                    }
+                    setShowEndTimePicker(false);
                   }}
                   isEndPicker
                 />

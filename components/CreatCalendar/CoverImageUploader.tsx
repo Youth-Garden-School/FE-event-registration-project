@@ -1,13 +1,20 @@
 import { Button } from "@/components/ui/button";
 import { Upload } from "lucide-react";
 
+type CoverImageUploaderProps = {
+  coverImage: string;
+  setCoverImage: (image: string) => void;
+  profileImage: string;
+  setProfileImage: (image: string) => void;
+};
+
 export default function CoverImageUploader({
   coverImage,
   setCoverImage,
   profileImage,
   setProfileImage,
-}) {
-  const handleImageUpload = (setImage) => {
+}: CoverImageUploaderProps) {
+  const handleImageUpload = (setImage: (image: string) => void) => {
     const input = document.createElement("input");
     input.type = "file";
     input.accept = "image/*";
@@ -26,13 +33,13 @@ export default function CoverImageUploader({
 
   return (
     <div className="relative w-full h-64 bg-background rounded-lg overflow-hidden">
-      {coverImage ? (
+      {coverImage && (
         <img
           src={coverImage}
           alt="Cover"
           className="w-full h-full object-cover"
         />
-      ) : null}
+      )}
       <Button
         variant="secondary"
         className="absolute top-4 right-4 cursor-pointer"
@@ -45,13 +52,13 @@ export default function CoverImageUploader({
       {/* Profile Image */}
       <div className="absolute bottom-2 left-8 cursor-pointer">
         <div className="relative w-20 h-20 bg-gradient-to-br from-pink-300 to-blue-300 rounded-lg overflow-hidden">
-          {profileImage ? (
+          {profileImage && (
             <img
               src={profileImage}
               alt="Profile"
               className="w-full h-full object-cover"
             />
-          ) : null}
+          )}
           <Button
             variant="ghost"
             size="icon"

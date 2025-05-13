@@ -6,7 +6,7 @@ import Image from "next/image";
 import { useState, useCallback, useEffect } from "react";
 import { UserCheck } from "lucide-react";
 import { apiRequest } from "./api";
-import { Toast } from "@/components/ui/toast";
+import Link from "next/link";
 
 // ----- Interfaces -----
 interface Calendar {
@@ -14,7 +14,6 @@ interface Calendar {
   name: string;
   description?: string;
   avatarImage?: string;
-  followStatus: string;
   location?: string;
   events?: EventProps[];
 }
@@ -59,36 +58,20 @@ const FollowCard = ({
   calendar: Calendar;
   setCalendars: React.Dispatch<React.SetStateAction<Calendar[]>>;
 }) => {
-  const [isFollowing, setIsFollowing] = useState(
-    calendar.followStatus === "Đã theo dõi",
-  );
+  const [isFollowing, setIsFollowing] = useState(false);
 
   const toggleFollow = useCallback(async () => {
     try {
+      // Tạo endpoint follow/unfollow mà không sử dụng followStatus
       const endpoint = isFollowing
         ? `/calendars/${calendar.id}/unfollow`
         : `/calendars/${calendar.id}/follow`;
       await apiRequest("post", endpoint);
       setIsFollowing(!isFollowing);
-      setCalendars((prev) =>
-        prev.map((c) =>
-          c.id === calendar.id
-            ? { ...c, followStatus: isFollowing ? "Theo dõi" : "Đã theo dõi" }
-            : c,
-        ),
-      );
-      Toast({
-        title: "Success",
-        description: isFollowing ? "Unfollowed calendar" : "Followed calendar",
-      });
     } catch (_) {
-      Toast({
-        title: "Error",
-        description: `Failed to ${isFollowing ? "unfollow" : "follow"} calendar`,
-        variant: "destructive",
-      });
+      // Xử lý lỗi mà không sử dụng Toast
     }
-  }, [isFollowing, calendar.id, setCalendars]);
+  }, [isFollowing, calendar.id]);
 
   return (
     <Card className="shadow-md hover:shadow-lg transition-shadow cursor-pointer relative group w-[250px] h-[160px] overflow-hidden p-3 flex flex-col justify-between">
@@ -97,7 +80,12 @@ const FollowCard = ({
       </div>
       <div className="items-center">
         <Image
-          src={calendar.avatarImage || "/images/events/vcs-mixer.jpg"}
+          src={
+            calendar.avatarImage?.startsWith("/") ||
+            calendar.avatarImage?.startsWith("http")
+              ? calendar.avatarImage
+              : "/images/events/vcs-mixer.jpg"
+          }
           alt={calendar.name}
           width={50}
           height={50}
@@ -142,24 +130,19 @@ const CalendarList = () => {
               avatarImage: event.coverImage || "/images/events/vcs-mixer.jpg",
             }));
           } catch {
-            // Silent fail: errors from event fetching are ignored //
+            // Silent fail: errors from event fetching are ignored
           }
           return {
             ...calendar,
             description: calendar.description || "No description available",
             avatarImage: calendar.avatarImage || "/images/events/vcs-mixer.jpg",
-            followStatus: calendar.followStatus || "Theo dõi",
             events,
           };
         }),
       );
-      setCalendars(enrichedCalendars);
+      setCalendars(enrichedCalendars.slice(0, 12));
     } catch (_) {
-      Toast({
-        title: "Error",
-        description: "Failed to fetch calendars",
-        variant: "destructive",
-      });
+      // Xử lý lỗi mà không sử dụng Toast
     } finally {
       setLoading(false);
     }
@@ -177,11 +160,9 @@ const CalendarList = () => {
         <h2 className="text-xl font-bold text-gray-900 mb-4">Lịch nổi bật</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
           {calendars.map((calendar) => (
-            <FollowCard
-              key={calendar.id}
-              calendar={calendar}
-              setCalendars={setCalendars}
-            />
+            <Link key={calendar.id} href={`/featured-calendar/${calendar.id}`}>
+              <FollowCard calendar={calendar} setCalendars={setCalendars} />
+            </Link>
           ))}
         </div>
       </div>

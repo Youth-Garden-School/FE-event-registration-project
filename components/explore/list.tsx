@@ -1,9 +1,10 @@
+"use client";
 import { Card, CardContent } from "@/components/ui/card";
 import { FC } from "react";
 import { z } from "zod";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation"; // ✅ thêm dòng này
 
-// Schema kiểm tra dữ liệu danh mục
 const CategorySchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -15,37 +16,43 @@ const CategorySchema = z.object({
 type Category = z.infer<typeof CategorySchema>;
 
 const categories: Category[] = [
-  { id: "ai", name: "AI", icon: "🤖", events: 1000, color: "text-pink-500" },
   {
-    id: "art",
+    id: "ai",
+    name: "Artificial Intelligence",
+    icon: "🤖",
+    events: 1000,
+    color: "text-pink-500",
+  },
+  {
+    id: "0196b406-9ab1-77d5-9e65-fb02cfe9dbe5",
     name: "Nghệ thuật & Văn hoá",
     icon: "🎨",
     events: 964,
     color: "text-green-600",
   },
   {
-    id: "climate",
+    id: "0196b406-c9e0-792f-823f-f8d454442be6",
     name: "Khí hậu",
     icon: "🌍",
     events: 727,
     color: "text-green-500",
   },
   {
-    id: "sports",
-    name: "Thể dục thể thao",
+    id: "0196b407-0af6-7bde-9993-6f206c9ce249",
+    name: "Thể dục Thể thao",
     icon: "🏃",
     events: 546,
     color: "text-orange-500",
   },
   {
-    id: "health",
+    id: "0196b407-52a6-7aa1-85ed-2412c0b0ffab",
     name: "Sức khoẻ",
     icon: "🌿",
     events: 1000,
     color: "text-teal-500",
   },
   {
-    id: "crypto",
+    id: "0196b407-8215-794b-b37e-a236f3a65274",
     name: "Tiền mã hoá",
     icon: "₿",
     events: 953,
@@ -54,6 +61,8 @@ const categories: Category[] = [
 ];
 
 const Categories: FC = () => {
+  const router = useRouter(); // ✅ dùng router
+
   return (
     <div className="max-w-[930px] mx-auto space-y-4">
       <h2 className="text-2xl font-semibold">Duyệt theo danh mục</h2>
@@ -61,6 +70,7 @@ const Categories: FC = () => {
         {categories.map((category) => (
           <Card
             key={category.id}
+            onClick={() => router.push(`/${category.id}`)} // Use `id`, not `name`
             className="hover:bg-gray-100 transition w-[250px] h-[125px] cursor-pointer"
           >
             <CardContent className="items-center space-x-4">
@@ -70,7 +80,7 @@ const Categories: FC = () => {
               <div className="pt-4">
                 <h3 className="text-md font-medium">{category.name}</h3>
                 <p className="text-sm text-gray-500">
-                  {category.events.toLocaleString()} sự kiện
+                  {/* {category.events.toLocaleString()} sự kiện */}
                 </p>
               </div>
             </CardContent>

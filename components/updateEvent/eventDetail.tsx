@@ -2,18 +2,8 @@ import { Edit, MapPin, Clipboard } from "lucide-react";
 import { FormField, FormItem, FormControl } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { UseFormReturn } from "react-hook-form";
-import { z } from "zod";
-import { formSchema } from "./formSchema"; // Đảm bảo bạn đã xuất formSchema từ nơi khác
 
-// Lấy kiểu dữ liệu từ formSchema
-type FormValues = z.infer<typeof formSchema>;
-
-interface EventDetailsProps {
-  form: UseFormReturn<FormValues>;
-}
-
-export default function EventDetails({ form }: EventDetailsProps) {
+export default function EventDetails({ form }) {
   return (
     <>
       {/* Location */}
@@ -61,7 +51,7 @@ export default function EventDetails({ form }: EventDetailsProps) {
         />
       </div>
 
-      {/* Category */}
+      {/* Description */}
       <div className="flex items-start gap-4 bg-muted/30 rounded-lg p-4">
         <Clipboard className="h-5 w-5 mt-0.5 text-muted-foreground" />
         <FormField
