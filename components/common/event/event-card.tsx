@@ -5,9 +5,11 @@ import { MapPin, Users, ArrowRight, Calendar } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { AvatarGroup } from "@/components/ui/avatar-group";
 import { Badge } from "@/components/ui/badge";
-import type { EventWithUI } from "@/style/events-stype";
 import Image from "next/image";
 import { formatTime } from "@/lib/utils";
+
+type EventWithUI = any;
+type EventAttendee = any;
 
 // Định nghĩa interface cho props của component
 // Define interface for component props
@@ -82,7 +84,7 @@ export default function EventCard({ event, onClick }: EventCardProps) {
               {attendees.length > 0 && (
                 <div className="flex items-center gap-2">
                   <AvatarGroup>
-                    {attendees.slice(0, 3).map((attendee) => (
+                    {attendees.slice(0, 3).map((attendee: EventAttendee) => (
                       <Avatar key={attendee?.id} className="w-5 h-5">
                         <AvatarFallback className="text-xs bg-gray-300">
                           {attendee?.user?.email?.charAt(0).toUpperCase() ||

@@ -20,7 +20,9 @@ import {
   Video,
 } from "lucide-react";
 import { registerEvent, cancelRegistration } from "@/lib/api-event";
-import type { EventWithUI } from "@/style/events-stype";
+
+type EventWithUI = any;
+type EventAttendee = any;
 
 interface EventModalProps {
   isOpen: boolean;
@@ -109,7 +111,7 @@ export function EventModal({
 
   const eventUrl = `${window.location.origin}/event-join/${event.id}`;
   const mapsQuery = encodeURIComponent(
-    event.fullAddress ?? `${event.location}, ${event.city}`,
+    event.fullAddress ?? `${event.location}, ${event.city}`
   );
   const mapsEmbed = `https://maps.google.com/maps?q=${mapsQuery}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
   const mapsLink = `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`;
@@ -449,16 +451,18 @@ export function EventModal({
                   </span>
                 </div>
                 <div className="flex flex-wrap gap-1 mb-2">
-                  {attendees.slice(0, 8).map((attendee, i) => (
-                    <div
-                      key={i}
-                      className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-xs overflow-hidden"
-                    >
-                      <div className="w-full h-full flex items-center justify-center bg-gray-300 text-gray-700 font-medium">
-                        {attendee.user?.email?.charAt(0).toUpperCase() || "?"}
+                  {attendees
+                    .slice(0, 8)
+                    .map((attendee: EventAttendee, i: number) => (
+                      <div
+                        key={i}
+                        className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-xs overflow-hidden"
+                      >
+                        <div className="w-full h-full flex items-center justify-center bg-gray-300 text-gray-700 font-medium">
+                          {attendee.user?.email?.charAt(0).toUpperCase() || "?"}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
                   {attendees.length > 8 && (
                     <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-xs text-gray-500">
                       +{attendees.length - 8}

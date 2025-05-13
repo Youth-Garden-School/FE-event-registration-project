@@ -1,17 +1,17 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect, useCallback, useRef } from "react"
-import { useParams, useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { AddLumaEventModal } from "@/components/common/calendar/add-luma-event-modal"
-import { EventEmptyState } from "@/components/common/calendar/event-empty-state"
-import EventList from "@/components/common/calendar/event-list"
-import { format, isToday, isTomorrow, parseISO } from "date-fns"
-import { vi } from "date-fns/locale"
-import { AlertCircle, Upload, Loader2 } from "lucide-react"
+import { useState, useEffect, useCallback, useRef } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AddLumaEventModal } from "@/components/common/calendar/add-luma-event-modal";
+import { EventEmptyState } from "@/components/common/calendar/event-empty-state";
+import EventList from "@/components/common/calendar/event-list";
+import { format, isToday, isTomorrow, parseISO } from "date-fns";
+import { vi } from "date-fns/locale";
+import { AlertCircle, Upload, Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -19,7 +19,7 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 import {
   getCalendarById,
   deleteEventFromCalendar,
@@ -27,139 +27,158 @@ import {
   updateCalendar,
   type Calendar,
   type CalendarEvent,
-} from "@/lib/api-calendar"
-import type { EventWithUI } from "@/style/events-stype"
-import { supabase } from "@/lib/supabase"
+} from "@/lib/api-calendar";
+import type { EventWithUI } from "@/style/events-stype";
+import { supabase } from "@/lib/supabase";
 
 export default function SettingEventPage() {
-  const { id: calendarId } = useParams() as { id: string }
-  const router = useRouter()
+  const { id: calendarId } = useParams() as { id: string };
+  const router = useRouter();
 
   // --- API data states ---
-  const [calendar, setCalendar] = useState<Calendar | null>(null)
-  const [events, setEvents] = useState<CalendarEvent[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [calendar, setCalendar] = useState<Calendar | null>(null);
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // --- UI states ---
-  const [activeTab, setActiveTab] = useState<"events" | "settings">("events")
-  const [activeEventsTab, setActiveEventsTab] = useState<"upcoming" | "past">("upcoming")
-  const [currentPage, setCurrentPage] = useState(1)
-  const [showAddLumaModal, setShowAddLumaModal] = useState(false)
+  const [activeTab, setActiveTab] = useState<"events" | "settings">("events");
+  const [activeEventsTab, setActiveEventsTab] = useState<"upcoming" | "past">(
+    "upcoming"
+  );
+  const [currentPage, setCurrentPage] = useState(1);
+  const [showAddLumaModal, setShowAddLumaModal] = useState(false);
 
-  const [showDeleteEventDialog, setShowDeleteEventDialog] = useState(false)
-  const [eventToDelete, setEventToDelete] = useState<string | null>(null)
+  const [showDeleteEventDialog, setShowDeleteEventDialog] = useState(false);
+  const [eventToDelete, setEventToDelete] = useState<string | null>(null);
 
-  const [showDeleteCalendarDialog, setShowDeleteCalendarDialog] = useState(false)
+  const [showDeleteCalendarDialog, setShowDeleteCalendarDialog] =
+    useState(false);
 
   // --- Settings form states ---
-  const [editName, setEditName] = useState("")
-  const [editCover, setEditCover] = useState("")
-  const [editAvatar, setEditAvatar] = useState("")
-  const [editDesc, setEditDesc] = useState("")
-  const [savingSettings, setSavingSettings] = useState(false)
+  const [editName, setEditName] = useState("");
+  const [editCover, setEditCover] = useState("");
+  const [editAvatar, setEditAvatar] = useState("");
+  const [editDesc, setEditDesc] = useState("");
+  const [savingSettings, setSavingSettings] = useState(false);
 
   // --- Upload states ---
-  const [uploadingCover, setUploadingCover] = useState(false)
-  const [uploadingAvatar, setUploadingAvatar] = useState(false)
-  const [uploadError, setUploadError] = useState<string | null>(null)
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   // --- Refs for file inputs ---
-  const coverFileInputRef = useRef<HTMLInputElement>(null)
-  const avatarFileInputRef = useRef<HTMLInputElement>(null)
+  const coverFileInputRef = useRef<HTMLInputElement>(null);
+  const avatarFileInputRef = useRef<HTMLInputElement>(null);
 
   // Convert API event → EventWithUI
   const convertToEventWithUI = (e: CalendarEvent): EventWithUI => {
-    const dt = parseISO(e.startTime)
-    const dateLabel = isToday(dt) ? "Hôm nay" : isTomorrow(dt) ? "Ngày mai" : format(dt, "d 'thg' M", { locale: vi })
+    const dt = parseISO(e.startTime);
+    const dateLabel = isToday(dt)
+      ? "Hôm nay"
+      : isTomorrow(dt)
+        ? "Ngày mai"
+        : format(dt, "d 'thg' M", { locale: vi });
     return {
-      ...e,
+      id: e.id,
+      title: e.title,
+      description: e.description || "",
+      startTime: e.startTime,
+      endTime: e.endTime,
+      location: e.location || "",
+      isOnline: false,
+      calendarId: e.id,
       dateLabel,
       dayLabel: format(dt, "EEEE", { locale: vi }),
       displayTime: format(dt, "HH:mm", { locale: vi }),
       isUserEvent: true,
       attendees: e.attendees ?? [],
-    }
-  }
+      requiresApproval: e.requiresApproval ?? false,
+      createdAt: e.createdAt,
+      updatedAt: e.updatedAt,
+      createdBy: e.createdBy,
+      updatedBy: e.updatedBy,
+    };
+  };
 
   // Fetch calendar + events
   const fetchCalendarAndEvents = useCallback(async () => {
-    setLoading(true)
-    setError(null)
+    setLoading(true);
+    setError(null);
 
     try {
-      const cal = await getCalendarById(calendarId)
-      setCalendar(cal)
-      setEvents(cal.events ?? [])
+      const cal = await getCalendarById(calendarId);
+      setCalendar(cal);
+      setEvents(cal.events ?? []);
 
       // Sync settings form when calendar loads
-      setEditName(cal.name)
-      setEditCover(cal.coverImage ?? "")
-      setEditAvatar(cal.avatarImage ?? "")
-      setEditDesc(cal.description ?? "")
+      setEditName(cal.name);
+      setEditCover(cal.coverImage ?? "");
+      setEditAvatar(cal.avatarImage ?? "");
+      setEditDesc(cal.description ?? "");
     } catch (err: any) {
-      console.error(err)
-      setError(err.message || "Lỗi khi tải lịch")
+      console.error(err);
+      setError(err.message || "Lỗi khi tải lịch");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [calendarId])
+  }, [calendarId]);
 
   useEffect(() => {
-    fetchCalendarAndEvents()
-  }, [fetchCalendarAndEvents])
+    fetchCalendarAndEvents();
+  }, [fetchCalendarAndEvents]);
 
   // Delete single event
-  const handleDeleteEvent = (id: string) => {
-    setEventToDelete(id)
-    setShowDeleteEventDialog(true)
-  }
+  const handleDeleteEvent = (event: CalendarEvent) => {
+    setEventToDelete(event.id);
+    setShowDeleteEventDialog(true);
+  };
 
   const confirmDeleteEvent = async () => {
-    if (!eventToDelete) return
+    if (!eventToDelete) return;
     try {
-      await deleteEventFromCalendar(calendarId, eventToDelete)
-      await fetchCalendarAndEvents()
-      setShowDeleteEventDialog(false)
-      setEventToDelete(null)
+      await deleteEventFromCalendar(calendarId, eventToDelete);
+      await fetchCalendarAndEvents();
+      setShowDeleteEventDialog(false);
+      setEventToDelete(null);
     } catch (err) {
-      console.error(err)
-      alert("Không thể xóa sự kiện. Vui lòng thử lại sau.")
+      console.error(err);
+      alert("Không thể xóa sự kiện. Vui lòng thử lại sau.");
     }
-  }
+  };
 
   // Delete entire calendar
-  const handleDeleteCalendar = () => setShowDeleteCalendarDialog(true)
+  const handleDeleteCalendar = () => setShowDeleteCalendarDialog(true);
 
   const confirmDeleteCalendar = async () => {
     try {
-      await deleteCalendar(calendarId)
-      router.push("/")
+      await deleteCalendar(calendarId);
+      router.push("/");
     } catch (err) {
-      console.error(err)
-      alert("Không thể xóa lịch. Vui lòng thử lại sau.")
+      console.error(err);
+      alert("Không thể xóa lịch. Vui lòng thử lại sau.");
     }
-  }
+  };
 
   // Save settings
   const handleSaveChanges = async () => {
-    setSavingSettings(true)
+    setSavingSettings(true);
     try {
       await updateCalendar(calendarId, {
         name: editName,
         coverImage: editCover,
         avatarImage: editAvatar,
         description: editDesc,
-      })
-      await fetchCalendarAndEvents()
-      alert("Cập nhật thành công!")
+      });
+      await fetchCalendarAndEvents();
+      alert("Cập nhật thành công!");
     } catch (err: any) {
-      console.error(err)
-      alert("Cập nhật thất bại: " + (err.message || "Lỗi không xác định"))
+      console.error(err);
+      alert("Cập nhật thất bại: " + (err.message || "Lỗi không xác định"));
     } finally {
-      setSavingSettings(false)
+      setSavingSettings(false);
     }
-  }
+  };
 
   // Sanitize file name for storage
   const sanitizeFileName = (name: string) => {
@@ -168,128 +187,153 @@ export default function SettingEventPage() {
       .replace(/[\u0300-\u036f]/g, "")
       .replace(/\s+/g, "_")
       .replace(/[^a-zA-Z0-9._-]/g, "")
-      .toLowerCase()
-  }
+      .toLowerCase();
+  };
 
   // Handle cover image upload
-  const handleCoverImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+  const handleCoverImageUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
     // Validate file
-    if (!["image/jpeg", "image/png", "image/gif", "image/webp"].includes(file.type)) {
-      alert("Chỉ chấp nhận file ảnh định dạng JPG, PNG, GIF hoặc WebP")
-      return
+    if (
+      !["image/jpeg", "image/png", "image/gif", "image/webp"].includes(
+        file.type
+      )
+    ) {
+      alert("Chỉ chấp nhận file ảnh định dạng JPG, PNG, GIF hoặc WebP");
+      return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      alert("Kích thước file không được vượt quá 5MB")
-      return
+      alert("Kích thước file không được vượt quá 5MB");
+      return;
     }
 
-    setUploadingCover(true)
-    setUploadError(null)
+    setUploadingCover(true);
+    setUploadError(null);
 
     try {
       // Upload to Supabase
-      const sanitizedName = sanitizeFileName(file.name)
-      const fileName = `calendars/${calendarId}/cover/${Date.now()}_${sanitizedName}`
+      const sanitizedName = sanitizeFileName(file.name);
+      const fileName = `calendars/${calendarId}/cover/${Date.now()}_${sanitizedName}`;
 
       const { error: uploadError } = await supabase.storage
         .from("images")
-        .upload(fileName, file, { cacheControl: "3600", upsert: false })
+        .upload(fileName, file, { cacheControl: "3600", upsert: false });
 
-      if (uploadError) throw new Error(uploadError.message)
+      if (uploadError) throw new Error(uploadError.message);
 
       // Get public URL
-      const { data: urlData } = supabase.storage.from("images").getPublicUrl(fileName)
+      const { data: urlData } = supabase.storage
+        .from("images")
+        .getPublicUrl(fileName);
 
-      if (!urlData.publicUrl) throw new Error("Không thể lấy URL ảnh")
+      if (!urlData.publicUrl) throw new Error("Không thể lấy URL ảnh");
 
       // Update state
-      setEditCover(urlData.publicUrl)
+      setEditCover(urlData.publicUrl);
     } catch (err: any) {
-      console.error("Upload Error:", err)
-      setUploadError(err.message || "Tải ảnh thất bại")
-      alert("Tải ảnh thất bại: " + (err.message || "Lỗi không xác định"))
+      console.error("Upload Error:", err);
+      setUploadError(err.message || "Tải ảnh thất bại");
+      alert("Tải ảnh thất bại: " + (err.message || "Lỗi không xác định"));
     } finally {
-      setUploadingCover(false)
-      if (coverFileInputRef.current) coverFileInputRef.current.value = ""
+      setUploadingCover(false);
+      if (coverFileInputRef.current) coverFileInputRef.current.value = "";
     }
-  }
+  };
 
   // Handle avatar image upload
-  const handleAvatarImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+  const handleAvatarImageUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
     // Validate file
-    if (!["image/jpeg", "image/png", "image/gif", "image/webp"].includes(file.type)) {
-      alert("Chỉ chấp nhận file ảnh định dạng JPG, PNG, GIF hoặc WebP")
-      return
+    if (
+      !["image/jpeg", "image/png", "image/gif", "image/webp"].includes(
+        file.type
+      )
+    ) {
+      alert("Chỉ chấp nhận file ảnh định dạng JPG, PNG, GIF hoặc WebP");
+      return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      alert("Kích thước file không được vượt quá 5MB")
-      return
+      alert("Kích thước file không được vượt quá 5MB");
+      return;
     }
 
-    setUploadingAvatar(true)
-    setUploadError(null)
+    setUploadingAvatar(true);
+    setUploadError(null);
 
     try {
       // Upload to Supabase
-      const sanitizedName = sanitizeFileName(file.name)
-      const fileName = `calendars/${calendarId}/avatar/${Date.now()}_${sanitizedName}`
+      const sanitizedName = sanitizeFileName(file.name);
+      const fileName = `calendars/${calendarId}/avatar/${Date.now()}_${sanitizedName}`;
 
       const { error: uploadError } = await supabase.storage
         .from("images")
-        .upload(fileName, file, { cacheControl: "3600", upsert: false })
+        .upload(fileName, file, { cacheControl: "3600", upsert: false });
 
-      if (uploadError) throw new Error(uploadError.message)
+      if (uploadError) throw new Error(uploadError.message);
 
       // Get public URL
-      const { data: urlData } = supabase.storage.from("images").getPublicUrl(fileName)
+      const { data: urlData } = supabase.storage
+        .from("images")
+        .getPublicUrl(fileName);
 
-      if (!urlData.publicUrl) throw new Error("Không thể lấy URL ảnh")
+      if (!urlData.publicUrl) throw new Error("Không thể lấy URL ảnh");
 
       // Update state
-      setEditAvatar(urlData.publicUrl)
+      setEditAvatar(urlData.publicUrl);
     } catch (err: any) {
-      console.error("Upload Error:", err)
-      setUploadError(err.message || "Tải ảnh thất bại")
-      alert("Tải ảnh thất bại: " + (err.message || "Lỗi không xác định"))
+      console.error("Upload Error:", err);
+      setUploadError(err.message || "Tải ảnh thất bại");
+      alert("Tải ảnh thất bại: " + (err.message || "Lỗi không xác định"));
     } finally {
-      setUploadingAvatar(false)
-      if (avatarFileInputRef.current) avatarFileInputRef.current.value = ""
+      setUploadingAvatar(false);
+      if (avatarFileInputRef.current) avatarFileInputRef.current.value = "";
     }
-  }
+  };
 
   // Filter upcoming / past
-  const now = new Date()
-  const upcomingEvents = events.filter((e) => parseISO(e.startTime) >= now).map(convertToEventWithUI)
-  const pastEvents = events.filter((e) => parseISO(e.startTime) < now).map(convertToEventWithUI)
-  const displayEvents = activeEventsTab === "upcoming" ? upcomingEvents : pastEvents
+  const now = new Date();
+  const upcomingEvents = events
+    .filter((e) => parseISO(e.startTime) >= now)
+    .map(convertToEventWithUI);
+  const pastEvents = events
+    .filter((e) => parseISO(e.startTime) < now)
+    .map(convertToEventWithUI);
+  const displayEvents =
+    activeEventsTab === "upcoming" ? upcomingEvents : pastEvents;
 
   if (loading) {
     return (
       <div className=" bg-gray-50 flex items-center justify-center">
         <div className="bg-white p-8 rounded-xl shadow-lg text-center">
           <div className="w-16 h-16 border-4 border-t-gray-600 border-b-gray-600 border-l-gray-200 border-r-gray-200 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600 font-medium">
-            Đang tải quản lý lịch...
-          </p>
+          <p className="text-gray-600 font-medium">Đang tải quản lý lịch...</p>
         </div>
       </div>
     );
   }
 
   if (error) {
-    return <div className="py-8 text-center text-red-500">Lỗi khi tải: {error}</div>
+    return (
+      <div className="py-8 text-center text-red-500">Lỗi khi tải: {error}</div>
+    );
   }
 
   if (!calendar) {
-    return <div className="py-8 text-center text-gray-600">Không tìm thấy lịch này.</div>
+    return (
+      <div className="py-8 text-center text-gray-600">
+        Không tìm thấy lịch này.
+      </div>
+    );
   }
 
   return (
@@ -309,20 +353,31 @@ export default function SettingEventPage() {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <span className="text-lg">{calendar.name.charAt(0).toUpperCase()}</span>
+                <span className="text-lg">
+                  {calendar.name.charAt(0).toUpperCase()}
+                </span>
               )}
             </div>
-            <h1 className="text-3xl font-medium text-gray-700">{calendar.name}</h1>
+            <h1 className="text-3xl font-medium text-gray-700">
+              {calendar.name}
+            </h1>
           </div>
           <div className="ml-auto">
-            <Button variant="outline" onClick={() => router.push(`/featured-calendar/${calendarId}`)}>
+            <Button
+              variant="outline"
+              onClick={() => router.push(`/featured-calendar/${calendarId}`)}
+            >
               Trang lịch <span className="ml-1">→</span>
             </Button>
           </div>
         </div>
 
         {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "events" | "settings")} className="w-full mb-4">
+        <Tabs
+          value={activeTab}
+          onValueChange={(v) => setActiveTab(v as "events" | "settings")}
+          className="w-full mb-4"
+        >
           <TabsList className="border-b w-full justify-start rounded-none bg-transparent p-0 h-auto">
             <TabsTrigger
               value="events"
@@ -355,8 +410,8 @@ export default function SettingEventPage() {
               <Tabs
                 value={activeEventsTab}
                 onValueChange={(v) => {
-                  setActiveEventsTab(v as "upcoming" | "past")
-                  setCurrentPage(1)
+                  setActiveEventsTab(v as "upcoming" | "past");
+                  setCurrentPage(1);
                 }}
                 className="w-auto"
               >
@@ -387,7 +442,10 @@ export default function SettingEventPage() {
                 onEventClick={handleDeleteEvent}
               />
             ) : (
-              <EventEmptyState onAddEvent={() => setShowAddLumaModal(true)} isPast={activeEventsTab === "past"} />
+              <EventEmptyState
+                onAddEvent={() => setShowAddLumaModal(true)}
+                isPast={activeEventsTab === "past"}
+              />
             )}
           </TabsContent>
 
@@ -400,7 +458,9 @@ export default function SettingEventPage() {
                 <div className="flex justify-between items-start pb-4 border-b">
                   <div className="flex-1">
                     <h4 className="font-medium">Tên trang chủ</h4>
-                    <p className="text-sm text-gray-500 mb-2">Tên hiển thị cho trang sự kiện của bạn</p>
+                    <p className="text-sm text-gray-500 mb-2">
+                      Tên hiển thị cho trang sự kiện của bạn
+                    </p>
                     <input
                       type="text"
                       value={editName}
@@ -414,7 +474,9 @@ export default function SettingEventPage() {
                 <div className="flex justify-between items-start pb-4 border-b">
                   <div className="flex-1">
                     <h4 className="font-medium">Ảnh bìa</h4>
-                    <p className="text-sm text-gray-500 mb-2">Ảnh hiển thị ở đầu trang sự kiện</p>
+                    <p className="text-sm text-gray-500 mb-2">
+                      Ảnh hiển thị ở đầu trang sự kiện
+                    </p>
                     <input
                       ref={coverFileInputRef}
                       type="file"
@@ -425,7 +487,11 @@ export default function SettingEventPage() {
                     <div className="mt-2 relative w-full h-[120px] overflow-hidden rounded-lg border border-dashed border-gray-300 bg-gray-50 flex items-center justify-center">
                       <div className="absolute inset-0">
                         <img
-                          src={editCover || "/placeholder.svg?height=600&width=1200" || "/placeholder.svg"}
+                          src={
+                            editCover ||
+                            "/placeholder.svg?height=600&width=1200" ||
+                            "/placeholder.svg"
+                          }
                           alt="Cover preview"
                           className="w-full h-full object-cover"
                         />
@@ -449,7 +515,9 @@ export default function SettingEventPage() {
                         )}
                       </div>
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">Kích thước đề xuất: 1200x600 pixel, tối đa 5MB</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Kích thước đề xuất: 1200x600 pixel, tối đa 5MB
+                    </p>
                   </div>
                 </div>
 
@@ -457,7 +525,9 @@ export default function SettingEventPage() {
                 <div className="flex justify-between items-start pb-4 border-b">
                   <div className="flex-1">
                     <h4 className="font-medium">Ảnh đại diện</h4>
-                    <p className="text-sm text-gray-500 mb-2">Logo hoặc ảnh đại diện cho trang sự kiện</p>
+                    <p className="text-sm text-gray-500 mb-2">
+                      Logo hoặc ảnh đại diện cho trang sự kiện
+                    </p>
                     <input
                       ref={avatarFileInputRef}
                       type="file"
@@ -468,7 +538,9 @@ export default function SettingEventPage() {
                     <div className="flex items-center gap-4">
                       <div className="w-16 h-16 rounded-lg bg-gray-100 overflow-hidden relative">
                         <img
-                          src={editAvatar || "/placeholder.svg?height=60&width=60"}
+                          src={
+                            editAvatar || "/placeholder.svg?height=60&width=60"
+                          }
                           alt="Avatar preview"
                           className="w-full h-full object-cover"
                         />
@@ -482,7 +554,9 @@ export default function SettingEventPage() {
                               variant="secondary"
                               size="sm"
                               className="w-full h-full rounded-none text-xs"
-                              onClick={() => avatarFileInputRef.current?.click()}
+                              onClick={() =>
+                                avatarFileInputRef.current?.click()
+                              }
                             >
                               <Upload className="h-3 w-3 mr-1" />
                               Tải lên
@@ -492,7 +566,9 @@ export default function SettingEventPage() {
                       </div>
                       <div className="text-sm text-gray-500">
                         <p>Kích thước đề xuất: 400x400 pixel</p>
-                        <p className="text-xs mt-1">Định dạng: JPG, PNG, GIF, WebP</p>
+                        <p className="text-xs mt-1">
+                          Định dạng: JPG, PNG, GIF, WebP
+                        </p>
                         <p className="text-xs">Kích thước tối đa: 5MB</p>
                       </div>
                     </div>
@@ -503,7 +579,9 @@ export default function SettingEventPage() {
                 <div className="flex justify-between items-start pb-4 border-b">
                   <div className="flex-1">
                     <h4 className="font-medium">Mô tả</h4>
-                    <p className="text-sm text-gray-500 mb-2">Mô tả ngắn về trang sự kiện của bạn</p>
+                    <p className="text-sm text-gray-500 mb-2">
+                      Mô tả ngắn về trang sự kiện của bạn
+                    </p>
                     <textarea
                       value={editDesc}
                       onChange={(e) => setEditDesc(e.target.value)}
@@ -516,7 +594,9 @@ export default function SettingEventPage() {
                 <div className="flex justify-between items-center pt-4 border-t border-red-200">
                   <div>
                     <h4 className="font-medium text-red-600">Xóa trang lịch</h4>
-                    <p className="text-sm text-gray-500">Hành động này không thể hoàn tác</p>
+                    <p className="text-sm text-gray-500">
+                      Hành động này không thể hoàn tác
+                    </p>
                   </div>
                   <Button variant="destructive" onClick={handleDeleteCalendar}>
                     Xóa trang lịch
@@ -540,16 +620,23 @@ export default function SettingEventPage() {
       </div>
 
       {/* Delete Event Dialog */}
-      <Dialog open={showDeleteEventDialog} onOpenChange={setShowDeleteEventDialog}>
+      <Dialog
+        open={showDeleteEventDialog}
+        onOpenChange={setShowDeleteEventDialog}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Xóa sự kiện</DialogTitle>
             <DialogDescription>
-              Bạn có chắc chắn muốn xóa sự kiện này? Hành động này không thể hoàn tác.
+              Bạn có chắc chắn muốn xóa sự kiện này? Hành động này không thể
+              hoàn tác.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDeleteEventDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteEventDialog(false)}
+            >
               Hủy
             </Button>
             <Button variant="destructive" onClick={confirmDeleteEvent}>
@@ -560,7 +647,10 @@ export default function SettingEventPage() {
       </Dialog>
 
       {/* Delete Calendar Dialog */}
-      <Dialog open={showDeleteCalendarDialog} onOpenChange={setShowDeleteCalendarDialog}>
+      <Dialog
+        open={showDeleteCalendarDialog}
+        onOpenChange={setShowDeleteCalendarDialog}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -568,12 +658,16 @@ export default function SettingEventPage() {
               <span>Xóa trang lịch</span>
             </DialogTitle>
             <DialogDescription>
-              Bạn có chắc chắn muốn xóa trang lịch này? Tất cả sự kiện và dữ liệu liên quan sẽ bị xóa vĩnh viễn. Hành
-              động này không thể hoàn tác.
+              Bạn có chắc chắn muốn xóa trang lịch này? Tất cả sự kiện và dữ
+              liệu liên quan sẽ bị xóa vĩnh viễn. Hành động này không thể hoàn
+              tác.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDeleteCalendarDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteCalendarDialog(false)}
+            >
               Hủy
             </Button>
             <Button variant="destructive" onClick={confirmDeleteCalendar}>
@@ -591,5 +685,5 @@ export default function SettingEventPage() {
         onEventAdded={fetchCalendarAndEvents}
       />
     </div>
-  )
+  );
 }
