@@ -29,7 +29,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <link
         rel="icon"
-        href="https://slnuqxxrujjguzqowslh.supabase.co/storage/v1/object/public/images//logo.png"
+        href="https://slnuqxxrujjguzqowslh.supabase.co/storage/v1/object/public/images//REGISTA.svg"
         type="image/x-icon"
       ></link>
       <head />

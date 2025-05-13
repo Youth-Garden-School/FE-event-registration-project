@@ -113,7 +113,7 @@ export default function Header() {
             )}
           >
             <Image
-              src="/images/logo.svg"
+              src="/images/REGISTA.svg"
               alt="Logo"
               width={50}
               height={50}
