@@ -168,9 +168,9 @@ export default function EventList({
                 registrationId={registrationMap.get(ev.id)}
                 isRegistered={registeredIds.has(ev.id)}
                 isManaged={managedIds.has(ev.id)}
-                onClick={() => onEventClick?.(ev)}
+                
                 onRegisterChange={handleRegisterChange}
-                onDeleteEvent={onEventClick}
+                onDeleteEvent={(eventId) => onEventClick?.(eventId)}
               />
             ))}
           </div>
