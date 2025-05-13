@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { format } from "date-fns"
-import { vi } from "date-fns/locale"
-import { useRouter } from "next/navigation"
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { format } from "date-fns";
+import { vi } from "date-fns/locale";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
 import {
   Calendar,
   ChevronDown,
@@ -18,94 +18,112 @@ import {
   Share2,
   Users,
   Video,
-} from "lucide-react"
-import { registerEvent, cancelRegistration } from "@/lib/api-event"
-import type { EventWithUI } from "@/style/events-stype"
+} from "lucide-react";
+import { registerEvent, cancelRegistration } from "@/lib/api-event";
+import type { EventWithUI } from "@/style/events-stype";
 
 interface EventModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onCancel?: (removed: EventWithUI) => void
-  event: EventWithUI
+  isOpen: boolean;
+  onClose: () => void;
+  onCancel?: (removed: EventWithUI) => void;
+  event: EventWithUI;
 }
 
-export function EventModal({ isOpen, onClose, onCancel, event }: EventModalProps) {
-  const router = useRouter()
-  const [loadingRegister, setLoadingRegister] = useState(false)
-  const [loadingCancel, setLoadingCancel] = useState(false)
+export function EventModal({
+  isOpen,
+  onClose,
+  onCancel,
+  event,
+}: EventModalProps) {
+  const router = useRouter();
+  const [loadingRegister, setLoadingRegister] = useState(false);
+  const [loadingCancel, setLoadingCancel] = useState(false);
 
   // Kiểm tra xem người dùng có quyền quản lý sự kiện không
-  const canManageEvent = event.isUserEvent || event.createdBy === "current-user-id"
+  const canManageEvent =
+    event.isUserEvent || event.createdBy === "current-user-id";
 
-  if (!isOpen || !event) return null
+  if (!isOpen || !event) return null;
 
   // Xác định trạng thái đăng ký từ props
-  const isRegistered = Boolean(event.myRegistrationId)
+  const isRegistered = Boolean(event.myRegistrationId);
 
   // Format ngày tháng tiếng Việt
   const formatDate = (date: Date) => {
-    const dayOfWeek = format(date, "EEEE", { locale: vi })
-    const dayOfMonth = date.getDate()
-    const month = date.getMonth() + 1
-    const year = date.getFullYear()
-    return `${dayOfWeek}, ${dayOfMonth} tháng ${month} năm ${year}`
-  }
+    const dayOfWeek = format(date, "EEEE", { locale: vi });
+    const dayOfMonth = date.getDate();
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+    return `${dayOfWeek}, ${dayOfMonth} tháng ${month} năm ${year}`;
+  };
 
   // Bỏ chức năng đăng ký online
-  const isOnlineEvent = false
+  const isOnlineEvent = false;
 
   // Xác định ảnh banner
-  const eventImage = event.posterImage || event.coverImage || event.image || "/placeholder.svg?height=400&width=400"
+  const eventImage =
+    event.posterImage ||
+    event.coverImage ||
+    event.image ||
+    "/placeholder.svg?height=400&width=400";
 
   // Xử lý đăng ký sự kiện
   const handleRegister = async () => {
-    setLoadingRegister(true)
+    setLoadingRegister(true);
     try {
-      await registerEvent(event.id)
-      router.refresh()
-      onClose()
+      await registerEvent(event.id);
+      router.refresh();
+      onClose();
     } catch (e: any) {
-      alert("Đăng ký thất bại: " + e.message)
+      alert("Đăng ký thất bại: " + e.message);
     } finally {
-      setLoadingRegister(false)
+      setLoadingRegister(false);
     }
-  }
+  };
 
   // Xử lý hủy đăng ký
   const handleCancelRegistration = async () => {
-    if (!event.myRegistrationId) return
-    setLoadingCancel(true)
+    if (!event.myRegistrationId) return;
+    setLoadingCancel(true);
     try {
-      await cancelRegistration(event.myRegistrationId)
-      onCancel?.(event)
-      router.refresh()
-      onClose()
+      await cancelRegistration(event.myRegistrationId);
+      onCancel?.(event);
+      router.refresh();
+      onClose();
     } catch (e: any) {
-      alert("Hủy không thành công: " + e.message)
+      alert("Hủy không thành công: " + e.message);
     } finally {
-      setLoadingCancel(false)
+      setLoadingCancel(false);
     }
-  }
+  };
 
   // Helper để sao chép liên kết
   const handleCopyLink = (url: string, msg = "Đã sao chép liên kết!") => {
     navigator.clipboard
       .writeText(url)
       .then(() => {
-        alert(msg)
+        alert(msg);
       })
-      .catch(() => {})
-  }
+      .catch(() => {});
+  };
 
-  const eventUrl = `${window.location.origin}/event-join/${event.id}`
-  const mapsQuery = encodeURIComponent(event.fullAddress ?? `${event.location}, ${event.city}`)
-  const mapsEmbed = `https://maps.google.com/maps?q=${mapsQuery}&t=&z=15&ie=UTF8&iwloc=&output=embed`
-  const mapsLink = `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`
+  const eventUrl = `${window.location.origin}/event-join/${event.id}`;
+  const mapsQuery = encodeURIComponent(
+    event.fullAddress ?? `${event.location}, ${event.city}`,
+  );
+  const mapsEmbed = `https://maps.google.com/maps?q=${mapsQuery}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+  const mapsLink = `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`;
+
+  // Lấy tất cả người tham dự
+  const attendees = event.attendees || [];
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 bg-black/50 overflow-hidden" onClick={onClose}>
+        <div
+          className="fixed inset-0 z-50 bg-black/50 overflow-hidden"
+          onClick={onClose}
+        >
           <motion.div
             className="fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-xl overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
             initial={{ x: "100%" }}
@@ -116,7 +134,10 @@ export function EventModal({ isOpen, onClose, onCancel, event }: EventModalProps
           >
             {/* Modal Header */}
             <div className="sticky top-0 z-10 bg-white/90 backdrop-blur-sm flex justify-between items-center p-3 border-b shadow-sm">
-              <button onClick={onClose} className="rounded-full p-1 hover:bg-gray-100">
+              <button
+                onClick={onClose}
+                className="rounded-full p-1 hover:bg-gray-100"
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -143,8 +164,8 @@ export function EventModal({ isOpen, onClose, onCancel, event }: EventModalProps
 
                   <button
                     onClick={() => {
-                      router.push(`/event-join/${event.id}`)
-                      onClose()
+                      router.push(`/event-join/${event.id}`);
+                      onClose();
                     }}
                     className="btn flex items-center text-sm bg-gray-100 hover:bg-gray-200 rounded-md px-2 py-1"
                   >
@@ -180,11 +201,13 @@ export function EventModal({ isOpen, onClose, onCancel, event }: EventModalProps
             {/* Thêm thông báo quản lý sự kiện nếu người dùng có quyền */}
             {canManageEvent && (
               <div className="bg-gray-100 p-3 flex justify-between items-center">
-                <div className="text-gray-800">Bạn có quyền quản lý sự kiện này.</div>
+                <div className="text-gray-800">
+                  Bạn có quyền quản lý sự kiện này.
+                </div>
                 <Button
                   onClick={() => {
-                    router.push(`/events/${event.id}/manage`)
-                    onClose()
+                    router.push(`/events/${event.id}/manage`);
+                    onClose();
                   }}
                   className="bg-gray-800 hover:bg-gray-900 text-white"
                 >
@@ -208,7 +231,9 @@ export function EventModal({ isOpen, onClose, onCancel, event }: EventModalProps
 
             {/* Event Title */}
             <div className="px-5">
-              <h1 className="text-2xl font-bold text-gray-900">{event.title}</h1>
+              <h1 className="text-2xl font-bold text-gray-900">
+                {event.title}
+              </h1>
               {event.featured && (
                 <div className="bg-red-100 text-red-700 border-red-200 text-xs mt-2 inline-block px-2.5 py-0.5 rounded-full border">
                   Nổi bật trong {event.featuredLocation || "TP. Hồ Chí Minh"}
@@ -220,7 +245,10 @@ export function EventModal({ isOpen, onClose, onCancel, event }: EventModalProps
                 <div className="flex items-center gap-1 mt-3 text-sm text-gray-600">
                   <div className="flex -space-x-2 mr-2">
                     {event.organizers.slice(0, 2).map((organizer: any) => (
-                      <div key={organizer.id} className="w-6 h-6 rounded-full border-2 border-white overflow-hidden">
+                      <div
+                        key={organizer.id}
+                        className="w-6 h-6 rounded-full border-2 border-white overflow-hidden"
+                      >
                         {organizer.avatar ? (
                           <Image
                             src={organizer.avatar || "/placeholder.svg"}
@@ -237,7 +265,10 @@ export function EventModal({ isOpen, onClose, onCancel, event }: EventModalProps
                       </div>
                     ))}
                   </div>
-                  <span>Được tổ chức bởi {event.organizers.map((org: any) => org.name).join(" & ")}</span>
+                  <span>
+                    Được tổ chức bởi{" "}
+                    {event.organizers.map((org: any) => org.name).join(" & ")}
+                  </span>
                 </div>
               ) : event.hosts && event.hosts.length > 0 ? (
                 <div className="flex items-center gap-1 mt-3 text-sm text-gray-600">
@@ -259,9 +290,14 @@ export function EventModal({ isOpen, onClose, onCancel, event }: EventModalProps
                   <Calendar className="h-5 w-5 text-gray-600" />
                 </div>
                 <div>
-                  <div className="font-medium">{formatDate(new Date(event.startTime))}</div>
+                  <div className="font-medium">
+                    {formatDate(new Date(event.startTime))}
+                  </div>
                   <div className="text-gray-600">
-                    {event.displayTime || format(new Date(event.startTime), "HH:mm", { locale: vi })}
+                    {event.displayTime ||
+                      format(new Date(event.startTime), "HH:mm", {
+                        locale: vi,
+                      })}
                   </div>
                 </div>
               </div>
@@ -274,8 +310,12 @@ export function EventModal({ isOpen, onClose, onCancel, event }: EventModalProps
                   )}
                 </div>
                 <div>
-                  <div className="font-medium">{isOnlineEvent ? "Sự kiện trực tuyến" : event.location}</div>
-                  <div className="text-gray-600">{isOnlineEvent ? "Tham gia qua Zoom" : event.city}</div>
+                  <div className="font-medium">
+                    {isOnlineEvent ? "Sự kiện trực tuyến" : event.location}
+                  </div>
+                  <div className="text-gray-600">
+                    {isOnlineEvent ? "Tham gia qua Zoom" : event.city}
+                  </div>
                 </div>
               </div>
             </div>
@@ -285,7 +325,9 @@ export function EventModal({ isOpen, onClose, onCancel, event }: EventModalProps
               {!isRegistered ? (
                 <div className="bg-white rounded-lg border border-gray-200 p-4">
                   <h3 className="font-medium text-lg mb-4">Đăng kí</h3>
-                  <p className="text-gray-600 mb-4">Chào mừng! Để tham gia sự kiện, vui lòng đăng kí bên dưới.</p>
+                  <p className="text-gray-600 mb-4">
+                    Chào mừng! Để tham gia sự kiện, vui lòng đăng kí bên dưới.
+                  </p>
 
                   {/* Đã loại bỏ thông tin người dùng theo yêu cầu */}
 
@@ -313,7 +355,10 @@ export function EventModal({ isOpen, onClose, onCancel, event }: EventModalProps
                       <Calendar className="h-4 w-4" />
                       <span>Thêm vào lịch</span>
                     </Button>
-                    <Button variant="outline" className="w-10 h-10 p-0 flex items-center justify-center">
+                    <Button
+                      variant="outline"
+                      className="w-10 h-10 p-0 flex items-center justify-center"
+                    >
                       <span className="text-lg">🇻🇳</span>
                     </Button>
                   </div>
@@ -332,10 +377,14 @@ export function EventModal({ isOpen, onClose, onCancel, event }: EventModalProps
 
                   <div className="mt-6 border-t border-gray-100 pt-4">
                     <div className="flex items-center justify-between">
-                      <h4 className="font-medium">Chuẩn bị sẵn sàng cho sự kiện</h4>
+                      <h4 className="font-medium">
+                        Chuẩn bị sẵn sàng cho sự kiện
+                      </h4>
                       <ChevronRight className="h-5 w-5 text-gray-400" />
                     </div>
-                    <p className="text-gray-500 text-sm">Hoàn thành trang cá nhân · Nhắc nhở: Email</p>
+                    <p className="text-gray-500 text-sm">
+                      Hoàn thành trang cá nhân · Nhắc nhở: Email
+                    </p>
                   </div>
                 </div>
               )}
@@ -390,37 +439,29 @@ export function EventModal({ isOpen, onClose, onCancel, event }: EventModalProps
               </div>
             </div>
 
-            {/* Attendees Section */}
-            {event.attendees && event.attendees.length > 0 && (
+            {/* Attendees Section - Hiển thị tất cả người tham dự */}
+            {attendees.length > 0 && (
               <div className="p-5 border-t border-gray-100">
                 <div className="flex items-center gap-2 mb-3">
                   <Users className="h-5 w-5 text-gray-600" />
-                  <span className="font-medium">{event.attendees.length} người tham dự</span>
+                  <span className="font-medium">
+                    {attendees.length} người tham dự
+                  </span>
                 </div>
                 <div className="flex flex-wrap gap-1 mb-2">
-                  {event.attendees.slice(0, 8).map((attendee: any, i: number) => (
+                  {attendees.slice(0, 8).map((attendee, i) => (
                     <div
                       key={i}
-                      className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-xs overflow-hidden"
+                      className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-xs overflow-hidden"
                     >
-                      {attendee.user?.username ? (
-                        <Image
-                          src={`/api/avatar/${attendee.user.id}`}
-                          alt={attendee.user.username}
-                          width={40}
-                          height={40}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          {attendee.guestInfo ? attendee.guestInfo.firstName.charAt(0).toUpperCase() : "?"}
-                        </div>
-                      )}
+                      <div className="w-full h-full flex items-center justify-center bg-gray-300 text-gray-700 font-medium">
+                        {attendee.user?.email?.charAt(0).toUpperCase() || "?"}
+                      </div>
                     </div>
                   ))}
-                  {event.attendees.length > 8 && (
+                  {attendees.length > 8 && (
                     <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-xs text-gray-500">
-                      +{event.attendees.length - 8}
+                      +{attendees.length - 8}
                     </div>
                   )}
                 </div>
@@ -429,12 +470,14 @@ export function EventModal({ isOpen, onClose, onCancel, event }: EventModalProps
 
             {/* Modal Footer */}
             <div className="p-5 border-t border-gray-100 flex justify-between text-sm text-gray-500">
-              <button className="hover:text-gray-700">Liên hệ người tổ chức</button>
+              <button className="hover:text-gray-700">
+                Liên hệ người tổ chức
+              </button>
               <button className="hover:text-gray-700">Báo cáo sự kiện</button>
             </div>
           </motion.div>
         </div>
       )}
     </AnimatePresence>
-  )
+  );
 }
