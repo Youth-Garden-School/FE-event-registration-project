@@ -20,7 +20,7 @@ export function UpcomingEvents({ events }: UpcomingEventsProps) {
       groups[dateKey].push(event);
       return groups;
     },
-    {} as Record<string, typeof events>,
+    {} as Record<string, typeof events>
   );
 
   // Sắp xếp ngày
@@ -53,14 +53,9 @@ export function UpcomingEvents({ events }: UpcomingEventsProps) {
             {groupedEvents[dateKey].map((event: any) => (
               <EventCard
                 key={event.id}
-                time={event.time}
-                title={event.title}
-                hosts={event.hosts}
-                type={event.type === "online" ? "online" : undefined}
-                location={event.location}
-                image={event.image}
-                attendees={event.attendees}
                 event={event}
+                isRegistered={false}
+                isManaged={false}
               />
             ))}
           </div>

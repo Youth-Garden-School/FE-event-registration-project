@@ -7,6 +7,7 @@ import { vi } from "date-fns/locale";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
 import {
   Calendar,
   ChevronDown,
@@ -26,17 +27,24 @@ type EventWithUI = any;
 interface EventModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onCancel?: (removed: EventWithUI) => void;
   event: EventWithUI;
+  registrationId?: string;
+  isRegistered?: boolean;
+  isManaged?: boolean;
+  onRegisterChange?: (registered: boolean) => void;
 }
 
 export function EventModal({
   isOpen,
   onClose,
-  onCancel,
   event,
+  registrationId,
+  isRegistered,
+  isManaged,
+  onRegisterChange,
 }: EventModalProps) {
   const router = useRouter();
+  const { toast } = useToast();
   const [loadingRegister, setLoadingRegister] = useState(false);
   const [loadingCancel, setLoadingCancel] = useState(false);
 
@@ -45,9 +53,6 @@ export function EventModal({
     event.isUserEvent || event.createdBy === "current-user-id";
 
   if (!isOpen || !event) return null;
-
-  // Xác định trạng thái đăng ký từ props
-  const isRegistered = Boolean(event.myRegistrationId);
 
   // Format ngày tháng tiếng Việt
   const formatDate = (date: Date) => {
@@ -68,15 +73,43 @@ export function EventModal({
     event.image ||
     "/placeholder.svg?height=400&width=400";
 
+  // Helper để sao chép liên kết
+  const handleCopyLink = (url: string) => {
+    navigator.clipboard
+      .writeText(url)
+      .then(() => {
+        toast({
+          title: "Thành công",
+          description: "Đã sao chép liên kết!",
+        });
+      })
+      .catch(() => {
+        toast({
+          variant: "destructive",
+          title: "Lỗi",
+          description: "Không thể sao chép liên kết",
+        });
+      });
+  };
+
   // Xử lý đăng ký sự kiện
   const handleRegister = async () => {
     setLoadingRegister(true);
     try {
       await registerEvent(event.id);
+      onRegisterChange?.(true);
       router.refresh();
       onClose();
+      toast({
+        title: "Thành công",
+        description: "Đăng ký sự kiện thành công!",
+      });
     } catch (e: any) {
-      alert("Đăng ký thất bại: " + e.message);
+      toast({
+        variant: "destructive",
+        title: "Lỗi",
+        description: "Đăng ký thất bại: " + e.message,
+      });
     } finally {
       setLoadingRegister(false);
     }
@@ -84,33 +117,31 @@ export function EventModal({
 
   // Xử lý hủy đăng ký
   const handleCancelRegistration = async () => {
-    if (!event.myRegistrationId) return;
+    if (!registrationId) return;
     setLoadingCancel(true);
     try {
-      await cancelRegistration(event.myRegistrationId);
-      onCancel?.(event);
+      await cancelRegistration(registrationId);
+      onRegisterChange?.(false);
       router.refresh();
       onClose();
+      toast({
+        title: "Thành công",
+        description: "Đã hủy đăng ký thành công",
+      });
     } catch (e: any) {
-      alert("Hủy không thành công: " + e.message);
+      toast({
+        variant: "destructive",
+        title: "Lỗi",
+        description: "Hủy không thành công: " + e.message,
+      });
     } finally {
       setLoadingCancel(false);
     }
   };
 
-  // Helper để sao chép liên kết
-  const handleCopyLink = (url: string, msg = "Đã sao chép liên kết!") => {
-    navigator.clipboard
-      .writeText(url)
-      .then(() => {
-        alert(msg);
-      })
-      .catch(() => {});
-  };
-
   const eventUrl = `${window.location.origin}/event-join/${event.id}`;
   const mapsQuery = encodeURIComponent(
-    event.fullAddress ?? `${event.location}, ${event.city}`,
+    event.fullAddress ?? `${event.location}, ${event.city}`
   );
   const mapsEmbed = `https://maps.google.com/maps?q=${mapsQuery}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
   const mapsLink = `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`;

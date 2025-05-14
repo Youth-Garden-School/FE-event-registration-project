@@ -47,13 +47,8 @@ export interface Event {
 }
 
 export interface EventAttendee {
-  id: string;
-  eventId: string;
-  userId?: string;
   email: string;
-  status: "PENDING" | "CONFIRMED" | "CANCELED";
-  createdAt: string;
-  updatedAt: string;
+  id?: string;
 }
 
 export interface Calendar {
@@ -68,12 +63,35 @@ export interface Calendar {
 }
 
 // Helper types for UI
-export interface EventWithUI extends Event {
+export interface EventWithUI {
+  id: string;
+  title: string;
+  description?: string;
+  coverImage?: string;
+  startTime: string;
+  endTime: string;
+  location?: string;
+  isOnline: boolean;
+  eventColor?: string;
+  attendees: EventAttendee[];
   dateLabel: string;
   dayLabel: string;
-  displayTime?: string;
-  displayDate?: string;
-  isUserEvent?: boolean;
-  isParticipating?: boolean;
+  displayTime: string;
   isRegistered: boolean;
+  calendarId: string;
+  requiresApproval: boolean;
+  isUserEvent: boolean;
+}
+
+export interface EventModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  event: EventWithUI;
+  registrationId?: string;
+}
+
+export interface PaginationProps {
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
 }
