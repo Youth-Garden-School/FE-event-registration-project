@@ -83,8 +83,8 @@ const ClientOnlyInfo = () => {
 
   return (
     <>
-      <span className="text-sm text-gray-500">{currentTime}</span>
       <div className="flex items-center gap-2">
+        <span className="text-sm text-gray-500">{currentTime}</span>
         <Button className="h-8 rounded-md text-sm" variant="default">
           <Link href="/create-event">Tạo sự kiện</Link>
         </Button>
@@ -99,7 +99,11 @@ const ClientOnlyInfo = () => {
             <AvatarFallback>U</AvatarFallback>
           </Link>
         </Avatar>
-        <Button size="sm" className="text-sm" onClick={handleLogout}>
+        <Button
+          size="sm"
+          className="text-sm cursor-pointer"
+          onClick={handleLogout}
+        >
           Đăng xuất
         </Button>
       </div>
