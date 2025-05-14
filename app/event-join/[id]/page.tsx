@@ -16,7 +16,6 @@ import {
   type EventDetail,
   type Registration,
 } from "@/lib/api-event";
-import type { EventAttendee } from "@/style/event-types";
 
 interface ExtendedEventDetail extends EventDetail {
   city?: string;

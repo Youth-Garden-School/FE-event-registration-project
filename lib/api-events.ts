@@ -1,7 +1,6 @@
 // lib/api-event.ts
 
 import api from './api'               // axios instance với baseURL + auth interceptor
-import { AxiosResponse } from 'axios'
 
 /** Envelope chung cho mọi response từ API */
 interface ApiResponse<T> {

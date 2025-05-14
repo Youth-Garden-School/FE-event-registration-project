@@ -7,7 +7,7 @@ import { CustomCalendar } from "@/components/ui/calendar/custom-calendar";
 import { Badge } from "@/components/ui/badge";
 import { format, parseISO } from "date-fns";
 import { vi } from "date-fns/locale";
-import { getCalendarById, Calendar } from "@/lib/api-calendar";
+import { getCalendarById } from "@/lib/api-calendar";
 
 interface CalendarViewProps {
   calendarId: string;
