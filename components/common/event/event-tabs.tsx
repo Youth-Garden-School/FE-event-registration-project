@@ -12,6 +12,7 @@ import { vi } from "date-fns/locale";
 
 type EventWithUI = any;
 type EventAttendee = any;
+type Registration = any;
 
 export default function EventTabs() {
   const router = useRouter();
@@ -29,7 +30,7 @@ export default function EventTabs() {
   function buildEventUI(
     reg: any,
     attendees: any[],
-    isUserEvent: boolean
+    isUserEvent: boolean,
   ): EventWithUI {
     const e = reg.event;
     const start = new Date(e.startTime);
@@ -90,11 +91,11 @@ export default function EventTabs() {
         // 4) Sort theo thời gian
         ups.sort(
           (a, b) =>
-            new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+            new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
         );
         pst.sort(
           (a, b) =>
-            new Date(b.endTime).getTime() - new Date(a.endTime).getTime()
+            new Date(b.endTime).getTime() - new Date(a.endTime).getTime(),
         );
 
         setUpcomingEvents(ups);
@@ -145,11 +146,11 @@ export default function EventTabs() {
   const totalPastPages = Math.ceil(pastEvents.length / EVENTS_PER_PAGE);
   const pagedUpcoming = upcomingEvents.slice(
     (upcomingPage - 1) * EVENTS_PER_PAGE,
-    upcomingPage * EVENTS_PER_PAGE
+    upcomingPage * EVENTS_PER_PAGE,
   );
   const pagedPast = pastEvents.slice(
     (pastPage - 1) * EVENTS_PER_PAGE,
-    pastPage * EVENTS_PER_PAGE
+    pastPage * EVENTS_PER_PAGE,
   );
 
   return (
@@ -173,7 +174,7 @@ export default function EventTabs() {
                 <div className="flex justify-center mt-4 space-x-2">
                   {Array.from(
                     { length: totalUpcomingPages },
-                    (_, i) => i + 1
+                    (_, i) => i + 1,
                   ).map((p) => (
                     <button
                       key={p}
@@ -209,7 +210,7 @@ export default function EventTabs() {
                       >
                         {p}
                       </button>
-                    )
+                    ),
                   )}
                 </div>
               )}

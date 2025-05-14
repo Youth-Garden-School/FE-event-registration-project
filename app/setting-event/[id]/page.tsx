@@ -92,12 +92,9 @@ export default function SettingEventPage() {
       dayLabel: format(dt, "EEEE", { locale: vi }),
       displayTime: format(dt, "HH:mm", { locale: vi }),
       isUserEvent: true,
+      isRegistered: false,
       attendees: e.attendees ?? [],
       requiresApproval: e.requiresApproval ?? false,
-      createdAt: e.createdAt,
-      updatedAt: e.updatedAt,
-      createdBy: e.createdBy,
-      updatedBy: e.updatedBy,
     };
   };
 

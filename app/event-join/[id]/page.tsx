@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
 import { Calendar, MapPin, Users, ExternalLink } from "lucide-react";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
@@ -30,6 +31,7 @@ interface ExtendedEventDetail extends EventDetail {
 
 export default function EventPage() {
   const router = useRouter();
+  const { toast } = useToast();
   const { id: eventId } = useParams() as { id: string };
   const [event, setEvent] = useState<ExtendedEventDetail | null>(null);
   const [registration, setRegistration] = useState<Registration | null>(null);
@@ -62,10 +64,17 @@ export default function EventPage() {
       const reg = await registerEvent(event!.id);
       setRegistration(reg.data.result);
       setIsRegistered(true);
-      alert("Đăng ký thành công!");
+      toast({
+        title: "Thành công",
+        description: "Đăng ký thành công!",
+      });
     } catch (err) {
       console.error("Register failed:", err);
-      alert("Đăng ký thất bại, thử lại sau.");
+      toast({
+        variant: "destructive",
+        title: "Lỗi",
+        description: "Đăng ký thất bại, thử lại sau.",
+      });
     } finally {
       setRegistrationLoading(false);
     }
@@ -79,10 +88,17 @@ export default function EventPage() {
       await cancelRegistration(registration.id);
       setRegistration(null);
       setIsRegistered(false);
-      alert("Đã hủy đăng ký thành công");
+      toast({
+        title: "Thành công",
+        description: "Đã hủy đăng ký thành công",
+      });
     } catch (err) {
       console.error("Cancel failed:", err);
-      alert("Hủy đăng ký thất bại, thử lại sau.");
+      toast({
+        variant: "destructive",
+        title: "Lỗi",
+        description: "Hủy đăng ký thất bại, thử lại sau.",
+      });
     } finally {
       setRegistrationLoading(false);
     }
