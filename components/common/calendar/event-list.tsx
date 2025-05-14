@@ -12,7 +12,15 @@ import { EventCard } from "./event-card";
 import NoEventsComponent from "@/components/common/event/no-event";
 import { format, isToday, isTomorrow } from "date-fns";
 import { vi } from "date-fns/locale";
-import { Pagination } from "@/components/ui/pagination";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import { cn } from "@/lib/utils";
 import type { EventWithUI } from "@/style/events-stype";
 
 interface EventListProps {
@@ -22,6 +30,48 @@ interface EventListProps {
   onPageChange?: (page: number) => void;
   eventsPerPage?: number;
   events?: EventWithUI[];
+}
+
+// Custom pagination wrapper component
+function CustomPagination({
+  currentPage,
+  totalPages,
+  onPageChange,
+}: {
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+}) {
+  return (
+    <Pagination>
+      <PaginationContent>
+        <PaginationItem>
+          <PaginationPrevious
+            onClick={() => onPageChange(currentPage - 1)}
+            className={cn(currentPage <= 1 && "pointer-events-none opacity-50")}
+          />
+        </PaginationItem>
+        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+          <PaginationItem key={page}>
+            <PaginationLink
+              isActive={currentPage === page}
+              onClick={() => onPageChange(page)}
+            >
+              {page}
+            </PaginationLink>
+          </PaginationItem>
+        ))}
+        <PaginationItem>
+          <PaginationNext
+            onClick={() => onPageChange(currentPage + 1)}
+            className={cn(
+              currentPage >= totalPages && "pointer-events-none opacity-50",
+            )}
+          />
+        </PaginationItem>
+      </PaginationContent>
+    </Pagination>
+  );
 }
 
 export default function EventList({
@@ -69,7 +119,12 @@ export default function EventList({
             dayLabel: format(dt, "EEEE", { locale: vi }),
             displayTime: format(dt, "HH:mm", { locale: vi }),
             attendees: e.attendees ?? [],
-          };
+            isRegistered: false,
+            calendarId: calendarId,
+            requiresApproval: e.requiresApproval ?? false,
+            isOnline: e.isOnline ?? false,
+            isUserEvent: false,
+          } as EventWithUI;
         });
         setEvents(uiEvents);
       } catch (err) {
@@ -168,9 +223,31 @@ export default function EventList({
                 registrationId={registrationMap.get(ev.id)}
                 isRegistered={registeredIds.has(ev.id)}
                 isManaged={managedIds.has(ev.id)}
-                
                 onRegisterChange={handleRegisterChange}
-                onDeleteEvent={(eventId) => onEventClick?.(eventId)}
+                onDeleteEvent={(eventId) => {
+                  const event = events.find((e) => e.id === eventId);
+                  if (event) {
+                    // Convert EventWithUI to CalendarEvent, using only available properties
+                    const calendarEvent: CalendarEvent = {
+                      id: event.id,
+                      title: event.title,
+                      startTime: event.startTime,
+                      endTime: event.startTime, // Use startTime as fallback
+                      location: event.location,
+                      isOnline: event.isOnline,
+                      coverImage: event.coverImage,
+                      requiresApproval: event.requiresApproval,
+                      attendees: event.attendees,
+                      description: event.description,
+                      category: null,
+                      createdAt: new Date().toISOString(), // Use current date as fallback
+                      updatedAt: new Date().toISOString(),
+                      createdBy: "user", // Use default value
+                      updatedBy: "user",
+                    };
+                    onEventClick?.(calendarEvent);
+                  }
+                }}
               />
             ))}
           </div>
@@ -178,7 +255,7 @@ export default function EventList({
       ))}
 
       {totalPages > 1 && (
-        <Pagination
+        <CustomPagination
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={onPageChange}

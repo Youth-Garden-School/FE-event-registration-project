@@ -7,6 +7,7 @@ import { vi } from "date-fns/locale";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
 import {
   Calendar,
   ChevronDown,
@@ -38,6 +39,7 @@ export function EventModal({
   event,
 }: EventModalProps) {
   const router = useRouter();
+  const { toast } = useToast();
   const [loadingRegister, setLoadingRegister] = useState(false);
   const [loadingCancel, setLoadingCancel] = useState(false);
 
@@ -73,10 +75,19 @@ export function EventModal({
     setLoadingRegister(true);
     try {
       await registerEvent(event.id);
+      toast({
+        title: "Đăng ký thành công",
+        description: "Bạn đã đăng ký tham gia sự kiện thành công.",
+        variant: "default",
+      });
       router.refresh();
       onClose();
     } catch (e: any) {
-      alert("Đăng ký thất bại: " + e.message);
+      toast({
+        title: "Đăng ký thất bại",
+        description: e.message || "Có lỗi xảy ra khi đăng ký sự kiện.",
+        variant: "destructive",
+      });
     } finally {
       setLoadingRegister(false);
     }
@@ -88,24 +99,43 @@ export function EventModal({
     setLoadingCancel(true);
     try {
       await cancelRegistration(event.myRegistrationId);
+      toast({
+        title: "Hủy đăng ký thành công",
+        description: "Bạn đã hủy đăng ký tham gia sự kiện.",
+        variant: "default",
+      });
       onCancel?.(event);
       router.refresh();
       onClose();
     } catch (e: any) {
-      alert("Hủy không thành công: " + e.message);
+      toast({
+        title: "Hủy đăng ký thất bại",
+        description: e.message || "Có lỗi xảy ra khi hủy đăng ký.",
+        variant: "destructive",
+      });
     } finally {
       setLoadingCancel(false);
     }
   };
 
   // Helper để sao chép liên kết
-  const handleCopyLink = (url: string, msg = "Đã sao chép liên kết!") => {
+  const handleCopyLink = (url: string) => {
     navigator.clipboard
       .writeText(url)
       .then(() => {
-        alert(msg);
+        toast({
+          title: "Đã sao chép",
+          description: "Liên kết đã được sao chép vào clipboard.",
+          variant: "default",
+        });
       })
-      .catch(() => {});
+      .catch(() => {
+        toast({
+          title: "Lỗi",
+          description: "Không thể sao chép liên kết.",
+          variant: "destructive",
+        });
+      });
   };
 
   const eventUrl = `${window.location.origin}/event-join/${event.id}`;

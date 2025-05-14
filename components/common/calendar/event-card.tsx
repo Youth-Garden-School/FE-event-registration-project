@@ -153,9 +153,7 @@ export default function EventCard({
                         <AvatarFallback className="text-xs">
                           {typeof a === "object" && a?.email
                             ? a.email[0]?.toUpperCase()
-                            : typeof a === "object" && a?.name
-                              ? a.name[0]?.toUpperCase()
-                              : "?"}
+                            : "?"}
                         </AvatarFallback>
                       </Avatar>
                     ))}
@@ -198,10 +196,10 @@ export default function EventCard({
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         event={event}
+        registrationId={registrationId}
         isRegistered={localRegistered}
         isManaged={isManaged}
         onRegisterChange={handleRegisterChange}
-        registrationId={registrationId}
       />
     </>
   );
