@@ -1,6 +1,8 @@
 "use client";
 
-import ImageUploader from "@/components/UploadImage/imageSupabase";
+import ImageUploader, {
+  ImageUploaderRef,
+} from "@/components/UploadImage/imageSupabase";
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 
@@ -8,7 +10,7 @@ export default function UploadCard() {
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(null); // URL ảnh chính
   const [previewUrl, setPreviewUrl] = useState<string | null>(null); // URL ảnh tạm thời
   const [message, setMessage] = useState<string | null>(null); // Thông báo
-  const uploaderRef = useRef<{ upload: () => Promise<void> }>(null); // Ref để gọi upload
+  const uploaderRef = useRef<ImageUploaderRef>(null); // Updated ref type
 
   const defaultImage =
     "https://images.lumacdn.com/cdn-cgi/image/format=auto,fit=cover,dpr=2,background=white,quality=75,width=400,height=400/gallery-images/ry/bd098b7b-aae7-495c-9b4d-2ff4c014a61e";
@@ -29,7 +31,8 @@ export default function UploadCard() {
   const handleSave = async () => {
     if (uploaderRef.current) {
       try {
-        await uploaderRef.current.upload(); // Gọi hàm upload từ ImageUploader
+        const url = await uploaderRef.current.upload(); // Now expecting a string return
+        handleUploadSuccess(url); // Use the returned URL
       } catch (error) {
         setMessage(
           "Upload thất bại: " +
