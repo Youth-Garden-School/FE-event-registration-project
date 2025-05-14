@@ -41,11 +41,10 @@ export function EventModal({
   const [loadingRegister, setLoadingRegister] = useState(false);
   const [loadingCancel, setLoadingCancel] = useState(false);
 
+  if (!isOpen || !event) return null;
   // Kiểm tra xem người dùng có quyền quản lý sự kiện không
   const canManageEvent =
     event.isUserEvent || event.createdBy === "current-user-id";
-
-  if (!isOpen || !event) return null;
 
   // Xác định trạng thái đăng ký từ props
   const isRegistered = Boolean(event.myRegistrationId);
@@ -111,7 +110,7 @@ export function EventModal({
 
   const eventUrl = `${window.location.origin}/event-join/${event.id}`;
   const mapsQuery = encodeURIComponent(
-    event.fullAddress ?? `${event.location}, ${event.city}`
+    event.fullAddress ?? `${event.location}, ${event.city}`,
   );
   const mapsEmbed = `https://maps.google.com/maps?q=${mapsQuery}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
   const mapsLink = `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`;

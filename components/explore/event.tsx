@@ -65,7 +65,6 @@ const EventList: React.FC = () => {
               updatedBy: "", // Add missing property
               attendees: [], // Add missing property (empty array or actual data)
               requiresApproval: false, // Optional, adjust according to your logic
-
             };
           });
 
