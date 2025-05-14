@@ -65,7 +65,7 @@ function CustomPagination({
           <PaginationNext
             onClick={() => onPageChange(currentPage + 1)}
             className={cn(
-              currentPage >= totalPages && "pointer-events-none opacity-50"
+              currentPage >= totalPages && "pointer-events-none opacity-50",
             )}
           />
         </PaginationItem>
@@ -89,7 +89,7 @@ export default function EventList({
   const [registeredIds, setRegisteredIds] = useState<Set<string>>(new Set());
   // Bản đồ eventId -> registrationId để dùng hủy đăng ký
   const [registrationMap, setRegistrationMap] = useState<Map<string, string>>(
-    new Map()
+    new Map(),
   );
   // IDs của sự kiện bạn có quyền quản lý
   const [managedIds, setManagedIds] = useState<Set<string>>(new Set());
@@ -123,6 +123,7 @@ export default function EventList({
             calendarId: calendarId,
             requiresApproval: e.requiresApproval ?? false,
             isOnline: e.isOnline ?? false,
+            isUserEvent: false,
           } as EventWithUI;
         });
         setEvents(uiEvents);
@@ -165,7 +166,7 @@ export default function EventList({
             } catch {
               // không phải manager --> bỏ qua
             }
-          })
+          }),
         );
         setManagedIds(mSet);
       } catch (err) {
@@ -204,7 +205,7 @@ export default function EventList({
       acc[label].push(ev);
       return acc;
     },
-    {}
+    {},
   );
 
   if (loading) return <div>Đang tải sự kiện…</div>;
