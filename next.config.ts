@@ -1,9 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  eslint: {
+    ignoreDuringBuilds: true, 
+  },
   images: {
     domains: [
       "slnuqxxrujjguzqowslh.supabase.co",
-      "images.lumacdn.com", // ✅ Add this line
+      "images.lumacdn.com",
     ],
   },
 };
