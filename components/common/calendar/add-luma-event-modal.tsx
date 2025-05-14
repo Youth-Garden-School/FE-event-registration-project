@@ -5,12 +5,13 @@ import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { addEventsToCalendar } from "@/lib/api-calendar";
+import { useToast } from "@/components/ui/use-toast";
 
 interface AddLumaEventModalProps {
   isOpen: boolean;
   calendarId: string;
   onClose: () => void;
-  onEventAdded?: () => void;  // callback để parent reload
+  onEventAdded?: () => void; // callback để parent reload
 }
 
 export function AddLumaEventModal({
@@ -22,6 +23,7 @@ export function AddLumaEventModal({
   const [eventUrl, setEventUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   if (!isOpen) return null;
 
@@ -49,7 +51,10 @@ export function AddLumaEventModal({
       // 3) Gọi API thêm vào calendar
       const { message } = await addEventsToCalendar(calendarId, [eventId]);
       // 4) Thông báo thành công
-      alert(message);
+      toast({
+        title: "Thành công",
+        description: message,
+      });
       // 5) Cho parent reload lại danh sách events
       onEventAdded?.();
       // 6) Reset form + đóng modal
@@ -57,7 +62,11 @@ export function AddLumaEventModal({
       onClose();
     } catch (err: any) {
       console.error(err);
-      setError(err.message || "Thêm sự kiện thất bại");
+      toast({
+        variant: "destructive",
+        title: "Lỗi",
+        description: err.message || "Thêm sự kiện thất bại",
+      });
     } finally {
       setLoading(false);
     }
@@ -67,20 +76,19 @@ export function AddLumaEventModal({
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-lg w-full max-w-md mx-4 overflow-hidden">
         <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="text-lg font-medium">Thêm sự kiện Luma</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+          <h2 className="text-lg font-medium">Thêm sự kiện Resgista</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700"
+          >
             <X className="h-5 w-5" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-4 space-y-4">
-          {error && (
-            <p className="text-red-500 text-sm">
-              {error}
-            </p>
-          )}
+          {error && <p className="text-red-500 text-sm">{error}</p>}
           <Input
-            placeholder="Nhập đường dẫn sự kiện Luma"
+            placeholder="Nhập đường dẫn sự kiện Resgista"
             value={eventUrl}
             onChange={(e) => setEventUrl(e.target.value)}
             required

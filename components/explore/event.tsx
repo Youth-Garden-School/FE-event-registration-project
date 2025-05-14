@@ -39,8 +39,7 @@ const EventList: React.FC = () => {
         const data = await apiRequest<any>("get", "/events");
         const eventsArray = Array.isArray(data) ? data : data.events || [];
         const validatedEvents = eventSchema.array().parse(eventsArray);
-
-        const enhancedEvents: EventWithUI[] = validatedEvents
+        const enhancedEvents: any[] = validatedEvents
           .slice(0, 12)
           .map((item) => {
             const date = new Date(item.startTime);

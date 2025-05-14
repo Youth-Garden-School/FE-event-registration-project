@@ -1,3 +1,5 @@
+"use client";
+
 // components/event-list.tsx
 import type { EventWithUI } from "@/style/events-stype";
 import EventCard from "./event-card";

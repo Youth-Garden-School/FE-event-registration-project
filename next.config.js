@@ -34,7 +34,7 @@ module.exports = {
       },
       {
         protocol: "https",
-        hostname: "lu.ma",
+        hostname: "images.lumacdn.com",
         port: "",
         pathname: "/**",
       },

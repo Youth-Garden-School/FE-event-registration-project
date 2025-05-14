@@ -1,164 +1,208 @@
-"use client"
+"use client";
 
-import type React from "react"
-
-import { MapPin, Users, ArrowRight, Calendar, Trash2, Video } from "lucide-react"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { AvatarGroup } from "@/components/ui/avatar-group"
-import { Badge } from "@/components/ui/badge"
-import type { EventWithUI } from "@/style/events-stype"
-import Image from "next/image"
-import { formatTime } from "@/lib/utils"
-import { useState } from "react"
-import { EventModal } from "./event-modal"
+import type React from "react";
+import { useState, useEffect } from "react";
+import { Badge } from "@/components/ui/badge";
+import type { EventWithUI } from "@/style/events-stype";
+import {
+  Calendar,
+  MapPin,
+  Users,
+  ArrowRight,
+  Video,
+  Trash2,
+} from "lucide-react";
+import Image from "next/image";
+import { formatTime } from "@/lib/utils";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { AvatarGroup } from "@/components/ui/avatar-group";
+import { EventModal } from "./event-modal";
+import { useRouter, usePathname } from "next/navigation";
 
 interface EventCardProps {
-  event: EventWithUI
-  onClick?: () => void
+  event: EventWithUI;
+  onClick?: () => void;
+  isRegistered: boolean;
+  isManaged?: boolean;
+  onRegisterChange?: (eventId: string, registered: boolean) => void;
+  registrationId?: string;
+  onDeleteEvent?: (eventId: string) => void;
 }
 
-export default function EventCard({ event, onClick }: EventCardProps) {
-  const [isModalOpen, setIsModalOpen] = useState(false)
+export default function EventCard({
+  event,
+  onClick,
+  isRegistered = false,
+  isManaged = false,
+  onRegisterChange,
+  registrationId,
+  onDeleteEvent,
+}: EventCardProps) {
+  const [localRegistered, setLocalRegistered] = useState(isRegistered);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname();
 
-  // Đảm bảo attendees luôn là một mảng
-  const attendees = event.attendees || []
+  // Kiểm tra xem có đang ở trang setting-event hay không
+  const isSettingPage = pathname?.includes("/setting-event/");
 
-  const handleClick = () => {
-    // Nếu không có onClick callback (tức là không phải ở trang setting-event), mở modal
-    if (!onClick) {
-      setIsModalOpen(true)
-    } else {
-      // Nếu ở trang setting-event, vẫn mở modal khi click vào card
-      setIsModalOpen(true)
+  useEffect(() => {
+    setLocalRegistered(isRegistered);
+  }, [isRegistered]);
+
+  const handleRegisterChange = (registered: boolean) => {
+    setLocalRegistered(registered);
+    if (onRegisterChange) {
+      onRegisterChange(event.id, registered);
     }
-  }
+  };
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false)
-  }
+  const handleCardClick = () => {
+    if (onClick) {
+      onClick();
+    } else {
+      setIsModalOpen(true);
+    }
+  };
+
+  const handleManageClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    router.push(`/events/${event.id}/manage`);
+  };
 
   const handleDeleteClick = (e: React.MouseEvent) => {
-    e.stopPropagation() // Ngăn sự kiện click lan ra card
-    if (onClick) {
-      onClick() // Gọi callback xóa sự kiện
+    e.stopPropagation();
+    if (onDeleteEvent) {
+      onDeleteEvent(event.id);
     }
-  }
+  };
+
+  const attendees = event.attendees || [];
 
   return (
     <>
       <div
-        className="rounded-xl overflow-hidden border transition-all duration-300 cursor-pointer bg-white border-gray-200 hover:border-gray-400"
-        onClick={handleClick}
-        style={{ borderLeft: event.eventColor ? `4px solid ${event.eventColor}` : undefined }}
+        className="rounded-xl border cursor-pointer bg-white hover:border-gray-400 transition-colors relative"
+        onClick={handleCardClick}
+        style={{
+          borderLeft: event.eventColor
+            ? `4px solid ${event.eventColor}`
+            : undefined,
+        }}
       >
-        <div className="flex">
-          {/* Phần nội dung bên trái */}
-          <div className="p-6 flex-1">
-            {/* Hiển thị thời gian và tiêu đề */}
-            <div className="flex items-center gap-2 text-gray-600 text-lg font-medium mb-1">
+        <div className="flex p-6">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 text-gray-600 mb-1">
               <Calendar className="w-4 h-4" />
-              <span className="whitespace-nowrap">
-                {event.displayTime || (event.startTime ? formatTime(new Date(event.startTime)) : "")}
+              <span>
+                {event.displayTime || formatTime(new Date(event.startTime))}
+              </span>
+            </div>
+            <h3 className="text-xl font-bold mb-2">{event.title}</h3>
+
+            {/* Location */}
+            {event.location ? (
+              <div className="flex items-center text-gray-500 mb-2">
+                <MapPin className="w-4 h-4 mr-1" />
+                <span className="text-sm">{event.location}</span>
+              </div>
+            ) : event.isOnline ? (
+              <div className="flex items-center text-blue-500 mb-2">
+                <Video className="w-4 h-4 mr-1" />
+                <span className="text-sm">Sự kiện trực tuyến</span>
+              </div>
+            ) : null}
+
+            {/* Attendees count */}
+            <div className="flex items-center text-gray-500 mb-3">
+              <Users className="w-4 h-4 mr-1" />
+              <span className="text-sm">
+                {attendees.length
+                  ? `${attendees.length} người tham dự`
+                  : "Không có người tham dự"}
               </span>
             </div>
 
-            <div className="flex items-center gap-2 mb-2">
-              <h3 className="text-gray-900 text-xl font-bold">{event.title}</h3>
-            </div>
-
-            {/* Thông tin địa điểm và người tham dự */}
-            <div className="space-y-2">
-              {event.location ? (
-                <div className="flex items-center text-gray-500">
-                  <MapPin className="w-4 h-4 mr-2" />
-                  <span className="text-sm">{event.location}</span>
-                </div>
-              ) : event.isOnline ? (
-                <div className="flex items-center text-gray-500">
-                  <Video className="w-4 h-4 mr-2 text-blue-500" />
-                  <span className="text-sm text-blue-500">Sự kiện trực tuyến</span>
-                </div>
-              ) : null}
-
-              {/* Hiển thị số người tham dự */}
-              <div className="flex items-center text-gray-500">
-                <Users className="w-4 h-4 mr-2" />
-                <span className="text-sm">
-                  {attendees.length > 0 ? `${attendees.length} người tham dự` : "Không có người tham dự"}
-                </span>
-              </div>
-            </div>
-
-            {/* Phần quản lý và hiển thị người tham dự */}
-            <div className="mt-3 flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                {event.isUserEvent ? (
-                  <div className="flex items-center gap-2">
-                    <button className="px-4 py-2 rounded-md bg-gray-50 hover:bg-gray-100 text-gray-900 text-sm transition-colors flex items-center">
-                      <span>Quản lý sự kiện</span>
-                      <ArrowRight className="w-4 h-4 ml-2" />
-                    </button>
-                    {/* Thêm nút xóa sự kiện nếu là trang setting-event */}
-                    {onClick && (
-                      <button
-                        onClick={handleDeleteClick}
-                        className="p-2 rounded-md hover:bg-red-50 text-red-500 hover:text-red-700"
-                        aria-label="Xóa sự kiện"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    )}
-                  </div>
+            {/* Badge/Manage button and Small avatars on the same line */}
+            <div className="flex items-center ">
+              <div>
+                {isManaged ? (
+                  <button
+                    className="px-4 py-2 bg-gray-50 hover:bg-gray-100 rounded flex items-center text-sm"
+                    onClick={handleManageClick}
+                  >
+                    <span>Quản lý sự kiện</span>
+                    <ArrowRight className="w-4 h-4 ml-1" />
+                  </button>
                 ) : (
-                  <Badge variant="secondary" className="bg-gray-100 text-gray-800">
-                    {event.requiresApproval ? "Chờ duyệt" : "Đã đăng ký"}
+                  <Badge
+                    variant="secondary"
+                    className="bg-gray-100 text-gray-800"
+                  >
+                    {localRegistered ? "Đã đăng ký" : "Chưa đăng ký"}
                   </Badge>
                 )}
-
-                {/* Hiển thị avatar người tham dự */}
-                {attendees.length > 0 && (
-                  <div className="flex items-center gap-2">
-                    <AvatarGroup>
-                      {attendees
-                        .filter((a) => a?.status === "CONFIRMED" || !a.status)
-                        .slice(0, 3)
-                        .map((attendee, index) => (
-                          <Avatar key={attendee?.id || index} className="w-5 h-5">
-                            <AvatarFallback className="text-xs">
-                              {attendee?.email?.charAt(0).toUpperCase() ||
-                                attendee?.name?.charAt(0).toUpperCase() ||
-                                "?"}
-                            </AvatarFallback>
-                          </Avatar>
-                        ))}
-                    </AvatarGroup>
-                    {attendees.length > 3 && <span className="text-sm text-gray-500">+{attendees.length - 3}</span>}
-                  </div>
-                )}
               </div>
+
+              {/* Small avatars */}
+              {attendees.length > 0 && (
+                <div className="flex items-center">
+                  <AvatarGroup>
+                    {attendees.slice(0, 3).map((a, i) => (
+                      <Avatar key={i} className="w-5 h-5">
+                        <AvatarFallback className="text-xs">
+                          {typeof a === "object" && a?.email
+                            ? a.email[0]?.toUpperCase()
+                            : "?"}
+                        </AvatarFallback>
+                      </Avatar>
+                    ))}
+                  </AvatarGroup>
+                  {attendees.length > 3 && (
+                    <span className="text-sm ml-2">
+                      +{attendees.length - 3}
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Phần hình ảnh bên phải */}
-          <div className="p-4">
-            <div className="w-32 h-32 relative rounded-lg overflow-hidden">
-              <Image
-                src={event.coverImage || "/placeholder.svg?height=128&width=128"}
-                alt={event.title}
-                width={128}
-                height={128}
-                className="object-cover w-full h-full"
-              />
-            </div>
+          {/* Cover image */}
+          <div className="w-32 h-32 rounded overflow-hidden">
+            <Image
+              src={event.coverImage || "/placeholder.svg?height=128&width=128"}
+              alt={event.title}
+              width={128}
+              height={128}
+              className="object-cover w-full h-full"
+            />
           </div>
         </div>
+
+        {/* Delete button - only visible on setting page */}
+        {isSettingPage && onDeleteEvent && (
+          <button
+            className="absolute top-4 right-4 p-2 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-600 hover:text-red-600 transition-colors"
+            onClick={handleDeleteClick}
+            aria-label="Xóa sự kiện"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        )}
       </div>
 
-      {/* Event Modal */}
-      <EventModal isOpen={isModalOpen} onClose={handleCloseModal} event={event} />
+      <EventModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        event={event}
+        registrationId={registrationId}
+        isRegistered={localRegistered}
+        isManaged={isManaged}
+        onRegisterChange={handleRegisterChange}
+      />
     </>
-  )
+  );
 }
 
-// Hỗ trợ cả named export
-export { EventCard }
+export { EventCard };

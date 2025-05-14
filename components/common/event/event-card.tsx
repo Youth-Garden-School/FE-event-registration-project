@@ -1,11 +1,15 @@
+"use client";
+
 // Import các thư viện và components cần thiết / Import necessary libraries and components
 import { MapPin, Users, ArrowRight, Calendar } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { AvatarGroup } from "@/components/ui/avatar-group";
 import { Badge } from "@/components/ui/badge";
-import type { EventWithUI } from "@/style/events-stype";
 import Image from "next/image";
 import { formatTime } from "@/lib/utils";
+
+type EventWithUI = any;
+type EventAttendee = any;
 
 // Định nghĩa interface cho props của component
 // Define interface for component props
@@ -49,7 +53,7 @@ export default function EventCard({ event, onClick }: EventCardProps) {
             )}
 
             {/* Hiển thị số người tham dự / Display attendee count */}
-            <div className="flex items-center text-gray-500 ">
+            <div className="flex items-center text-gray-500">
               <Users className="w-4 h-4 mr-2" />
               <span className="text-sm">
                 {attendees.length > 0
@@ -72,7 +76,7 @@ export default function EventCard({ event, onClick }: EventCardProps) {
                   variant="secondary"
                   className="bg-gray-100 text-gray-800 "
                 >
-                  {event.requiresApproval ? "Chờ duyệt" : "Đã đăng ký"}
+                  Đã đăng ký
                 </Badge>
               )}
 
@@ -80,19 +84,18 @@ export default function EventCard({ event, onClick }: EventCardProps) {
               {attendees.length > 0 && (
                 <div className="flex items-center gap-2">
                   <AvatarGroup>
-                    {attendees
-                      .filter((a) => a?.status === "CONFIRMED")
-                      .slice(0, 3)
-                      .map((attendee) => (
-                        <Avatar key={attendee?.id} className="w-5 h-5">
-                          <AvatarFallback className="text-xs">
-                            {attendee?.email?.charAt(0).toUpperCase() || "?"}
-                          </AvatarFallback>
-                        </Avatar>
-                      ))}
+                    {attendees.slice(0, 3).map((attendee: EventAttendee) => (
+                      <Avatar key={attendee?.id} className="w-5 h-5">
+                        <AvatarFallback className="text-xs bg-gray-300">
+                          {attendee?.user?.email?.charAt(0).toUpperCase() ||
+                            attendee?.email?.charAt(0).toUpperCase() ||
+                            "?"}
+                        </AvatarFallback>
+                      </Avatar>
+                    ))}
                   </AvatarGroup>
                   {attendees.length > 3 && (
-                    <span className="text-sm text-gray-500 ">
+                    <span className="text-sm text-gray-500">
                       +{attendees.length - 3}
                     </span>
                   )}
@@ -106,13 +109,12 @@ export default function EventCard({ event, onClick }: EventCardProps) {
         <div className="p-4">
           <div className="w-32 h-32 relative rounded-lg overflow-hidden">
             <Image
-              src={event.coverImage || "/public/calendar/unnamed.png"}
+              src={event.coverImage || "/placeholder.svg?height=128&width=128"}
               alt={event.title}
               fill
               className="object-cover"
               sizes="128px"
               priority
-              
             />
           </div>
         </div>
