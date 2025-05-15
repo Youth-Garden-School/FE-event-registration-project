@@ -112,7 +112,14 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="container max-w-3xl mx-auto py-8 px-4">Đang tải...</div>
+      <div className="  flex items-center justify-center">
+        <div className="bg-white p-8 rounded-xl shadow-lg text-center">
+          <div className="w-16 h-16 border-4 border-t-gray-600 border-b-gray-600 border-l-gray-200 border-r-gray-200 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600 font-medium">
+            Đang tải cài đặt sự kiện ...
+          </p>
+        </div>
+      </div>
     );
   }
 
