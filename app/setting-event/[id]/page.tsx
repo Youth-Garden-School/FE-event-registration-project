@@ -28,8 +28,15 @@ import {
   type Calendar,
   type CalendarEvent,
 } from "@/lib/api-calendar";
-import type { EventWithUI } from "@/style/events-stype";
+import type { EventWithUI as OriginalEventWithUI } from "@/style/events-stype";
 import { supabase } from "@/lib/supabase";
+
+// Extend EventWithUI to ensure coverImage and eventColor are available if not already defined
+// It's better if these are part of the original EventWithUI in events-stype.ts
+type EventWithUI = OriginalEventWithUI & {
+  coverImage?: string;
+  eventColor?: string;
+};
 
 export default function SettingEventPage() {
   const { id: calendarId } = useParams() as { id: string };
@@ -87,7 +94,7 @@ export default function SettingEventPage() {
       endTime: e.endTime,
       location: e.location || "",
       isOnline: false,
-      calendarId: e.id,
+      calendarId: calendarId,
       dateLabel,
       dayLabel: format(dt, "EEEE", { locale: vi }),
       displayTime: format(dt, "HH:mm", { locale: vi }),
@@ -95,6 +102,8 @@ export default function SettingEventPage() {
       isRegistered: false,
       attendees: e.attendees ?? [],
       requiresApproval: e.requiresApproval ?? false,
+      coverImage: (e as any).imageUrlFromApi || (e as any).coverImage,
+      eventColor: (e as any).colorFromApi || (e as any).color,
     };
   };
 
@@ -484,7 +493,11 @@ export default function SettingEventPage() {
                     <div className="mt-2 relative w-full h-[120px] overflow-hidden rounded-lg border border-dashed border-gray-300 bg-gray-50 flex items-center justify-center">
                       <div className="absolute inset-0">
                         <img
-                          src={editCover || "/placeholder.svg?height=600&width=1200"}
+                          src={
+                            editCover ||
+                            "/placeholder.svg?height=600&width=1200" ||
+                            "/placeholder.svg"
+                          }
                           alt="Cover preview"
                           className="w-full h-full object-cover"
                         />
