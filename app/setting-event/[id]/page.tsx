@@ -492,12 +492,8 @@ export default function SettingEventPage() {
                     />
                     <div className="mt-2 relative w-full h-[120px] overflow-hidden rounded-lg border border-dashed border-gray-300 bg-gray-50 flex items-center justify-center">
                       <div className="absolute inset-0">
-                        <img
-                          src={
-                            editCover ||
-                            "/placeholder.svg?height=600&width=1200" ||
-                            "/placeholder.svg"
-                          }
+                      <img
+                          src={editCover || "/placeholder.svg?height=600&width=1200"}
                           alt="Cover preview"
                           className="w-full h-full object-cover"
                         />
