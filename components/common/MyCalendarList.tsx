@@ -56,7 +56,7 @@ const LendarList = ({ calendar }: { calendar: Calendar }) => {
   const router = useRouter();
 
   const handleClick = () => {
-    router.push(`/add-event?id=${calendar.id}`); // ✅ Điều hướng đến add-event với ID
+    router.push(`/setting-event/${calendar.id}`); // ✅ Điều hướng đến add-event với ID
   };
 
   return (
